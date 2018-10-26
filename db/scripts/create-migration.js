@@ -66,9 +66,7 @@ async function main() {
   fs.writeFileSync(
     boilerplateMigrationPath,
     `/* This is boilerplate, you want the parent directory for the actual migrations */
-import {up as dbUp, down as dbDown} from '../../scripts/migrate';
-export const up = dbUp(${JSON.stringify(`${datestamp}-${name}`)});
-export const down = dbDown(${JSON.stringify(`${datestamp}-${name}`)});\n`
+module.exports = require('../../scripts/migrate')(${JSON.stringify(`${datestamp}-${name}`)});\n`
   );
 
   fs.writeFileSync(`${prefix}-up.sql`, upContent);

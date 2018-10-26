@@ -2829,11 +2829,6 @@ db-migrate-pg@^0.4.0:
     pg "^7.4.1"
     semver "^5.0.3"
 
-db-migrate-plugin-babel@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/db-migrate-plugin-babel/-/db-migrate-plugin-babel-2.0.0.tgz#fe1d56e3960c2c951ff00eee3d8e11933ab6effc"
-  integrity sha512-MYk4kYJwjUy1AgxQ/s1B+nh0Cppd6awm9weo+LUHGcGWM1Z82pbdMcYBSXndxDEERfAgFmzLsUVcBh/uKTtDJg==
-
 db-migrate-shared@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/db-migrate-shared/-/db-migrate-shared-1.2.0.tgz#6125be1b3a5e661229fc75d50c85f6c3ffadbede"

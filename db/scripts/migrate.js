@@ -4,8 +4,8 @@
  *
  * https://db-migrate.readthedocs.io/en/latest/Getting%20Started/usage/#using-files-for-sqls
  */
-import { readFile as readFileCallback } from 'fs';
-import { promisify } from 'util';
+const { readFile: readFileCallback } = require('fs');
+const { promisify } = require('util');
 
 const readFile = promisify(readFileCallback);
 
@@ -40,5 +40,9 @@ const migrate = up => baseMigrationName => {
   };
 };
 
-export const up = migrate(true);
-export const down = migrate(false);
+module.exports = base => {
+  return {
+    up: migrate(true)(base),
+    down: migrate(false)(base),
+  };
+};
