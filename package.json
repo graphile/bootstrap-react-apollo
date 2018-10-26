@@ -1,0 +1,31 @@
+{
+  "name": "boilerplate-react-apollo",
+  "version": "1.0.0",
+  "description": "A PostGraphile boilerplate using React and Apollo on the client side.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/graphile/boilerplate-react-apollo.git"
+  },
+  "keywords": [
+    "postgraphile",
+    "graphile",
+    "boilerplate",
+    "react",
+    "apollo",
+    "ssr",
+    "graphql",
+    "postgresql",
+    "pg",
+    "postgres"
+  ],
+  "author": "Benjie Gillam <code@benjiegillam.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/graphile/boilerplate-react-apollo/issues"
+  },
+  "homepage": "https://github.com/graphile/boilerplate-react-apollo#readme"
+}
