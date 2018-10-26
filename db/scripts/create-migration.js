@@ -16,7 +16,7 @@ const root = dirname(__dirname);
     output: process.stdout
   });
 
-const ask = msg => new Promise(resolve => rl.question(msg + '\n', resolve));
+const ask = msg => new Promise(resolve => rl.question(msg + '\n', answer => {console.log(); resolve(answer);}));
 
 async function main() {
 
@@ -61,15 +61,14 @@ async function main() {
 
   /* Create migration files */
   const prefix = `${root}/migrations/${datestamp}-${name}`;
-  const boilerplateMigrationPath = `${root}/migrations/.db-migrate/${compressedDatestamp}-${name}.js`;
+  const boilerplateMigrationPath = `${root}/migrations/.db-migrate/${compressedDatestamp}-${name.replace(/\./g, '__')}.js`;
 
   fs.writeFileSync(
     boilerplateMigrationPath,
     `/* This is boilerplate, you want the parent directory for the actual migrations */
-  import {up as dbUp, down as dbDown} from '../../scripts/migrate';
-  export const up = dbUp(${JSON.stringify(`${datestamp}-${name}`)});
-  export const down = dbUp(${JSON.stringify(`${datestamp}-${name}`)});
-  `
+import {up as dbUp, down as dbDown} from '../../scripts/migrate';
+export const up = dbUp(${JSON.stringify(`${datestamp}-${name}`)});
+export const down = dbDown(${JSON.stringify(`${datestamp}-${name}`)});\n`
   );
 
   fs.writeFileSync(`${prefix}-up.sql`, upContent);
