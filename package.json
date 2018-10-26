@@ -4,6 +4,7 @@
   "description": "A PostGraphile boilerplate using React and Apollo on the client side.",
   "main": "index.js",
   "scripts": {
+    "db:migrate:create": "node db/scripts/create-migration.js",
     "db:migrate:dev": ". ./scripts/source-env && npm run db:migrate:_internal && ./scripts/dump-schema",
     "db:migrate:_internal": "cd db/migrations && db-migrate up",
     "setup": "scripts/setup",
