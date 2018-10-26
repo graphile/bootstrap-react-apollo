@@ -51,3 +51,26 @@ We use the following tools to make our life easier
 - Express.js to implement our server
 - db-migrate for performing migrations
 
+## Getting Started
+
+```
+# Install dependencies:
+yarn
+
+# Create and configure database
+yarn setup
+```
+
+{TODO}
+
+## Environmental Variables
+
+This package is configured through environmental variables.
+
+## Conventions
+
+{TODO}
+
+## Deploying
+
+{TODO}

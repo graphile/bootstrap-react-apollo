@@ -4,6 +4,7 @@
   "description": "A PostGraphile boilerplate using React and Apollo on the client side.",
   "main": "index.js",
   "scripts": {
+    "setup": "scripts/setup",
     "test": "jest"
   },
   "repository": {
