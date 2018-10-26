@@ -35,8 +35,5 @@
       "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
     },
     "moduleFileExtensions": ["web.js", "js", "json", "web.jsx", "jsx", "node"]
-  },
-  "babel": {
-    "presets": ["react-app"]
   }
 }

@@ -16,6 +16,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: app_public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA app_public;
+
+
+--
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
 --
 
