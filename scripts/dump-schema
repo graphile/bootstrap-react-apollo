@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Output SQL from DB
+
+# Where am I?
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR/..
+
+# We don't want postgraphile_watch in our schema dump, and `--exclude-schema`
+# doesn't like event triggers, so drop it, do the dump, and restore it. Only
+# run this on development!
+echo "DROP SCHEMA postgraphile_watch CASCADE;" | psql -X "$DATABASE_URL"
+pg_dump -s -O -f db/schema.sql "$DATABASE_URL"
+cat node_modules/graphile-build-pg/res/watch-fixtures.sql | psql -X "$DATABASE_URL"

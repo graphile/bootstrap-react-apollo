@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# This file sources the `.env` file if it exists (it should only exist
+# locally!) and checks for required envvars before continuing.
+
+if [ -x ../.env ]; then
+  . ../.env
+fi
+
+if [ "$DATABASE_URL" = "" ]; then
+  cat >&2 <<ERROR
+
+⚠️ ⚠️ ⚠️
+ERROR! Missing environmental variable 'DATABASE_URL'!
+
+Please see the README section regarding envvars.
+⚠️ ⚠️ ⚠️
+
+ERROR
+  exit 1
+fi
