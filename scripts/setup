@@ -2,8 +2,13 @@
 set -e
 export NODE_ENV=development
 
-if [ -x ../.env ]; then
-  . ../.env
+if [ ! -f package.json ]; then
+  echo "Please run via 'yarn setup'; do not call this script directly" >&2
+  exit 1
+fi
+
+if [ -x .env ]; then
+  . .env
 
   fail () {
     echo ".env already exists, but it doesn't define $1 - aborting!"
@@ -36,7 +41,7 @@ else
   DATABASE_AUTH_USER_PASSWORD="$(openssl rand -base64 30 | tr '+/' '-_')"
 
   # This is our '.env' config file, we're writing it now so that if something goes wrong we won't lose the passwords.
-  cat >> ../.env <<CONFIG
+  cat >> .env <<CONFIG
 # This is a development environment (production wouldn't write envvars to a file)
 export NODE_ENV="development"
 
@@ -93,9 +98,9 @@ CONFIG
   echo "Passwords generated and configuration written to .env"
 
   # To source our .env file from the shell it has to be executable.
-  chmod +x ../.env
+  chmod +x .env
 
-  . ../.env
+  . .env
 fi
 
 cat <<MSG
