@@ -3,8 +3,8 @@
 # This file sources the `.env` file if it exists (it should only exist
 # locally!) and checks for required envvars before continuing.
 
-if [ -x ../.env ]; then
-  . ../.env
+if [ -x .env ]; then
+  . .env
 fi
 
 if [ "$DATABASE_URL" = "" ]; then

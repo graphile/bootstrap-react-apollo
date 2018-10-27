@@ -9,7 +9,8 @@
     "db:rollback:dev": ". ./scripts/source-env && npm run db:migrate:_cmd down && ./scripts/dump-schema",
     "db:migrate:_cmd": "db-migrate --migrations-dir db/migrations/.db-migrate",
     "setup": "scripts/setup",
-    "start": ". ./scripts/source-env && nodemon server",
+    "server:dev": "cd server && nodemon",
+    "start": ". ./scripts/source-env && npm run server:dev",
     "test": "jest"
   },
   "repository": {
