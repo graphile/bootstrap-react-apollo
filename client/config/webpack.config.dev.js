@@ -166,6 +166,7 @@ module.exports = {
 
       // First, run the linter.
       // It's important to do this before Babel processes the JS.
+      /* Disable the lint loader because it's annoying
       {
         test: /\.(js|mjs|jsx)$/,
         enforce: "pre",
@@ -180,6 +181,8 @@ module.exports = {
         ],
         include: paths.appSrc,
       },
+      */
+
       {
         // "oneOf" will traverse all following loaders until one will
         // match the requirements. When no loader matches it will fall
