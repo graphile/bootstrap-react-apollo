@@ -79,8 +79,8 @@ function postgraphileOptions() {
     // Enable GraphiQL in development
     graphiql: isDev,
 
-    // Disable query logging in production
-    disableQueryLog: !isDev,
+    // Disable query logging - we're using morgan
+    disableQueryLog: true,
 
     // See https://www.graphile.org/postgraphile/debugging/
     extendedErrors:
