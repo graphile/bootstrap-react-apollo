@@ -129,6 +129,13 @@ ALTER TABLE ONLY public.migrations
 
 
 --
+-- Name: SCHEMA app_public; Type: ACL; Schema: -; Owner: -
+--
+
+GRANT USAGE ON SCHEMA app_public TO boilerplatecheck_visitor;
+
+
+--
 -- PostgreSQL database dump complete
 --
 

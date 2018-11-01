@@ -4,15 +4,41 @@
  *
  * https://db-migrate.readthedocs.io/en/latest/Getting%20Started/usage/#using-files-for-sqls
  */
-const { readFile: readFileCallback } = require('fs');
-const { promisify } = require('util');
+/* eslint-disable no-console */
+const { readFile: readFileCallback } = require("fs");
+const { promisify } = require("util");
 
 const readFile = promisify(readFileCallback);
 
+function replacePlaceholders(str) {
+  return str
+    .replace(/\{\{DATABASE_VISITOR\}\}/g, process.env.DATABASE_VISITOR)
+    .replace(
+      /\{\{DATABASE_AUTHENTICATOR\}\}/g,
+      process.env.DATABASE_AUTHENTICATOR
+    )
+    .replace(/\{\{DATABASE_OWNER\}\}/g, process.env.DATABASE_OWNER)
+    .replace(/\{\{DATABASE_NAME\}\}/g, process.env.DATABASE_NAME);
+}
+
+if (
+  !process.env.DATABASE_VISITOR ||
+  !process.env.DATABASE_AUTHENTICATOR ||
+  !process.env.DATABASE_OWNER ||
+  !process.env.DATABASE_NAME
+) {
+  throw new Error(
+    "Required environmental variables are missing. Did you forget to `source .env`?"
+  );
+}
+
 const migrate = up => baseMigrationName => {
-  const filename = `${__dirname}/../migrations/${baseMigrationName}-${up ? 'up' : 'down'}.sql`;
+  const filename = `${__dirname}/../migrations/${baseMigrationName}-${
+    up ? "up" : "down"
+  }.sql`;
   return async db => {
-    const sql = await readFile(filename, "utf8");
+    const rawSql = await readFile(filename, "utf8");
+    const sql = replacePlaceholders(rawSql);
 
     try {
       await db.runSql(sql);
@@ -40,9 +66,7 @@ const migrate = up => baseMigrationName => {
   };
 };
 
-module.exports = base => {
-  return {
-    up: migrate(true)(base),
-    down: migrate(false)(base),
-  };
-};
+module.exports = base => ({
+  up: migrate(true)(base),
+  down: migrate(false)(base),
+});
