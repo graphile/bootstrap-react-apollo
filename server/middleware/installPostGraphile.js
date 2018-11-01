@@ -17,7 +17,7 @@ try {
 } catch (e) {
   console.log();
   console.log(
-    `Supporter plugin not found. Please support PostGraphile development:\n\n  ${chalk.blue.bold.underline(
+    `Please support PostGraphile development:\n\n  ${chalk.blue.bold.underline(
       `https://graphile.org/donate`
     )} 🙏`
   );
