@@ -49,6 +49,15 @@ async function main() {
       )
     );
     console.log();
+    console.log(
+      `  Site:     ${chalk.bold.underline(`http://localhost:${actualPort}`)}`
+    );
+    console.log(
+      `  GraphiQL: ${chalk.bold.underline(
+        `http://localhost:${actualPort}/graphiql`
+      )}`
+    );
+    console.log();
   });
 }
 
