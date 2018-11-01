@@ -11,24 +11,30 @@ const { dirname, relative } = require("path");
 
 const root = dirname(__dirname);
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-const ask = (msg, multiline = false) => {
-  const allData = [];
-  let lastResponse;
-  do {
-    lastResponse = new Promise(resolve =>
-      rl.question(`${msg}\n`, answer => {
-        resolve(answer);
-      })
-    );
-    allData.push(lastResponse);
-  } while (multiline && lastResponse);
+const ask = async (msg, multilinePrompt = null) => {
+  console.log(msg);
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: multilinePrompt || "> ",
+  });
+  rl.prompt();
+  const response = await new Promise(resolve => {
+    const allData = [];
+    rl.on("line", line => {
+      if (line) {
+        allData.push(line);
+      }
+      if (!line || !multilinePrompt) {
+        resolve(allData.join("\n") + (multilinePrompt ? "\n" : ""));
+      } else {
+        rl.prompt();
+      }
+    });
+  });
+  rl.close();
   console.log();
-  return allData.join("\n") + (multiline ? "\n" : "");
+  return response;
 };
 
 async function main() {
@@ -71,10 +77,13 @@ async function main() {
   /* Leg up on migration creation */
   const upContent = await ask(
     "Up migration content? (Add a blank line to exit this)",
-    true
+    "up> "
   );
   const downContent = upContent
-    ? await ask("Down migration content? (Add a blank line to exit this)", true)
+    ? await ask(
+        "Down migration content? (Add a blank line to exit this)",
+        "down> "
+      )
     : "";
 
   /* Create migration files */
@@ -88,7 +97,7 @@ async function main() {
     boilerplateMigrationPath,
     `/* This is boilerplate, you want the parent directory for the actual migrations */
 module.exports = require('../../scripts/migrate')(${JSON.stringify(
-      `${datestamp}-${name}`
+      `${datestamp}.${name}`
     )});\n`
   );
 
@@ -120,6 +129,4 @@ main()
     console.error(e);
     process.exit(5);
   })
-  .finally(() => {
-    rl.close();
-  });
+  .finally(() => {});
