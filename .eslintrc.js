@@ -47,6 +47,7 @@ module.exports = {
     "react/require-default-props": 0,
     "react/prefer-stateless-function": 0,
     "react/no-unescaped-entities": 1,
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "jsx-a11y/mouse-events-have-key-events": 0,
     "jsx-a11y/anchor-is-valid": [
       "error",
