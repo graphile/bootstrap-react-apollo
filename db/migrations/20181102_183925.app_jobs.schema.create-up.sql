@@ -67,7 +67,7 @@ BEGIN
 
   RETURN OLD;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path FROM CURRENT;
 
 CREATE FUNCTION app_jobs.jobs__increase_job_queue_count() RETURNS trigger AS $$
 BEGIN
@@ -77,7 +77,7 @@ BEGIN
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path FROM CURRENT;
 
 CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.update_timestamps();
 
@@ -88,17 +88,16 @@ CREATE TRIGGER _500_decrease_job_queue_count BEFORE DELETE ON app_jobs.jobs FOR 
 
 CREATE TRIGGER _900_notify_worker AFTER INSERT ON app_jobs.jobs FOR EACH STATEMENT EXECUTE PROCEDURE app_jobs.do_notify('jobs:insert');
 
-CREATE FUNCTION app_jobs.add_job(identifier varchar, payload jsonb) RETURNS app_jobs.jobs AS $$
-  INSERT INTO app_jobs.jobs(task_identifier, payload) VALUES(identifier, payload) RETURNING *;
-$$ LANGUAGE sql;
-
-CREATE FUNCTION app_jobs.add_job(identifier varchar, payload jsonb, queue_name varchar) RETURNS app_jobs.jobs AS $$
-  INSERT INTO app_jobs.jobs(task_identifier, queue_name, payload) VALUES(identifier, queue_name, payload) RETURNING *;
-$$ LANGUAGE sql;
-
-CREATE FUNCTION app_jobs.add_job(identifier varchar, payload jsonb, queue_name varchar, run_at timestamptz) RETURNS app_jobs.jobs AS $$
-  INSERT INTO app_jobs.jobs(task_identifier, queue_name, payload, run_at) VALUES(identifier, queue_name, payload, run_at) RETURNING *;
-$$ LANGUAGE sql;
+CREATE FUNCTION app_jobs.add_job(
+  identifier varchar,
+  payload jsonb,
+  queue_name varchar default (public.gen_random_uuid())::varchar,
+  run_at timestamptz default now()
+) RETURNS app_jobs.jobs AS $$
+  INSERT INTO app_jobs.jobs(task_identifier, payload, queue_name, run_at)
+    VALUES(identifier, payload, queue_name, run_at)
+    RETURNING *;
+$$ LANGUAGE sql STRICT SET search_path FROM CURRENT;
 
 CREATE FUNCTION app_jobs.complete_job(worker_id varchar, job_id int) RETURNS app_jobs.jobs AS $$
 DECLARE
@@ -114,7 +113,7 @@ BEGIN
 
   RETURN v_row;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql STRICT SET search_path FROM CURRENT;
 
 CREATE FUNCTION app_jobs.fail_job(worker_id varchar, job_id int, error_message varchar) RETURNS app_jobs.jobs AS $$
 DECLARE
@@ -133,7 +132,7 @@ BEGIN
 
   RETURN v_row;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql STRICT SET search_path FROM CURRENT;
 
 CREATE FUNCTION app_jobs.get_job(worker_id varchar, identifiers varchar[]) RETURNS app_jobs.jobs AS $$
 DECLARE
@@ -175,4 +174,4 @@ BEGIN
 
   RETURN v_row;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql STRICT SET search_path FROM CURRENT;

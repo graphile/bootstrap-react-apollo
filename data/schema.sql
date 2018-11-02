@@ -99,6 +99,28 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
 
+--
+-- Name: tg__add_job(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.tg__add_job() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO "$user", public
+    AS $$
+begin
+  perform app_jobs.add_job(tg_argv[0], json_build_object('id', NEW.id), tg_argv[1]);
+  return NEW;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION tg__add_job(); Type: COMMENT; Schema: app_hidden; Owner: -
+--
+
+COMMENT ON FUNCTION app_hidden.tg__add_job() IS 'Useful shortcut to create a job on insert/update. Pass the task name as the first trigger argument, and optionally the queue name as the second argument. The record id will automatically be available on the JSON payload.';
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -122,35 +144,16 @@ CREATE TABLE app_jobs.jobs (
 
 
 --
--- Name: add_job(character varying, jsonb); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.add_job(identifier character varying, payload jsonb) RETURNS app_jobs.jobs
-    LANGUAGE sql
-    AS $$
-  INSERT INTO app_jobs.jobs(task_identifier, payload) VALUES(identifier, payload) RETURNING *;
-$$;
-
-
---
--- Name: add_job(character varying, jsonb, character varying); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.add_job(identifier character varying, payload jsonb, queue_name character varying) RETURNS app_jobs.jobs
-    LANGUAGE sql
-    AS $$
-  INSERT INTO app_jobs.jobs(task_identifier, queue_name, payload) VALUES(identifier, queue_name, payload) RETURNING *;
-$$;
-
-
---
 -- Name: add_job(character varying, jsonb, character varying, timestamp with time zone); Type: FUNCTION; Schema: app_jobs; Owner: -
 --
 
-CREATE FUNCTION app_jobs.add_job(identifier character varying, payload jsonb, queue_name character varying, run_at timestamp with time zone) RETURNS app_jobs.jobs
-    LANGUAGE sql
+CREATE FUNCTION app_jobs.add_job(identifier character varying, payload jsonb, queue_name character varying DEFAULT (public.gen_random_uuid())::character varying, run_at timestamp with time zone DEFAULT now()) RETURNS app_jobs.jobs
+    LANGUAGE sql STRICT
+    SET search_path TO "$user", public
     AS $$
-  INSERT INTO app_jobs.jobs(task_identifier, queue_name, payload, run_at) VALUES(identifier, queue_name, payload, run_at) RETURNING *;
+  INSERT INTO app_jobs.jobs(task_identifier, payload, queue_name, run_at)
+    VALUES(identifier, payload, queue_name, run_at)
+    RETURNING *;
 $$;
 
 
@@ -159,7 +162,8 @@ $$;
 --
 
 CREATE FUNCTION app_jobs.complete_job(worker_id character varying, job_id integer) RETURNS app_jobs.jobs
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql STRICT
+    SET search_path TO "$user", public
     AS $$
 DECLARE
   v_row app_jobs.jobs;
@@ -205,7 +209,8 @@ COMMENT ON FUNCTION app_jobs.do_notify() IS 'Performs pg_notify passing the firs
 --
 
 CREATE FUNCTION app_jobs.fail_job(worker_id character varying, job_id integer, error_message character varying) RETURNS app_jobs.jobs
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql STRICT
+    SET search_path TO "$user", public
     AS $$
 DECLARE
   v_row app_jobs.jobs;
@@ -231,7 +236,8 @@ $$;
 --
 
 CREATE FUNCTION app_jobs.get_job(worker_id character varying, identifiers character varying[]) RETURNS app_jobs.jobs
-    LANGUAGE plpgsql
+    LANGUAGE plpgsql STRICT
+    SET search_path TO "$user", public
     AS $$
 DECLARE
   v_job_id int;
@@ -281,6 +287,7 @@ $$;
 
 CREATE FUNCTION app_jobs.jobs__decrease_job_queue_count() RETURNS trigger
     LANGUAGE plpgsql
+    SET search_path TO "$user", public
     AS $$
 BEGIN
   UPDATE app_jobs.job_queues
@@ -303,6 +310,7 @@ $$;
 
 CREATE FUNCTION app_jobs.jobs__increase_job_queue_count() RETURNS trigger
     LANGUAGE plpgsql
+    SET search_path TO "$user", public
     AS $$
 BEGIN
   INSERT INTO app_jobs.job_queues(queue_name, job_count)
