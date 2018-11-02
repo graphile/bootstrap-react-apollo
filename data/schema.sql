@@ -373,6 +373,28 @@ COMMENT ON FUNCTION app_jobs.update_timestamps() IS 'Ensures that created_at, up
 
 
 --
+-- Name: tg_user_secrets__insert_with_user(); Type: FUNCTION; Schema: app_private; Owner: -
+--
+
+CREATE FUNCTION app_private.tg_user_secrets__insert_with_user() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO "$user", public
+    AS $$
+begin
+  insert into app_private.user_secrets(user_id) values(NEW.id);
+  return NEW;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION tg_user_secrets__insert_with_user(); Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON FUNCTION app_private.tg_user_secrets__insert_with_user() IS 'Ensures that every user record has an associated user_secret record.';
+
+
+--
 -- Name: tg_users__make_first_user_admin(); Type: FUNCTION; Schema: app_private; Owner: -
 --
 
@@ -521,6 +543,23 @@ ALTER SEQUENCE app_jobs.jobs_id_seq OWNED BY app_jobs.jobs.id;
 
 
 --
+-- Name: user_secrets; Type: TABLE; Schema: app_private; Owner: -
+--
+
+CREATE TABLE app_private.user_secrets (
+    user_id integer NOT NULL,
+    password_hash text
+);
+
+
+--
+-- Name: TABLE user_secrets; Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON TABLE app_private.user_secrets IS 'The contents of this table should never be visible to the user. Contains data mostly related to authentication.';
+
+
+--
 -- Name: users_id_seq; Type: SEQUENCE; Schema: app_public; Owner: -
 --
 
@@ -609,6 +648,14 @@ ALTER TABLE ONLY app_jobs.jobs
 
 
 --
+-- Name: user_secrets user_secrets_pkey; Type: CONSTRAINT; Schema: app_private; Owner: -
+--
+
+ALTER TABLE ONLY app_private.user_secrets
+    ADD CONSTRAINT user_secrets_pkey PRIMARY KEY (user_id);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -689,10 +736,31 @@ CREATE TRIGGER _200_make_first_user_admin BEFORE INSERT ON app_public.users FOR 
 
 
 --
+-- Name: users _500_insert_secrets; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _500_insert_secrets AFTER INSERT ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_private.tg_user_secrets__insert_with_user();
+
+
+--
+-- Name: user_secrets user_secrets_user_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
+--
+
+ALTER TABLE ONLY app_private.user_secrets
+    ADD CONSTRAINT user_secrets_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: job_queues; Type: ROW SECURITY; Schema: app_jobs; Owner: -
 --
 
 ALTER TABLE app_jobs.job_queues ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: user_secrets; Type: ROW SECURITY; Schema: app_private; Owner: -
+--
+
+ALTER TABLE app_private.user_secrets ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: users delete_self; Type: POLICY; Schema: app_public; Owner: -
