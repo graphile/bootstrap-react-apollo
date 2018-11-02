@@ -2,3 +2,5 @@
 /data/schema.json -diff -merge
 /data/schema.graphql -merge
 /data/schema.sql -merge
+/db/migrations/.db-migrate/* linguist-generated=true
+/db/migrations/.db-migrate/* -diff
