@@ -38,7 +38,7 @@ comment on column app_public.users.is_admin is
 create trigger _100_timestamps
   after insert or update on app_public.users
   for each row
-  execute procedure app_hidden.tg__timestamps();
+  execute procedure app_private.tg__timestamps();
 
 create function app_private.tg_users__make_first_user_admin() returns trigger as $$
 begin

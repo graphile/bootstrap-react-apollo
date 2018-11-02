@@ -12,7 +12,7 @@ alter table app_public.user_emails enable row level security;
 create trigger _100_timestamps
   after insert or update on app_public.user_emails
   for each row
-  execute procedure app_hidden.tg__timestamps();
+  execute procedure app_private.tg__timestamps();
 create trigger _900_send_verification_email
   after insert on app_public.user_emails
   for each row when (NEW.is_verified is false)

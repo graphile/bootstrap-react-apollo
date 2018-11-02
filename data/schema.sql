@@ -99,29 +99,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
 
---
--- Name: tg__timestamps(); Type: FUNCTION; Schema: app_hidden; Owner: -
---
-
-CREATE FUNCTION app_hidden.tg__timestamps() RETURNS trigger
-    LANGUAGE plpgsql
-    SET search_path TO "$user", public
-    AS $$
-begin
-  NEW.created_at = (case when TG_OP = 'INSERT' then NOW() else OLD.created_at end);
-  NEW.updated_at = (case when TG_OP = 'UPDATE' and OLD.updated_at <= NOW() then OLD.updated_at + interval '1 millisecond' else NOW() end);
-  return NEW;
-end;
-$$;
-
-
---
--- Name: FUNCTION tg__timestamps(); Type: COMMENT; Schema: app_hidden; Owner: -
---
-
-COMMENT ON FUNCTION app_hidden.tg__timestamps() IS 'This trigger should be called on all tables with created_at, updated_at - it ensures that they cannot be manipulated and that updated_at will always be larger than the previous updated_at.';
-
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -370,6 +347,29 @@ $$;
 --
 
 COMMENT ON FUNCTION app_private.tg__add_job() IS 'Useful shortcut to create a job on insert/update. Pass the task name as the first trigger argument, and optionally the queue name as the second argument. The record id will automatically be available on the JSON payload.';
+
+
+--
+-- Name: tg__timestamps(); Type: FUNCTION; Schema: app_private; Owner: -
+--
+
+CREATE FUNCTION app_private.tg__timestamps() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO "$user", public
+    AS $$
+begin
+  NEW.created_at = (case when TG_OP = 'INSERT' then NOW() else OLD.created_at end);
+  NEW.updated_at = (case when TG_OP = 'UPDATE' and OLD.updated_at <= NOW() then OLD.updated_at + interval '1 millisecond' else NOW() end);
+  return NEW;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION tg__timestamps(); Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON FUNCTION app_private.tg__timestamps() IS 'This trigger should be called on all tables with created_at, updated_at - it ensures that they cannot be manipulated and that updated_at will always be larger than the previous updated_at.';
 
 
 --
@@ -812,14 +812,14 @@ CREATE TRIGGER _900_notify_worker AFTER INSERT ON app_jobs.jobs FOR EACH STATEME
 -- Name: users _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_hidden.tg__timestamps();
+CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
 
 
 --
 -- Name: user_emails _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_hidden.tg__timestamps();
+CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
 
 
 --
