@@ -505,6 +505,22 @@ GRANT USAGE ON SCHEMA app_public TO boilerplatecheck_visitor;
 
 
 --
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: app_hidden; Owner: -
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE boilerplatecheck IN SCHEMA app_hidden REVOKE ALL ON SEQUENCES  FROM boilerplatecheck;
+ALTER DEFAULT PRIVILEGES FOR ROLE boilerplatecheck IN SCHEMA app_hidden GRANT SELECT,USAGE ON SEQUENCES  TO boilerplatecheck_visitor;
+
+
+--
+-- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: app_public; Owner: -
+--
+
+ALTER DEFAULT PRIVILEGES FOR ROLE boilerplatecheck IN SCHEMA app_public REVOKE ALL ON SEQUENCES  FROM boilerplatecheck;
+ALTER DEFAULT PRIVILEGES FOR ROLE boilerplatecheck IN SCHEMA app_public GRANT SELECT,USAGE ON SEQUENCES  TO boilerplatecheck_visitor;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
