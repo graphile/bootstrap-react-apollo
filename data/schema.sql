@@ -390,58 +390,6 @@ $$;
 
 
 --
--- Name: current_user_id(); Type: FUNCTION; Schema: app_public; Owner: -
---
-
-CREATE FUNCTION app_public.current_user_id() RETURNS integer
-    LANGUAGE sql STABLE
-    SET search_path TO "$user", public
-    AS $$
-  select nullif(current_setting('jwt.claims.user_id', true), '')::int;
-$$;
-
-
---
--- Name: FUNCTION current_user_id(); Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON FUNCTION app_public.current_user_id() IS '@omit
-Handy method to get the current user ID for use in RLS policies, etc; in GraphQL, use `currentUser{id}` instead.';
-
-
---
--- Name: job_queues; Type: TABLE; Schema: app_jobs; Owner: -
---
-
-CREATE TABLE app_jobs.job_queues (
-    queue_name character varying NOT NULL,
-    job_count integer DEFAULT 0 NOT NULL,
-    locked_at timestamp with time zone,
-    locked_by character varying
-);
-
-
---
--- Name: jobs_id_seq; Type: SEQUENCE; Schema: app_jobs; Owner: -
---
-
-CREATE SEQUENCE app_jobs.jobs_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: app_jobs; Owner: -
---
-
-ALTER SEQUENCE app_jobs.jobs_id_seq OWNED BY app_jobs.jobs.id;
-
-
---
 -- Name: users; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -499,6 +447,77 @@ COMMENT ON COLUMN app_public.users.avatar_url IS 'Optional avatar URL.';
 --
 
 COMMENT ON COLUMN app_public.users.is_admin IS 'If true, the user has elevated privileges.';
+
+
+--
+-- Name: current_user(); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public."current_user"() RETURNS app_public.users
+    LANGUAGE sql STABLE
+    SET search_path TO "$user", public
+    AS $$
+  select users.* from app_public.users where id = app_public.current_user_id();
+$$;
+
+
+--
+-- Name: FUNCTION "current_user"(); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public."current_user"() IS 'The currently logged in user (or null if not logged in).';
+
+
+--
+-- Name: current_user_id(); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.current_user_id() RETURNS integer
+    LANGUAGE sql STABLE
+    SET search_path TO "$user", public
+    AS $$
+  select nullif(current_setting('jwt.claims.user_id', true), '')::int;
+$$;
+
+
+--
+-- Name: FUNCTION current_user_id(); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.current_user_id() IS '@omit
+Handy method to get the current user ID for use in RLS policies, etc; in GraphQL, use `currentUser{id}` instead.';
+
+
+--
+-- Name: job_queues; Type: TABLE; Schema: app_jobs; Owner: -
+--
+
+CREATE TABLE app_jobs.job_queues (
+    queue_name character varying NOT NULL,
+    job_count integer DEFAULT 0 NOT NULL,
+    locked_at timestamp with time zone,
+    locked_by character varying
+);
+
+
+--
+-- Name: jobs_id_seq; Type: SEQUENCE; Schema: app_jobs; Owner: -
+--
+
+CREATE SEQUENCE app_jobs.jobs_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: app_jobs; Owner: -
+--
+
+ALTER SEQUENCE app_jobs.jobs_id_seq OWNED BY app_jobs.jobs.id;
 
 
 --
