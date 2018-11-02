@@ -27,7 +27,7 @@ class App extends Component {
           </a>
           <Query
             query={gql`
-              {
+              query PostGraphileConnectionQuery {
                 nodeId
               }
             `}
