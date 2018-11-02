@@ -1,3 +1,41 @@
+"""All input for the create `UserEmail` mutation."""
+input CreateUserEmailInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """The `UserEmail` to be created by this mutation."""
+  userEmail: UserEmailInput!
+}
+
+"""The output of our create `UserEmail` mutation."""
+type CreateUserEmailPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `UserEmail` that was created by this mutation."""
+  userEmail: UserEmail
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `User` that is related to this `UserEmail`."""
+  user: User
+
+  """An edge for our `UserEmail`. May be used by Relay 1."""
+  userEmailEdge(
+    """The method to use when ordering `UserEmail`."""
+    orderBy: [UserEmailsOrderBy!] = PRIMARY_KEY_ASC
+  ): UserEmailsEdge
+}
+
 """A location in a connection that can be used for resuming pagination."""
 scalar Cursor
 
@@ -29,6 +67,70 @@ input DeleteUserByUsernameInput {
 
   """Public-facing username (or 'handle') of the user."""
   username: String!
+}
+
+"""All input for the `deleteUserEmailById` mutation."""
+input DeleteUserEmailByIdInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  id: Int!
+}
+
+"""All input for the `deleteUserEmailByUserIdAndEmail` mutation."""
+input DeleteUserEmailByUserIdAndEmailInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  userId: Int!
+
+  """The users email address, in `a@b.c` format."""
+  email: String!
+}
+
+"""All input for the `deleteUserEmail` mutation."""
+input DeleteUserEmailInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+
+  """
+  The globally unique `ID` which will identify a single `UserEmail` to be deleted.
+  """
+  nodeId: ID!
+}
+
+"""The output of our delete `UserEmail` mutation."""
+type DeleteUserEmailPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """The `UserEmail` that was deleted by this mutation."""
+  userEmail: UserEmail
+  deletedUserEmailId: ID
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+
+  """Reads a single `User` that is related to this `UserEmail`."""
+  user: User
+
+  """An edge for our `UserEmail`. May be used by Relay 1."""
+  userEmailEdge(
+    """The method to use when ordering `UserEmail`."""
+    orderBy: [UserEmailsOrderBy!] = PRIMARY_KEY_ASC
+  ): UserEmailsEdge
 }
 
 """All input for the `deleteUser` mutation."""
@@ -73,6 +175,14 @@ type DeleteUserPayload {
 The root mutation type which contains root level fields which mutate data.
 """
 type Mutation {
+  """Creates a single `UserEmail`."""
+  createUserEmail(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: CreateUserEmailInput!
+  ): CreateUserEmailPayload
+
   """Updates a single `User` using its globally unique id and a patch."""
   updateUser(
     """
@@ -96,6 +206,30 @@ type Mutation {
     """
     input: UpdateUserByUsernameInput!
   ): UpdateUserPayload
+
+  """Deletes a single `UserEmail` using its globally unique id."""
+  deleteUserEmail(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserEmailInput!
+  ): DeleteUserEmailPayload
+
+  """Deletes a single `UserEmail` using a unique key."""
+  deleteUserEmailById(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserEmailByIdInput!
+  ): DeleteUserEmailPayload
+
+  """Deletes a single `UserEmail` using a unique key."""
+  deleteUserEmailByUserIdAndEmail(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserEmailByUserIdAndEmailInput!
+  ): DeleteUserEmailPayload
 
   """Deletes a single `User` using its globally unique id."""
   deleteUser(
@@ -130,6 +264,21 @@ interface Node {
   nodeId: ID!
 }
 
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: Cursor
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+}
+
 """The root query type which gives access points into the data universe."""
 type Query implements Node {
   """
@@ -148,11 +297,21 @@ type Query implements Node {
     """The globally unique `ID`."""
     nodeId: ID!
   ): Node
+  userEmailById(id: Int!): UserEmail
+  userEmailByUserIdAndEmail(userId: Int!, email: String!): UserEmail
   userById(id: Int!): User
   userByUsername(username: String!): User
 
   """The currently logged in user (or null if not logged in)."""
   currentUser: User
+
+  """Reads a single `UserEmail` using its globally unique `ID`."""
+  userEmail(
+    """
+    The globally unique `ID` to be used in selecting a single `UserEmail`.
+    """
+    nodeId: ID!
+  ): UserEmail
 
   """Reads a single `User` using its globally unique `ID`."""
   user(
@@ -260,6 +419,114 @@ type User implements Node {
   isAdmin: Boolean!
   createdAt: Datetime!
   updatedAt: Datetime!
+
+  """Reads and enables pagination through a set of `UserEmail`."""
+  userEmails(
+    """Only read the first `n` values of the set."""
+    first: Int
+
+    """Only read the last `n` values of the set."""
+    last: Int
+
+    """
+    Skip the first `n` values from our `after` cursor, an alternative to cursor
+    based pagination. May not be used with `last`.
+    """
+    offset: Int
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """The method to use when ordering `UserEmail`."""
+    orderBy: [UserEmailsOrderBy!] = [PRIMARY_KEY_ASC]
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: UserEmailCondition
+  ): UserEmailsConnection!
+}
+
+"""Information about a user's email address."""
+type UserEmail implements Node {
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
+  id: Int!
+  userId: Int!
+
+  """The users email address, in `a@b.c` format."""
+  email: String!
+
+  """
+  True if the user has is_verified their email address (by clicking the link in
+  the email we sent them, or logging in with a social login provider), false otherwise.
+  """
+  isVerified: Boolean!
+  createdAt: Datetime!
+  updatedAt: Datetime!
+
+  """Reads a single `User` that is related to this `UserEmail`."""
+  user: User
+}
+
+"""
+A condition to be used against `UserEmail` object types. All fields are tested
+for equality and combined with a logical ‘and.’
+"""
+input UserEmailCondition {
+  """Checks for equality with the object’s `id` field."""
+  id: Int
+
+  """Checks for equality with the object’s `userId` field."""
+  userId: Int
+}
+
+"""An input for mutations affecting `UserEmail`"""
+input UserEmailInput {
+  """The users email address, in `a@b.c` format."""
+  email: String!
+}
+
+"""A connection to a list of `UserEmail` values."""
+type UserEmailsConnection {
+  """A list of `UserEmail` objects."""
+  nodes: [UserEmail!]!
+
+  """
+  A list of edges which contains the `UserEmail` and cursor to aid in pagination.
+  """
+  edges: [UserEmailsEdge!]!
+
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """The count of *all* `UserEmail` you could get from the connection."""
+  totalCount: Int
+}
+
+"""A `UserEmail` edge in the connection."""
+type UserEmailsEdge {
+  """A cursor for use in pagination."""
+  cursor: Cursor
+
+  """The `UserEmail` at the end of the edge."""
+  node: UserEmail!
+}
+
+"""Methods to use when ordering `UserEmail`."""
+enum UserEmailsOrderBy {
+  NATURAL
+  ID_ASC
+  ID_DESC
+  USER_ID_ASC
+  USER_ID_DESC
+  PRIMARY_KEY_ASC
+  PRIMARY_KEY_DESC
 }
 
 """

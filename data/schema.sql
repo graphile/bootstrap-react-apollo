@@ -100,28 +100,6 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 --
--- Name: tg__add_job(); Type: FUNCTION; Schema: app_hidden; Owner: -
---
-
-CREATE FUNCTION app_hidden.tg__add_job() RETURNS trigger
-    LANGUAGE plpgsql
-    SET search_path TO "$user", public
-    AS $$
-begin
-  perform app_jobs.add_job(tg_argv[0], json_build_object('id', NEW.id), tg_argv[1]);
-  return NEW;
-end;
-$$;
-
-
---
--- Name: FUNCTION tg__add_job(); Type: COMMENT; Schema: app_hidden; Owner: -
---
-
-COMMENT ON FUNCTION app_hidden.tg__add_job() IS 'Useful shortcut to create a job on insert/update. Pass the task name as the first trigger argument, and optionally the queue name as the second argument. The record id will automatically be available on the JSON payload.';
-
-
---
 -- Name: tg__timestamps(); Type: FUNCTION; Schema: app_hidden; Owner: -
 --
 
@@ -373,6 +351,28 @@ COMMENT ON FUNCTION app_jobs.update_timestamps() IS 'Ensures that created_at, up
 
 
 --
+-- Name: tg__add_job(); Type: FUNCTION; Schema: app_private; Owner: -
+--
+
+CREATE FUNCTION app_private.tg__add_job() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO "$user", public
+    AS $$
+begin
+  perform app_jobs.add_job(tg_argv[0], json_build_object('id', NEW.id), tg_argv[1]);
+  return NEW;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION tg__add_job(); Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON FUNCTION app_private.tg__add_job() IS 'Useful shortcut to create a job on insert/update. Pass the task name as the first trigger argument, and optionally the queue name as the second argument. The record id will automatically be available on the JSON payload.';
+
+
+--
 -- Name: tg_user_secrets__insert_with_user(); Type: FUNCTION; Schema: app_private; Owner: -
 --
 
@@ -560,6 +560,63 @@ COMMENT ON TABLE app_private.user_secrets IS 'The contents of this table should 
 
 
 --
+-- Name: user_emails; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.user_emails (
+    id integer NOT NULL,
+    user_id integer DEFAULT app_public.current_user_id() NOT NULL,
+    email public.citext NOT NULL,
+    is_verified boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT user_emails_email_check CHECK ((email OPERATOR(public.~) '[^@]+@[^@]+\.[^@]+'::public.citext))
+);
+
+
+--
+-- Name: TABLE user_emails; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.user_emails IS '@omit all
+Information about a user''s email address.';
+
+
+--
+-- Name: COLUMN user_emails.email; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_emails.email IS 'The users email address, in `a@b.c` format.';
+
+
+--
+-- Name: COLUMN user_emails.is_verified; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_emails.is_verified IS 'True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.';
+
+
+--
+-- Name: user_emails_id_seq; Type: SEQUENCE; Schema: app_public; Owner: -
+--
+
+CREATE SEQUENCE app_public.user_emails_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: user_emails_id_seq; Type: SEQUENCE OWNED BY; Schema: app_public; Owner: -
+--
+
+ALTER SEQUENCE app_public.user_emails_id_seq OWNED BY app_public.user_emails.id;
+
+
+--
 -- Name: users_id_seq; Type: SEQUENCE; Schema: app_public; Owner: -
 --
 
@@ -618,6 +675,13 @@ ALTER TABLE ONLY app_jobs.jobs ALTER COLUMN id SET DEFAULT nextval('app_jobs.job
 
 
 --
+-- Name: user_emails id; Type: DEFAULT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.user_emails ALTER COLUMN id SET DEFAULT nextval('app_public.user_emails_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: app_public; Owner: -
 --
 
@@ -656,6 +720,22 @@ ALTER TABLE ONLY app_private.user_secrets
 
 
 --
+-- Name: user_emails user_emails_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.user_emails
+    ADD CONSTRAINT user_emails_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: user_emails user_emails_user_id_email_key; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.user_emails
+    ADD CONSTRAINT user_emails_user_id_email_key UNIQUE (user_id, email);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -677,6 +757,13 @@ ALTER TABLE ONLY app_public.users
 
 ALTER TABLE ONLY public.migrations
     ADD CONSTRAINT migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: uniq_user_emails_verified_email; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE UNIQUE INDEX uniq_user_emails_verified_email ON app_public.user_emails USING btree (email) WHERE (is_verified IS TRUE);
 
 
 --
@@ -729,6 +816,13 @@ CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.users FOR EA
 
 
 --
+-- Name: user_emails _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_hidden.tg__timestamps();
+
+
+--
 -- Name: users _200_make_first_user_admin; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -743,11 +837,26 @@ CREATE TRIGGER _500_insert_secrets AFTER INSERT ON app_public.users FOR EACH ROW
 
 
 --
+-- Name: user_emails _900_send_verification_email; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _900_send_verification_email AFTER INSERT ON app_public.user_emails FOR EACH ROW WHEN ((new.is_verified IS FALSE)) EXECUTE PROCEDURE app_private.tg__add_job('user_emails__send_verification');
+
+
+--
 -- Name: user_secrets user_secrets_user_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
 --
 
 ALTER TABLE ONLY app_private.user_secrets
     ADD CONSTRAINT user_secrets_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_emails user_emails_user_id_fkey; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.user_emails
+    ADD CONSTRAINT user_emails_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -763,10 +872,24 @@ ALTER TABLE app_jobs.job_queues ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_private.user_secrets ENABLE ROW LEVEL SECURITY;
 
 --
+-- Name: user_emails delete_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY delete_own ON app_public.user_emails FOR DELETE USING ((user_id = app_public.current_user_id()));
+
+
+--
 -- Name: users delete_self; Type: POLICY; Schema: app_public; Owner: -
 --
 
 CREATE POLICY delete_self ON app_public.users FOR DELETE USING ((id = app_public.current_user_id()));
+
+
+--
+-- Name: user_emails insert_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY insert_own ON app_public.user_emails FOR INSERT WITH CHECK ((user_id = app_public.current_user_id()));
 
 
 --
@@ -777,11 +900,24 @@ CREATE POLICY select_all ON app_public.users FOR SELECT USING (true);
 
 
 --
+-- Name: user_emails select_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_own ON app_public.user_emails FOR SELECT USING ((user_id = app_public.current_user_id()));
+
+
+--
 -- Name: users update_self; Type: POLICY; Schema: app_public; Owner: -
 --
 
 CREATE POLICY update_self ON app_public.users FOR UPDATE USING ((id = app_public.current_user_id()));
 
+
+--
+-- Name: user_emails; Type: ROW SECURITY; Schema: app_public; Owner: -
+--
+
+ALTER TABLE app_public.user_emails ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: users; Type: ROW SECURITY; Schema: app_public; Owner: -
@@ -822,6 +958,27 @@ GRANT UPDATE(name) ON TABLE app_public.users TO boilerplatecheck_visitor;
 --
 
 GRANT UPDATE(avatar_url) ON TABLE app_public.users TO boilerplatecheck_visitor;
+
+
+--
+-- Name: TABLE user_emails; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.user_emails TO boilerplatecheck_visitor;
+
+
+--
+-- Name: COLUMN user_emails.email; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT INSERT(email) ON TABLE app_public.user_emails TO boilerplatecheck_visitor;
+
+
+--
+-- Name: SEQUENCE user_emails_id_seq; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,USAGE ON SEQUENCE app_public.user_emails_id_seq TO boilerplatecheck_visitor;
 
 
 --
