@@ -20,7 +20,7 @@ CREATE TABLE app_jobs.jobs (
   id serial PRIMARY KEY,
   queue_name varchar DEFAULT (public.gen_random_uuid())::varchar NOT NULL,
   task_identifier varchar NOT NULL,
-  payload json DEFAULT '{}'::json NOT NULL,
+  payload jsonb DEFAULT '{}'::jsonb NOT NULL,
   priority int DEFAULT 0 NOT NULL,
   run_at timestamp with time zone DEFAULT now() NOT NULL,
   attempts int DEFAULT 0 NOT NULL,
@@ -32,10 +32,13 @@ ALTER TABLE app_jobs.job_queues ENABLE ROW LEVEL SECURITY;
 
 CREATE FUNCTION app_jobs.do_notify() RETURNS trigger AS $$
 BEGIN
+  -- This is a STATEMENT trigger, so we do not have access to the individual
+  -- rows.
   PERFORM pg_notify(TG_ARGV[0], '');
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION app_jobs.do_notify() IS E'Performs pg_notify passing the first argument as the topic.';
 
 CREATE FUNCTION app_jobs.update_timestamps() RETURNS trigger AS $$
 BEGIN
@@ -49,6 +52,7 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+COMMENT ON FUNCTION app_jobs.update_timestamps() IS E'Ensures that created_at, updated_at are monotonically increasing.';
 
 CREATE FUNCTION app_jobs.jobs__decrease_job_queue_count() RETURNS trigger AS $$
 BEGIN
@@ -76,23 +80,23 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.update_timestamps();
-CREATE TRIGGER _500_increase_job_queue_count AFTER INSERT ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.jobs__increase_job_queue_count();
-CREATE TRIGGER _500_decrease_job_queue_count BEFORE DELETE ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.jobs__decrease_job_queue_count();
 
+CREATE TRIGGER _500_increase_job_queue_count AFTER INSERT ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.jobs__increase_job_queue_count();
 CREATE TRIGGER _500_increase_job_queue_count_update AFTER UPDATE ON app_jobs.jobs FOR EACH ROW WHEN (NEW.queue_name IS DISTINCT FROM OLD.queue_name) EXECUTE PROCEDURE app_jobs.jobs__increase_job_queue_count();
 CREATE TRIGGER _500_decrease_job_queue_count_update AFTER UPDATE ON app_jobs.jobs FOR EACH ROW WHEN (NEW.queue_name IS DISTINCT FROM OLD.queue_name) EXECUTE PROCEDURE app_jobs.jobs__decrease_job_queue_count();
+CREATE TRIGGER _500_decrease_job_queue_count BEFORE DELETE ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.jobs__decrease_job_queue_count();
 
 CREATE TRIGGER _900_notify_worker AFTER INSERT ON app_jobs.jobs FOR EACH STATEMENT EXECUTE PROCEDURE app_jobs.do_notify('jobs:insert');
 
-CREATE FUNCTION app_jobs.add_job(identifier varchar, payload json) RETURNS app_jobs.jobs AS $$
+CREATE FUNCTION app_jobs.add_job(identifier varchar, payload jsonb) RETURNS app_jobs.jobs AS $$
   INSERT INTO app_jobs.jobs(task_identifier, payload) VALUES(identifier, payload) RETURNING *;
 $$ LANGUAGE sql;
 
-CREATE FUNCTION app_jobs.add_job(identifier varchar, queue_name varchar, payload json) RETURNS app_jobs.jobs AS $$
+CREATE FUNCTION app_jobs.add_job(identifier varchar, payload jsonb, queue_name varchar) RETURNS app_jobs.jobs AS $$
   INSERT INTO app_jobs.jobs(task_identifier, queue_name, payload) VALUES(identifier, queue_name, payload) RETURNING *;
 $$ LANGUAGE sql;
 
-CREATE FUNCTION app_jobs.schedule_job(identifier varchar, queue_name varchar, payload json, run_at timestamptz) RETURNS app_jobs.jobs AS $$
+CREATE FUNCTION app_jobs.add_job(identifier varchar, payload jsonb, queue_name varchar, run_at timestamptz) RETURNS app_jobs.jobs AS $$
   INSERT INTO app_jobs.jobs(task_identifier, queue_name, payload, run_at) VALUES(identifier, queue_name, payload, run_at) RETURNING *;
 $$ LANGUAGE sql;
 
