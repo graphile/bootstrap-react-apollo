@@ -373,6 +373,33 @@ COMMENT ON FUNCTION app_private.tg__timestamps() IS 'This trigger should be call
 
 
 --
+-- Name: tg_user_email_secrets__insert_with_user_email(); Type: FUNCTION; Schema: app_private; Owner: -
+--
+
+CREATE FUNCTION app_private.tg_user_email_secrets__insert_with_user_email() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO "$user", public
+    AS $$
+declare
+  v_verification_token text;
+begin
+  if NEW.is_verified is false then
+    v_verification_token = encode(gen_random_bytes(4), 'hex');
+  end if;
+  insert into app_private.user_email_secrets(user_email_id, verification_token) values(NEW.id, v_verification_token);
+  return NEW;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION tg_user_email_secrets__insert_with_user_email(); Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON FUNCTION app_private.tg_user_email_secrets__insert_with_user_email() IS 'Ensures that every user_email record has an associated user_email_secret record.';
+
+
+--
 -- Name: tg_user_secrets__insert_with_user(); Type: FUNCTION; Schema: app_private; Owner: -
 --
 
@@ -540,6 +567,31 @@ CREATE SEQUENCE app_jobs.jobs_id_seq
 --
 
 ALTER SEQUENCE app_jobs.jobs_id_seq OWNED BY app_jobs.jobs.id;
+
+
+--
+-- Name: user_email_secrets; Type: TABLE; Schema: app_private; Owner: -
+--
+
+CREATE TABLE app_private.user_email_secrets (
+    user_email_id integer NOT NULL,
+    verification_token text,
+    password_reset_email_sent_at timestamp with time zone
+);
+
+
+--
+-- Name: TABLE user_email_secrets; Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON TABLE app_private.user_email_secrets IS 'The contents of this table should never be visible to the user. Contains data mostly related to email verification and avoiding spamming users.';
+
+
+--
+-- Name: COLUMN user_email_secrets.password_reset_email_sent_at; Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON COLUMN app_private.user_email_secrets.password_reset_email_sent_at IS 'We store the time the last password reset was sent to this email to prevent the email getting flooded.';
 
 
 --
@@ -712,6 +764,14 @@ ALTER TABLE ONLY app_jobs.jobs
 
 
 --
+-- Name: user_email_secrets user_email_secrets_pkey; Type: CONSTRAINT; Schema: app_private; Owner: -
+--
+
+ALTER TABLE ONLY app_private.user_email_secrets
+    ADD CONSTRAINT user_email_secrets_pkey PRIMARY KEY (user_email_id);
+
+
+--
 -- Name: user_secrets user_secrets_pkey; Type: CONSTRAINT; Schema: app_private; Owner: -
 --
 
@@ -837,10 +897,25 @@ CREATE TRIGGER _500_insert_secrets AFTER INSERT ON app_public.users FOR EACH ROW
 
 
 --
+-- Name: user_emails _500_insert_secrets; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _500_insert_secrets AFTER INSERT ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_private.tg_user_email_secrets__insert_with_user_email();
+
+
+--
 -- Name: user_emails _900_send_verification_email; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
 CREATE TRIGGER _900_send_verification_email AFTER INSERT ON app_public.user_emails FOR EACH ROW WHEN ((new.is_verified IS FALSE)) EXECUTE PROCEDURE app_private.tg__add_job('user_emails__send_verification');
+
+
+--
+-- Name: user_email_secrets user_email_secrets_user_email_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
+--
+
+ALTER TABLE ONLY app_private.user_email_secrets
+    ADD CONSTRAINT user_email_secrets_user_email_id_fkey FOREIGN KEY (user_email_id) REFERENCES app_public.user_emails(id) ON DELETE CASCADE;
 
 
 --
@@ -864,6 +939,12 @@ ALTER TABLE ONLY app_public.user_emails
 --
 
 ALTER TABLE app_jobs.job_queues ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: user_email_secrets; Type: ROW SECURITY; Schema: app_private; Owner: -
+--
+
+ALTER TABLE app_private.user_email_secrets ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: user_secrets; Type: ROW SECURITY; Schema: app_private; Owner: -
