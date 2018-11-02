@@ -373,6 +373,26 @@ COMMENT ON FUNCTION app_jobs.update_timestamps() IS 'Ensures that created_at, up
 
 
 --
+-- Name: current_user_id(); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.current_user_id() RETURNS integer
+    LANGUAGE sql STABLE
+    SET search_path TO "$user", public
+    AS $$
+  select nullif(current_setting('jwt.claims.user_id', true), '')::int;
+$$;
+
+
+--
+-- Name: FUNCTION current_user_id(); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.current_user_id() IS '@omit
+Handy method to get the current user ID for use in RLS policies, etc; in GraphQL, use `currentUser{id}` instead.';
+
+
+--
 -- Name: job_queues; Type: TABLE; Schema: app_jobs; Owner: -
 --
 
