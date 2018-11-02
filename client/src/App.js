@@ -1,25 +1,44 @@
 import React, { Component } from "react";
 import { hot } from "react-hot-loader";
-import logo from "./logo.svg";
 import "./App.css";
+import { Query } from "react-apollo";
+import gql from "graphql-tag";
 
 class App extends Component {
   render() {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
+          <img
+            src="https://www.graphile.org/images/postgraphile.optimized.svg"
+            className="App-logo"
+            alt="logo"
+          />
           <p>
             Edit <code>src/App.js</code> and save to reload.
           </p>
           <a
             className="App-link"
-            href="https://reactjs.org"
+            href="https://www.graphile.org/postgraphile/"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Learn React
+            Learn PostGraphile
           </a>
+          <Query
+            query={gql`
+              {
+                nodeId
+              }
+            `}
+          >
+            {({ data, loading, error }) => {
+              if (loading) return "Loading...";
+              if (error) return `Error: ${error.message}`;
+              if (data.nodeId === "query") return "✅ Working";
+              return "This should not happen";
+            }}
+          </Query>
         </header>
       </div>
     );
