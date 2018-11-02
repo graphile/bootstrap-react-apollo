@@ -373,6 +373,23 @@ COMMENT ON FUNCTION app_jobs.update_timestamps() IS 'Ensures that created_at, up
 
 
 --
+-- Name: tg_users__make_first_user_admin(); Type: FUNCTION; Schema: app_private; Owner: -
+--
+
+CREATE FUNCTION app_private.tg_users__make_first_user_admin() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO "$user", public
+    AS $$
+begin
+  if not exists(select 1 from app_public.users limit 1) then
+    NEW.is_admin = true;
+  end if;
+  return NEW;
+end;
+$$;
+
+
+--
 -- Name: current_user_id(); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -425,6 +442,86 @@ ALTER SEQUENCE app_jobs.jobs_id_seq OWNED BY app_jobs.jobs.id;
 
 
 --
+-- Name: users; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.users (
+    id integer NOT NULL,
+    username public.citext NOT NULL,
+    name text,
+    avatar_url text,
+    is_admin boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT users_avatar_url_check CHECK ((avatar_url ~ '^https?://[^/]+'::text)),
+    CONSTRAINT users_username_check CHECK (((length((username)::text) >= 2) AND (length((username)::text) <= 24) AND (username OPERATOR(public.~) '^[a-zA-Z]([a-zA-Z0-9][_]?)+$'::public.citext)))
+);
+
+
+--
+-- Name: TABLE users; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.users IS '@omit all
+A user who can log in to the application.';
+
+
+--
+-- Name: COLUMN users.id; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.id IS 'Unique identifier for the user.';
+
+
+--
+-- Name: COLUMN users.username; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.username IS 'Public-facing username (or ''handle'') of the user.';
+
+
+--
+-- Name: COLUMN users.name; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.name IS 'Public-facing name (or pseudonym) of the user.';
+
+
+--
+-- Name: COLUMN users.avatar_url; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.avatar_url IS 'Optional avatar URL.';
+
+
+--
+-- Name: COLUMN users.is_admin; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.is_admin IS 'If true, the user has elevated privileges.';
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: app_public; Owner: -
+--
+
+CREATE SEQUENCE app_public.users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: app_public; Owner: -
+--
+
+ALTER SEQUENCE app_public.users_id_seq OWNED BY app_public.users.id;
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -463,6 +560,13 @@ ALTER TABLE ONLY app_jobs.jobs ALTER COLUMN id SET DEFAULT nextval('app_jobs.job
 
 
 --
+-- Name: users id; Type: DEFAULT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.users ALTER COLUMN id SET DEFAULT nextval('app_public.users_id_seq'::regclass);
+
+
+--
 -- Name: migrations id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -483,6 +587,22 @@ ALTER TABLE ONLY app_jobs.job_queues
 
 ALTER TABLE ONLY app_jobs.jobs
     ADD CONSTRAINT jobs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_username_key; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.users
+    ADD CONSTRAINT users_username_key UNIQUE (username);
 
 
 --
@@ -536,10 +656,51 @@ CREATE TRIGGER _900_notify_worker AFTER INSERT ON app_jobs.jobs FOR EACH STATEME
 
 
 --
+-- Name: users _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_hidden.tg__timestamps();
+
+
+--
+-- Name: users _200_make_first_user_admin; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _200_make_first_user_admin BEFORE INSERT ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_private.tg_users__make_first_user_admin();
+
+
+--
 -- Name: job_queues; Type: ROW SECURITY; Schema: app_jobs; Owner: -
 --
 
 ALTER TABLE app_jobs.job_queues ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: users delete_self; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY delete_self ON app_public.users FOR DELETE USING ((id = app_public.current_user_id()));
+
+
+--
+-- Name: users select_all; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_all ON app_public.users FOR SELECT USING (true);
+
+
+--
+-- Name: users update_self; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY update_self ON app_public.users FOR UPDATE USING ((id = app_public.current_user_id()));
+
+
+--
+-- Name: users; Type: ROW SECURITY; Schema: app_public; Owner: -
+--
+
+ALTER TABLE app_public.users ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: SCHEMA app_hidden; Type: ACL; Schema: -; Owner: -
@@ -553,6 +714,34 @@ GRANT USAGE ON SCHEMA app_hidden TO boilerplatecheck_visitor;
 --
 
 GRANT USAGE ON SCHEMA app_public TO boilerplatecheck_visitor;
+
+
+--
+-- Name: TABLE users; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.users TO boilerplatecheck_visitor;
+
+
+--
+-- Name: COLUMN users.name; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT UPDATE(name) ON TABLE app_public.users TO boilerplatecheck_visitor;
+
+
+--
+-- Name: COLUMN users.avatar_url; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT UPDATE(avatar_url) ON TABLE app_public.users TO boilerplatecheck_visitor;
+
+
+--
+-- Name: SEQUENCE users_id_seq; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,USAGE ON SEQUENCE app_public.users_id_seq TO boilerplatecheck_visitor;
 
 
 --
