@@ -16,6 +16,20 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: app_hidden; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA app_hidden;
+
+
+--
+-- Name: app_private; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA app_private;
+
+
+--
 -- Name: app_public; Type: SCHEMA; Schema: -; Owner: -
 --
 
@@ -126,6 +140,13 @@ ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.m
 
 ALTER TABLE ONLY public.migrations
     ADD CONSTRAINT migrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: SCHEMA app_hidden; Type: ACL; Schema: -; Owner: -
+--
+
+GRANT USAGE ON SCHEMA app_hidden TO boilerplatecheck_visitor;
 
 
 --

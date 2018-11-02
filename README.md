@@ -102,6 +102,14 @@ This package is configured through environmental variables.
 
 {TODO}
 
+## Database layout
+
+- `public` - this is where extensions are installed to, it also contains the `migrations` table. We will typically not add anything to this schema ourselves.
+- `app_public` - contains everything to be exposed over GraphQL
+- `app_hidden` - same permissions as `app_public`, but will not be exposed over GraphQL
+- `app_private` - database-owner-only storage, for storing things users should never have direct access to, like bcrypt password hashes.
+- `app_jobs` - used for our job queue (requires database-owner privileges)
+
 ## Why the `/data` folder?
 
 ESLint needs an up to date schema dump to correctly validate GraphQL queries.
