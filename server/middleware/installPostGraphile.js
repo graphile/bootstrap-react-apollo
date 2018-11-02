@@ -1,7 +1,7 @@
 const { postgraphile, makePluginHook } = require("postgraphile");
 const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
-const { getUserClaimsFromRequest } = require("./installPassport");
 const chalk = require("chalk");
+const { getUserClaimsFromRequest } = require("./installPassport");
 
 /* Load optional plugins */
 /* eslint-disable global-require, import/no-dynamic-require, import/no-unresolved, no-console */
@@ -18,7 +18,7 @@ try {
   console.log();
   console.log(
     `Please support PostGraphile development:\n\n  ${chalk.blue.bold.underline(
-      `https://graphile.org/donate`
+      "https://graphile.org/donate"
     )} 🙏`
   );
   console.log();
