@@ -612,6 +612,78 @@ COMMENT ON TABLE app_private.user_secrets IS 'The contents of this table should 
 
 
 --
+-- Name: user_authentications; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.user_authentications (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    service text NOT NULL,
+    identifier text NOT NULL,
+    details jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: TABLE user_authentications; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.user_authentications IS '@omit all
+Contains information about the login providers this user has used, so that they may disconnect them should they wish.';
+
+
+--
+-- Name: COLUMN user_authentications.user_id; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_authentications.user_id IS '@omit';
+
+
+--
+-- Name: COLUMN user_authentications.service; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_authentications.service IS 'The login service used, e.g. `twitter` or `github`.';
+
+
+--
+-- Name: COLUMN user_authentications.identifier; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_authentications.identifier IS 'A unique identifier for the user within the login service.';
+
+
+--
+-- Name: COLUMN user_authentications.details; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_authentications.details IS '@omit
+Additional profile details extracted from this login method';
+
+
+--
+-- Name: user_authentications_id_seq; Type: SEQUENCE; Schema: app_public; Owner: -
+--
+
+CREATE SEQUENCE app_public.user_authentications_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: user_authentications_id_seq; Type: SEQUENCE OWNED BY; Schema: app_public; Owner: -
+--
+
+ALTER SEQUENCE app_public.user_authentications_id_seq OWNED BY app_public.user_authentications.id;
+
+
+--
 -- Name: user_emails; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -727,6 +799,13 @@ ALTER TABLE ONLY app_jobs.jobs ALTER COLUMN id SET DEFAULT nextval('app_jobs.job
 
 
 --
+-- Name: user_authentications id; Type: DEFAULT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.user_authentications ALTER COLUMN id SET DEFAULT nextval('app_public.user_authentications_id_seq'::regclass);
+
+
+--
 -- Name: user_emails id; Type: DEFAULT; Schema: app_public; Owner: -
 --
 
@@ -777,6 +856,22 @@ ALTER TABLE ONLY app_private.user_email_secrets
 
 ALTER TABLE ONLY app_private.user_secrets
     ADD CONSTRAINT user_secrets_pkey PRIMARY KEY (user_id);
+
+
+--
+-- Name: user_authentications uniq_user_authentications; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.user_authentications
+    ADD CONSTRAINT uniq_user_authentications UNIQUE (service, identifier);
+
+
+--
+-- Name: user_authentications user_authentications_pkey; Type: CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.user_authentications
+    ADD CONSTRAINT user_authentications_pkey PRIMARY KEY (id);
 
 
 --
@@ -883,6 +978,13 @@ CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_emails 
 
 
 --
+-- Name: user_authentications _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_authentications FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
+
+
+--
 -- Name: users _200_make_first_user_admin; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -927,6 +1029,14 @@ ALTER TABLE ONLY app_private.user_secrets
 
 
 --
+-- Name: user_authentications user_authentications_user_id_fkey; Type: FK CONSTRAINT; Schema: app_public; Owner: -
+--
+
+ALTER TABLE ONLY app_public.user_authentications
+    ADD CONSTRAINT user_authentications_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: user_emails user_emails_user_id_fkey; Type: FK CONSTRAINT; Schema: app_public; Owner: -
 --
 
@@ -960,6 +1070,13 @@ CREATE POLICY delete_own ON app_public.user_emails FOR DELETE USING ((user_id = 
 
 
 --
+-- Name: user_authentications delete_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY delete_own ON app_public.user_authentications FOR DELETE USING ((user_id = app_public.current_user_id()));
+
+
+--
 -- Name: users delete_self; Type: POLICY; Schema: app_public; Owner: -
 --
 
@@ -988,11 +1105,24 @@ CREATE POLICY select_own ON app_public.user_emails FOR SELECT USING ((user_id = 
 
 
 --
+-- Name: user_authentications select_own; Type: POLICY; Schema: app_public; Owner: -
+--
+
+CREATE POLICY select_own ON app_public.user_authentications FOR SELECT USING ((user_id = app_public.current_user_id()));
+
+
+--
 -- Name: users update_self; Type: POLICY; Schema: app_public; Owner: -
 --
 
 CREATE POLICY update_self ON app_public.users FOR UPDATE USING ((id = app_public.current_user_id()));
 
+
+--
+-- Name: user_authentications; Type: ROW SECURITY; Schema: app_public; Owner: -
+--
+
+ALTER TABLE app_public.user_authentications ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: user_emails; Type: ROW SECURITY; Schema: app_public; Owner: -
@@ -1039,6 +1169,20 @@ GRANT UPDATE(name) ON TABLE app_public.users TO boilerplatecheck_visitor;
 --
 
 GRANT UPDATE(avatar_url) ON TABLE app_public.users TO boilerplatecheck_visitor;
+
+
+--
+-- Name: TABLE user_authentications; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO boilerplatecheck_visitor;
+
+
+--
+-- Name: SEQUENCE user_authentications_id_seq; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,USAGE ON SEQUENCE app_public.user_authentications_id_seq TO boilerplatecheck_visitor;
 
 
 --
