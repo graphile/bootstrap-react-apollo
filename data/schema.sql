@@ -121,6 +121,29 @@ $$;
 COMMENT ON FUNCTION app_hidden.tg__add_job() IS 'Useful shortcut to create a job on insert/update. Pass the task name as the first trigger argument, and optionally the queue name as the second argument. The record id will automatically be available on the JSON payload.';
 
 
+--
+-- Name: tg__timestamps(); Type: FUNCTION; Schema: app_hidden; Owner: -
+--
+
+CREATE FUNCTION app_hidden.tg__timestamps() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO "$user", public
+    AS $$
+begin
+  NEW.created_at = (case when TG_OP = 'INSERT' then NOW() else OLD.created_at end);
+  NEW.updated_at = (case when TG_OP = 'UPDATE' and OLD.updated_at <= NOW() then OLD.updated_at + interval '1 millisecond' else NOW() end);
+  return NEW;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION tg__timestamps(); Type: COMMENT; Schema: app_hidden; Owner: -
+--
+
+COMMENT ON FUNCTION app_hidden.tg__timestamps() IS 'This trigger should be called on all tables with created_at, updated_at - it ensures that they cannot be manipulated and that updated_at will always be larger than the previous updated_at.';
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
