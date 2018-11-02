@@ -328,6 +328,142 @@ COMMENT ON FUNCTION app_jobs.update_timestamps() IS 'Ensures that created_at, up
 
 
 --
+-- Name: users; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.users (
+    id integer NOT NULL,
+    username public.citext NOT NULL,
+    name text,
+    avatar_url text,
+    is_admin boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT users_avatar_url_check CHECK ((avatar_url ~ '^https?://[^/]+'::text)),
+    CONSTRAINT users_username_check CHECK (((length((username)::text) >= 2) AND (length((username)::text) <= 24) AND (username OPERATOR(public.~) '^[a-zA-Z]([a-zA-Z0-9][_]?)+$'::public.citext)))
+);
+
+
+--
+-- Name: TABLE users; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.users IS '@omit all
+A user who can log in to the application.';
+
+
+--
+-- Name: COLUMN users.id; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.id IS 'Unique identifier for the user.';
+
+
+--
+-- Name: COLUMN users.username; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.username IS 'Public-facing username (or ''handle'') of the user.';
+
+
+--
+-- Name: COLUMN users.name; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.name IS 'Public-facing name (or pseudonym) of the user.';
+
+
+--
+-- Name: COLUMN users.avatar_url; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.avatar_url IS 'Optional avatar URL.';
+
+
+--
+-- Name: COLUMN users.is_admin; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.users.is_admin IS 'If true, the user has elevated privileges.';
+
+
+--
+-- Name: login(text, text); Type: FUNCTION; Schema: app_private; Owner: -
+--
+
+CREATE FUNCTION app_private.login(username text, password text) RETURNS app_public.users
+    LANGUAGE plpgsql STRICT SECURITY DEFINER
+    SET search_path TO "$user", public
+    AS $$
+declare
+  v_user app_public.users;
+  v_user_secret app_private.user_secrets;
+  v_login_attempt_window_duration interval = interval '6 hours';
+begin
+  select users.* into v_user
+  from app_public.users
+  where
+    -- Match username against users username, or any verified email address
+    (
+      users.username = login.username
+    or
+      exists(
+        select 1
+        from app_public.user_emails
+        where user_id = users.id
+        and is_verified is true
+        and email = login.username::citext
+      )
+    );
+
+  if not (v_user is null) then
+    -- Load their secrets
+    select * into v_user_secret from app_private.user_secrets
+    where user_secrets.user_id = v_user.id;
+
+    -- Have there been too many login attempts?
+    if (
+      v_user_secret.first_failed_password_attempt is not null
+    and
+      v_user_secret.first_failed_password_attempt > NOW() - v_login_attempt_window_duration
+    and
+      v_user_secret.password_attempts >= 20
+    ) then
+      raise exception 'User account locked - too many login attempts' using errcode = 'LOCKD';
+    end if;
+
+    -- Not too many login attempts, let's check the password
+    if v_user_secret.password_hash = crypt(password, v_user_secret.password_hash) then
+      -- Excellent - they're loggged in! Let's reset the attempt tracking
+      update app_private.user_secrets
+      set password_attempts = 0, first_failed_password_attempt = null
+      where user_id = v_user.id;
+      return v_user;
+    else
+      -- Wrong password, bump all the attempt tracking figures
+      update app_private.user_secrets
+      set
+        password_attempts = (case when first_failed_password_attempt is null or first_failed_password_attempt < now() - v_login_attempt_window_duration then 1 else password_attempts + 1 end),
+        first_failed_password_attempt = (case when first_failed_password_attempt is null or first_failed_password_attempt < now() - v_login_attempt_window_duration then now() else first_failed_password_attempt end)
+      where user_id = v_user.id;
+      return null;
+    end if;
+  else
+    -- No user with that email/username was found
+    return null;
+  end if;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION login(username text, password text); Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON FUNCTION app_private.login(username text, password text) IS 'Returns a user that matches the username/password combo, or null on failure.';
+
+
+--
 -- Name: tg__add_job(); Type: FUNCTION; Schema: app_private; Owner: -
 --
 
@@ -436,66 +572,6 @@ begin
   return NEW;
 end;
 $$;
-
-
---
--- Name: users; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.users (
-    id integer NOT NULL,
-    username public.citext NOT NULL,
-    name text,
-    avatar_url text,
-    is_admin boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT users_avatar_url_check CHECK ((avatar_url ~ '^https?://[^/]+'::text)),
-    CONSTRAINT users_username_check CHECK (((length((username)::text) >= 2) AND (length((username)::text) <= 24) AND (username OPERATOR(public.~) '^[a-zA-Z]([a-zA-Z0-9][_]?)+$'::public.citext)))
-);
-
-
---
--- Name: TABLE users; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON TABLE app_public.users IS '@omit all
-A user who can log in to the application.';
-
-
---
--- Name: COLUMN users.id; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.users.id IS 'Unique identifier for the user.';
-
-
---
--- Name: COLUMN users.username; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.users.username IS 'Public-facing username (or ''handle'') of the user.';
-
-
---
--- Name: COLUMN users.name; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.users.name IS 'Public-facing name (or pseudonym) of the user.';
-
-
---
--- Name: COLUMN users.avatar_url; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.users.avatar_url IS 'Optional avatar URL.';
-
-
---
--- Name: COLUMN users.is_admin; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.users.is_admin IS 'If true, the user has elevated privileges.';
 
 
 --
