@@ -4,24 +4,25 @@ This repository will help you get started with PostGraphile quickly. It's curren
 
 ## Goals:
 
-- [ ] PostGraphile server, with Express
-- [ ] Development mode has GraphiQL
-- [ ] Development mode watched DB for changes
-- [ ] Development mode maintains an up-to-date GraphQL schema file
+- [x] PostGraphile server, with Express
+- [x] Development mode has GraphiQL
+- [x] Development mode watched DB for changes
+- [x] Development mode maintains an up-to-date GraphQL schema file
 - [ ] React client
-- [ ] Session-based authentication (cookies)
+- [x] Development mode has React hot loading
+- [x] Session-based authentication (cookies)
 - [ ] Double-submit token to avoid CSRF
 - [ ] User accounts (registration, login)
 - [ ] OAuth support (login with GitHub, Twitter, Facebook, ...)
-- [ ] JavaScript linting
-- [ ] GraphQL linting
-- [ ] Prettier for code formatting
+- [x] JavaScript linting
+- [x] GraphQL linting
+- [x] Prettier for code formatting
 - [ ] Server-side rendering (SSR)
 - [ ] Easily extensible
 - [ ] Test suite
 - [ ] Production-optimised bundle
 - [ ] Background worker
-- [ ] Database migrations framework (preferably flexible)
+- [x] Database migrations framework (preferably flexible)
 - [ ] Storybook React component previews
 
 ## Layout
