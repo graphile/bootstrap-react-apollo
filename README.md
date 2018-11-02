@@ -18,9 +18,9 @@ Server:
 - [x] Development: watch DB for changes, no need to restart server
 - [x] Development: maintain up-to-date GraphQL schema file (`./data/schema.graphql`)
 - [x] Session-based authentication (cookies)
-- [ ] Double-submit token to avoid CSRF
 - [ ] User accounts (registration, login)
 - [ ] OAuth support (login with GitHub, Twitter, Facebook, ... via Passport.js)
+- [ ] Double-submit token to avoid CSRF
 - [ ] Background worker
 - [ ] Server-side rendering (SSR)
 - [ ] Test suite
@@ -32,6 +32,9 @@ Client:
 - [x] react-apollo GraphQL client
 - [x] Send double-submit token (if present) with GraphQL requests (`window.CSRF_TOKEN`)
 - [x] Database migrations framework (preferably flexible)
+- [ ] Register/login with social providers
+- [ ] Register with username/password
+- [ ] Login with username/password
 - [ ] [Storybook](https://storybook.js.org/) for React component previews
 - [ ] Test suite
 
