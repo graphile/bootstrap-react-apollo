@@ -4,26 +4,49 @@ This repository will help you get started with PostGraphile quickly. It's curren
 
 ## Goals:
 
+Database:
+
+- [x] Basic setup script to setup/reset database (`yarn setup`)
+- [x] Basic migrations system with migrate/rollback commands (`yarn db:migrate:dev` / `yarn db:rollback:dev`)
+- [x] Migration templating to support different role names
+- [x] Dump database after every migration to ensure everyone's running the same
+
+Server:
+
 - [x] PostGraphile server, with Express
-- [x] Development mode has GraphiQL
-- [x] Development mode watched DB for changes
-- [x] Development mode maintains an up-to-date GraphQL schema file
-- [ ] React client
-- [x] Development mode has React hot loading
+- [x] Development: GraphiQL
+- [x] Development: watch DB for changes, no need to restart server
+- [x] Development: maintain up-to-date GraphQL schema file (`./data/schema.graphql`)
 - [x] Session-based authentication (cookies)
 - [ ] Double-submit token to avoid CSRF
 - [ ] User accounts (registration, login)
-- [ ] OAuth support (login with GitHub, Twitter, Facebook, ...)
+- [ ] OAuth support (login with GitHub, Twitter, Facebook, ... via Passport.js)
+- [ ] Background worker
+- [ ] Server-side rendering (SSR)
+- [ ] Test suite
+
+Client:
+
+- [x] React app
+- [x] Development mode has React hot loading
+- [x] react-apollo GraphQL client
+- [x] Send double-submit token (if present) with GraphQL requests (`window.CSRF_TOKEN`)
+- [x] Database migrations framework (preferably flexible)
+- [ ] [Storybook](https://storybook.js.org/) for React component previews
+- [ ] Test suite
+
+General:
+
 - [x] JavaScript linting
 - [x] GraphQL linting
 - [x] Prettier for code formatting
-- [ ] Server-side rendering (SSR)
-- [ ] Easily extensible
-- [ ] Test suite
+- [x] Ignore relevant files in GitHub PRs (gitattributes `linguist-generated=true`)
 - [ ] Production-optimised bundle
-- [ ] Background worker
-- [x] Database migrations framework (preferably flexible)
-- [ ] Storybook React component previews
+
+Deployment:
+
+- [ ] Procfile for Heroku
+- [ ] Dockerfile or similar
 
 ## Layout
 
@@ -75,3 +98,14 @@ This package is configured through environmental variables.
 ## Deploying
 
 {TODO}
+
+## Why the `/data` folder?
+
+ESLint needs an up to date schema dump to correctly validate GraphQL queries.
+
+When developing, you want to ensure that your database is identical to your
+colleagues - differences in `/data/schema.sql` indicate that your databases
+differ.
+
+When performing Code Review, it's important to see the changes to both the
+database and the GraphQL schemas to ensure no breaking changes are introduced.
