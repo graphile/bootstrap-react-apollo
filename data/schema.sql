@@ -1570,93 +1570,93 @@ ALTER TABLE app_public.users ENABLE ROW LEVEL SECURITY;
 -- Name: SCHEMA app_hidden; Type: ACL; Schema: -; Owner: -
 --
 
-GRANT USAGE ON SCHEMA app_hidden TO boilerplatecheck_visitor;
+GRANT USAGE ON SCHEMA app_hidden TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: SCHEMA app_public; Type: ACL; Schema: -; Owner: -
 --
 
-GRANT USAGE ON SCHEMA app_public TO boilerplatecheck_visitor;
+GRANT USAGE ON SCHEMA app_public TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: TABLE users; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.users TO boilerplatecheck_visitor;
+GRANT SELECT,DELETE ON TABLE app_public.users TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: COLUMN users.name; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(name) ON TABLE app_public.users TO boilerplatecheck_visitor;
+GRANT UPDATE(name) ON TABLE app_public.users TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: COLUMN users.avatar_url; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT UPDATE(avatar_url) ON TABLE app_public.users TO boilerplatecheck_visitor;
+GRANT UPDATE(avatar_url) ON TABLE app_public.users TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: TABLE user_authentications; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO boilerplatecheck_visitor;
+GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: SEQUENCE user_authentications_id_seq; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,USAGE ON SEQUENCE app_public.user_authentications_id_seq TO boilerplatecheck_visitor;
+GRANT SELECT,USAGE ON SEQUENCE app_public.user_authentications_id_seq TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: TABLE user_emails; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,DELETE ON TABLE app_public.user_emails TO boilerplatecheck_visitor;
+GRANT SELECT,DELETE ON TABLE app_public.user_emails TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: COLUMN user_emails.email; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT INSERT(email) ON TABLE app_public.user_emails TO boilerplatecheck_visitor;
+GRANT INSERT(email) ON TABLE app_public.user_emails TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: SEQUENCE user_emails_id_seq; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,USAGE ON SEQUENCE app_public.user_emails_id_seq TO boilerplatecheck_visitor;
+GRANT SELECT,USAGE ON SEQUENCE app_public.user_emails_id_seq TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: SEQUENCE users_id_seq; Type: ACL; Schema: app_public; Owner: -
 --
 
-GRANT SELECT,USAGE ON SEQUENCE app_public.users_id_seq TO boilerplatecheck_visitor;
+GRANT SELECT,USAGE ON SEQUENCE app_public.users_id_seq TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: app_hidden; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE boilerplatecheck IN SCHEMA app_hidden REVOKE ALL ON SEQUENCES  FROM boilerplatecheck;
-ALTER DEFAULT PRIVILEGES FOR ROLE boilerplatecheck IN SCHEMA app_hidden GRANT SELECT,USAGE ON SEQUENCES  TO boilerplatecheck_visitor;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgraphile_bootstrap IN SCHEMA app_hidden REVOKE ALL ON SEQUENCES  FROM postgraphile_bootstrap;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgraphile_bootstrap IN SCHEMA app_hidden GRANT SELECT,USAGE ON SEQUENCES  TO postgraphile_bootstrap_visitor;
 
 
 --
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: app_public; Owner: -
 --
 
-ALTER DEFAULT PRIVILEGES FOR ROLE boilerplatecheck IN SCHEMA app_public REVOKE ALL ON SEQUENCES  FROM boilerplatecheck;
-ALTER DEFAULT PRIVILEGES FOR ROLE boilerplatecheck IN SCHEMA app_public GRANT SELECT,USAGE ON SEQUENCES  TO boilerplatecheck_visitor;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgraphile_bootstrap IN SCHEMA app_public REVOKE ALL ON SEQUENCES  FROM postgraphile_bootstrap;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgraphile_bootstrap IN SCHEMA app_public GRANT SELECT,USAGE ON SEQUENCES  TO postgraphile_bootstrap_visitor;
 
 
 --
