@@ -14,8 +14,9 @@ class App extends Component {
             className="App-logo"
             alt="logo"
           />
+          <h3>PostGraphile / React / Apollo bootstrap</h3>
           <p>
-            Edit <code>src/App.js</code> and save to reload.
+            Edit <code>src/App.js</code> and save to hot-reload.
           </p>
           <a
             className="App-link"
@@ -25,20 +26,23 @@ class App extends Component {
           >
             Learn PostGraphile
           </a>
-          <Query
-            query={gql`
-              query PostGraphileConnectionQuery {
-                nodeId
-              }
-            `}
-          >
-            {({ data, loading, error }) => {
-              if (loading) return "Loading...";
-              if (error) return `Error: ${error.message}`;
-              if (data.nodeId === "query") return "✅ Working";
-              return "This should not happen";
-            }}
-          </Query>
+          <p>
+            GraphQL status check:{" "}
+            <Query
+              query={gql`
+                query PostGraphileConnectionQuery {
+                  nodeId
+                }
+              `}
+            >
+              {({ data, loading, error }) => {
+                if (loading) return "Loading...";
+                if (error) return `Error: ${error.message}`;
+                if (data.nodeId === "query") return "✅ Working";
+                return "This should not happen";
+              }}
+            </Query>
+          </p>
         </header>
       </div>
     );
