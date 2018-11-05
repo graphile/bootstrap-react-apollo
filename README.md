@@ -38,6 +38,7 @@ Client:
 - [ ] Login with username/password
 - [ ] [Storybook](https://storybook.js.org/) for React component previews
 - [ ] Test suite
+- [ ] Automatic bundle splitting
 
 General:
 
