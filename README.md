@@ -18,6 +18,7 @@ Server:
 - [x] Development: watch DB for changes, no need to restart server
 - [x] Development: maintain up-to-date GraphQL schema file (`./data/schema.graphql`)
 - [x] Session-based authentication (cookies)
+- [x] Database migrations framework (preferably flexible)
 - [ ] User accounts (registration, login)
 - [ ] OAuth support (login with GitHub, Twitter, Facebook, ... via Passport.js)
 - [ ] Double-submit token to avoid CSRF
@@ -31,7 +32,7 @@ Client:
 - [x] Development mode has React hot loading
 - [x] react-apollo GraphQL client
 - [x] Send double-submit token (if present) with GraphQL requests (`window.CSRF_TOKEN`)
-- [x] Database migrations framework (preferably flexible)
+- [ ] Routing via React Router
 - [ ] Register/login with social providers
 - [ ] Register with username/password
 - [ ] Login with username/password
