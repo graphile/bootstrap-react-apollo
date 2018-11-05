@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { hot } from "react-hot-loader";
+import { Link } from "react-router-dom";
 import "./HomePage.css";
 import gql from "graphql-tag";
 import logo from "../images/postgraphile.optimized.svg";
@@ -33,15 +34,19 @@ class HomePage extends Component {
           </p>
           <p className="HomePage-p">GraphQL status check: {status}</p>
           <p className="HomePage-p">
-            <a
+            <Link
+              // This is an "Link" tag because we can go there without
+              // reloading the page
               className="HomePage-link"
-              href="/login/"
+              to="/login/"
               rel="noopener noreferrer"
             >
               Log In
-            </a>
+            </Link>
             <br />
             <a
+              // This is an "a" tag because we want a full page reload,
+              // GraphiQL is not embedded into our React app
               className="HomePage-link"
               href="/graphiql"
               rel="noopener noreferrer"
