@@ -1,18 +1,18 @@
-.App {
+.HomePage {
   text-align: center;
 }
 
-.App-p {
+.HomePage-p {
   margin: 0;
   padding: 0;
   margin-bottom: 0.5em;
 }
 
-.App-logo {
+.HomePage-logo {
   height: 20vmin;
 }
 
-.App-header {
+.HomePage-header {
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
@@ -23,6 +23,6 @@
   color: white;
 }
 
-.App-link {
+.HomePage-link {
   color: #61dafb;
 }
