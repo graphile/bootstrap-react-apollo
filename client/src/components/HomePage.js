@@ -1,11 +1,10 @@
-import React, { Component } from "react";
-import { hot } from "react-hot-loader";
+import React from "react";
 import { Link } from "react-router-dom";
 import "./HomePage.css";
 import gql from "graphql-tag";
 import logo from "../images/postgraphile.optimized.svg";
 
-class HomePage extends Component {
+export default class HomePage extends React.Component {
   static QueryFragment = gql`
     fragment HomePage_QueryFragment on Query {
       nodeId
@@ -79,5 +78,3 @@ class HomePage extends Component {
     );
   }
 }
-
-export default hot(module)(HomePage);
