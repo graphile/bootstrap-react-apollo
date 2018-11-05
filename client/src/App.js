@@ -3,30 +3,19 @@ import { hot } from "react-hot-loader";
 import "./App.css";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
+import logo from "./images/postgraphile.optimized.svg";
 
 class App extends Component {
   render() {
     return (
       <div className="App">
         <header className="App-header">
-          <img
-            src="https://www.graphile.org/images/postgraphile.optimized.svg"
-            className="App-logo"
-            alt="logo"
-          />
+          <img src={logo} className="App-logo" alt="logo" />
           <h3>PostGraphile / React / Apollo bootstrap</h3>
-          <p>
+          <p className="App-p">
             Edit <code>src/App.js</code> and save to hot-reload.
           </p>
-          <a
-            className="App-link"
-            href="https://www.graphile.org/postgraphile/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn PostGraphile
-          </a>
-          <p>
+          <p className="App-p">
             GraphQL status check:{" "}
             <Query
               query={gql`
@@ -42,6 +31,30 @@ class App extends Component {
                 return "This should not happen";
               }}
             </Query>
+          </p>
+          <p className="App-p">
+            <a className="App-link" href="/graphiql" rel="noopener noreferrer">
+              View API in GraphiQL
+            </a>
+            <br />
+            <a
+              className="App-link"
+              href="https://www.graphile.org/postgraphile/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn PostGraphile
+            </a>
+            <br />
+            <a
+              className="App-link"
+              href="https://github.com/graphile/bootstrap-react-apollo/blob/master/README.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Read README
+            </a>
+            <br />
           </p>
         </header>
       </div>
