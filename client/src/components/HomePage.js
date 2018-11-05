@@ -38,7 +38,7 @@ class HomePage extends Component {
               href="/login/"
               rel="noopener noreferrer"
             >
-              Visit login Page
+              Log In
             </a>
             <br />
             <a
@@ -49,14 +49,6 @@ class HomePage extends Component {
               View API in GraphiQL
             </a>
             <br />
-            <a
-              className="HomePage-link"
-              href="https://www.graphile.org/postgraphile/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learn PostGraphile
-            </a>
             <br />
             <a
               className="HomePage-link"
@@ -64,7 +56,16 @@ class HomePage extends Component {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Read README
+              View README for project structure
+            </a>
+            <br />
+            <a
+              className="HomePage-link"
+              href="https://www.graphile.org/postgraphile/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn PostGraphile
             </a>
             <br />
           </p>
