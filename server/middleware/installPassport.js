@@ -17,6 +17,7 @@ async function getUserByIdentifier(rootPgPool, identifier) {
     [identifier]
   );
   if (!user) {
+    // This MUST be 'false', not 'null', due to how Passport works.
     return false;
   }
   return user;
