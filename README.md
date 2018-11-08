@@ -32,7 +32,7 @@ Client:
 - [x] Development mode has React hot loading
 - [x] react-apollo GraphQL client
 - [x] Send double-submit token (if present) with GraphQL requests (`window.CSRF_TOKEN`)
-- [ ] Routing via React Router
+- [x] Routing via React Router
 - [ ] Register/login with social providers
 - [ ] Register with username/password
 - [ ] Login with username/password
