@@ -1000,6 +1000,16 @@ ALTER SEQUENCE app_jobs.jobs_id_seq OWNED BY app_jobs.jobs.id;
 
 
 --
+-- Name: user_authentication_secrets; Type: TABLE; Schema: app_private; Owner: -
+--
+
+CREATE TABLE app_private.user_authentication_secrets (
+    user_authentication_id integer NOT NULL,
+    details jsonb DEFAULT '{}'::jsonb NOT NULL
+);
+
+
+--
 -- Name: user_email_secrets; Type: TABLE; Schema: app_private; Owner: -
 --
 
@@ -1273,6 +1283,14 @@ ALTER TABLE ONLY app_jobs.jobs
 
 
 --
+-- Name: user_authentication_secrets user_authentication_secrets_pkey; Type: CONSTRAINT; Schema: app_private; Owner: -
+--
+
+ALTER TABLE ONLY app_private.user_authentication_secrets
+    ADD CONSTRAINT user_authentication_secrets_pkey PRIMARY KEY (user_authentication_id);
+
+
+--
 -- Name: user_email_secrets user_email_secrets_pkey; Type: CONSTRAINT; Schema: app_private; Owner: -
 --
 
@@ -1443,6 +1461,14 @@ CREATE TRIGGER _900_send_verification_email AFTER INSERT ON app_public.user_emai
 
 
 --
+-- Name: user_authentication_secrets user_authentication_secrets_user_authentication_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
+--
+
+ALTER TABLE ONLY app_private.user_authentication_secrets
+    ADD CONSTRAINT user_authentication_secrets_user_authentication_id_fkey FOREIGN KEY (user_authentication_id) REFERENCES app_public.user_authentications(id) ON DELETE CASCADE;
+
+
+--
 -- Name: user_email_secrets user_email_secrets_user_email_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
 --
 
@@ -1479,6 +1505,12 @@ ALTER TABLE ONLY app_public.user_emails
 --
 
 ALTER TABLE app_jobs.job_queues ENABLE ROW LEVEL SECURITY;
+
+--
+-- Name: user_authentication_secrets; Type: ROW SECURITY; Schema: app_private; Owner: -
+--
+
+ALTER TABLE app_private.user_authentication_secrets ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: user_email_secrets; Type: ROW SECURITY; Schema: app_private; Owner: -
