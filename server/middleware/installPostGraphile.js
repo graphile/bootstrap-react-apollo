@@ -130,7 +130,7 @@ function postgraphileOptions() {
 
     // Tells Postgres who is accessing it (used in RLS policies/etc)
     async pgSettings(req) {
-      const claims = getUserClaimsFromRequest(req);
+      const claims = await getUserClaimsFromRequest(req);
       return {
         role: process.env.DATABASE_VISITOR,
         ...Object.entries(claims).reduce((memo, [key, value]) => {
