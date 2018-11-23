@@ -100,7 +100,7 @@
     "postcss-loader": "3.0.0",
     "postcss-preset-env": "6.0.6",
     "postcss-safe-parser": "4.0.1",
-    "postgraphile": "^4.1.0-rc.0",
+    "postgraphile": "^4.1.0-rc.2",
     "prettier": "^1.14.3",
     "react": "^16.6.0",
     "react-apollo": "^2.2.4",
