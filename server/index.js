@@ -50,8 +50,12 @@ async function main() {
   // These are our assets: images/etc; served out of the /client/public folder
   await middleware.installSharedStatic(app);
   await middleware.installPostGraphile(app);
-  // This proxies through to create-react-app
-  await middleware.installFrontendServer(app);
+  if (isDev) {
+    // In development, the client runs its own server
+    await middleware.installClientServerProxy(app);
+  } else {
+    throw new Error("SSR not yet implemented!");
+  }
 
   // And finally, we open the listen port
   httpServer.listen(PORT, () => {
