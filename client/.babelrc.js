@@ -3,11 +3,11 @@ module.exports = {
     [
       "@babel/preset-react",
       {
-        development: process.env.NODE_ENV === "development",
-      },
+        development: process.env.NODE_ENV === "development"
+      }
     ],
     [
-      "@babel/env",
+      "@babel/preset-env",
       {
         targets: {
           node: "current"
@@ -15,7 +15,5 @@ module.exports = {
       }
     ]
   ],
-  plugins: [
-    "@babel/plugin-proposal-class-properties"
-  ]
+  plugins: ["@babel/plugin-proposal-class-properties"]
 };
