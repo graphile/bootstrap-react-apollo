@@ -12,13 +12,10 @@ const readFile = promisify(readFileCallback);
 
 function replacePlaceholders(str) {
   return str
-    .replace(/\{\{DATABASE_VISITOR\}\}/g, process.env.DATABASE_VISITOR)
-    .replace(
-      /\{\{DATABASE_AUTHENTICATOR\}\}/g,
-      process.env.DATABASE_AUTHENTICATOR
-    )
-    .replace(/\{\{DATABASE_OWNER\}\}/g, process.env.DATABASE_OWNER)
-    .replace(/\{\{DATABASE_NAME\}\}/g, process.env.DATABASE_NAME);
+    .replace(/:DATABASE_VISITOR/g, process.env.DATABASE_VISITOR)
+    .replace(/:DATABASE_AUTHENTICATOR/g, process.env.DATABASE_AUTHENTICATOR)
+    .replace(/:DATABASE_OWNER/g, process.env.DATABASE_OWNER)
+    .replace(/:DATABASE_NAME/g, process.env.DATABASE_NAME);
 }
 
 if (

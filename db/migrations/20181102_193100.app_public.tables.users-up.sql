@@ -12,10 +12,10 @@ alter table app_public.users enable row level security;
 create policy select_all on app_public.users for select using (true);
 create policy update_self on app_public.users for update using (id = app_public.current_user_id());
 create policy delete_self on app_public.users for delete using (id = app_public.current_user_id());
-grant select on app_public.users to {{DATABASE_VISITOR}};
+grant select on app_public.users to :DATABASE_VISITOR;
 -- NOTE: `insert` is not granted, because we'll handle that separately
-grant update(name, avatar_url) on app_public.users to {{DATABASE_VISITOR}};
-grant delete on app_public.users to {{DATABASE_VISITOR}};
+grant update(name, avatar_url) on app_public.users to :DATABASE_VISITOR;
+grant delete on app_public.users to :DATABASE_VISITOR;
 
 -- By doing `@omit all` we prevent the `allUsers` field from appearing in our
 -- GraphQL schema.  User discovery is still possible by browsing the rest of

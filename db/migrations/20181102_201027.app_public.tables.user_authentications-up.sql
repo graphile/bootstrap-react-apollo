@@ -28,5 +28,5 @@ comment on column app_public.user_authentications.details is
 create policy select_own on app_public.user_authentications for select using (user_id = app_public.current_user_id());
 create policy delete_own on app_public.user_authentications for delete using (user_id = app_public.current_user_id()); -- TODO check this isn't the last one, or that they have a verified email address
 
-grant select on app_public.user_authentications to {{DATABASE_VISITOR}};
-grant delete on app_public.user_authentications to {{DATABASE_VISITOR}};
+grant select on app_public.user_authentications to :DATABASE_VISITOR;
+grant delete on app_public.user_authentications to :DATABASE_VISITOR;

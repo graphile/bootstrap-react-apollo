@@ -29,6 +29,6 @@ comment on column app_public.user_emails.is_verified is
 create policy select_own on app_public.user_emails for select using (user_id = app_public.current_user_id());
 create policy insert_own on app_public.user_emails for insert with check (user_id = app_public.current_user_id());
 create policy delete_own on app_public.user_emails for delete using (user_id = app_public.current_user_id()); -- TODO check this isn't the last one!
-grant select on app_public.user_emails to {{DATABASE_VISITOR}};
-grant insert (email) on app_public.user_emails to {{DATABASE_VISITOR}};
-grant delete on app_public.user_emails to {{DATABASE_VISITOR}};
+grant select on app_public.user_emails to :DATABASE_VISITOR;
+grant insert (email) on app_public.user_emails to :DATABASE_VISITOR;
+grant delete on app_public.user_emails to :DATABASE_VISITOR;
