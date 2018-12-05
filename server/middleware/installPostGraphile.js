@@ -12,9 +12,16 @@ try {
   ({
     default: PostGraphileSupporter,
     enhanceHttpServerWithSubscriptions,
-  } = require("@graphile/plugin-supporter"));
+  } = require("@graphile/supporter"));
   console.log("Supporter plugin loaded - thanks! ❤️");
 } catch (e) {
+  // Failed to load supporter plugin
+  if (process.env.GRAPHILE_LICENSE) {
+    // You have a GRAPHILE_LICENSE, but the plugin failed to load. You might
+    // want to know about this (maybe the key is corrupt, or expires?). If you
+    // don't; delete this!
+    throw e;
+  }
   console.log();
   console.log(
     `Please support PostGraphile development:\n\n  ${chalk.blue.bold.underline(
@@ -24,7 +31,7 @@ try {
   console.log();
 }
 try {
-  ({ default: PostGraphilePro } = require("@graphile/plugin-pro"));
+  ({ default: PostGraphilePro } = require("@graphile/pro"));
   /*
    * The Pro plugin installs a number of protections to your GraphQL API.
    *
@@ -46,7 +53,12 @@ try {
    *
    */
 } catch (e) {
-  // Pro plugin not found
+  // Pro plugin not loaded
+  if (process.env.GRAPHILE_LICENSE) {
+    // You have a GRAPHILE_LICENSE, but the plugin failed to load. You might
+    // want to know about this. If you don't; delete this!
+    throw e;
+  }
 }
 /* eslint-enable */
 
