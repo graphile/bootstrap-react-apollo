@@ -86,7 +86,7 @@ module.exports = {
       {
         props: true,
         // Allow overwriting properties on 'memo' which is the name we tend to use in `.reduce(...)` calls
-        ignorePropertyModificationsFor: ["memo", "req"],
+        ignorePropertyModificationsFor: ["memo", "req", "res"],
       },
     ],
     camelcase: 0,
