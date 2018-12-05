@@ -14,7 +14,7 @@ Database:
 Server:
 
 - [x] PostGraphile server, with Express
-- [x] Development: GraphiQL
+- [x] Development: GraphiQL (enhanced)
 - [x] Development: watch DB for changes, no need to restart server
 - [x] Development: maintain up-to-date GraphQL schema file (`./data/schema.graphql`)
 - [x] Session-based authentication (cookies)
