@@ -5,33 +5,25 @@ module.exports = {
   env: {
     browser: true,
     jest: true,
-    node: true
+    node: true,
   },
   rules: {
     // Autofix removes debugger automatically, which makes debugging annoying.
     "no-debugger": 0,
-
-    // Prettier
-    "prettier/prettier": [
-      "error",
-      {
-        trailingComma: "es5"
-      }
-    ],
 
     // GraphQL
     "graphql/template-strings": [
       "error",
       {
         env: "literal",
-        schemaJson: require("./data/schema.json")
-      }
+        schemaJson: require("./data/schema.json"),
+      },
     ],
     "graphql/named-operations": [
       "error",
       {
-        schemaJson: require("./data/schema.json")
-      }
+        schemaJson: require("./data/schema.json"),
+      },
     ],
     "graphql/required-fields": [
       "error",
@@ -39,23 +31,23 @@ module.exports = {
         env: "literal",
         schemaJson: require("./data/schema.json"),
         requiredFields: ["id", "nodeId"],
-        ignoreFragmentSpreads: true
-      }
+        ignoreFragmentSpreads: true,
+      },
     ],
 
     // React
     "react/require-default-props": 0,
     "react/prefer-stateless-function": 0,
     "react/no-unescaped-entities": 1,
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx"] }],
     "jsx-a11y/mouse-events-have-key-events": 0,
     "jsx-a11y/anchor-is-valid": [
       "error",
       {
         components: ["Link"],
         specialLink: ["to"],
-        aspects: ["noHref", "invalidHref", "preferButton"]
-      }
+        aspects: ["noHref", "invalidHref", "preferButton"],
+      },
     ],
 
     // Jest
@@ -73,30 +65,30 @@ module.exports = {
       2,
       {
         argsIgnorePattern: "^_",
-        varsIgnorePattern: "^_"
-      }
+        varsIgnorePattern: "^_",
+      },
     ],
     "no-cond-assign": [2, "except-parens"],
     "no-unused-expressions": [
       0,
       {
-        allowTernary: true
-      }
+        allowTernary: true,
+      },
     ],
     "prefer-arrow-callback": [
       "error",
       {
-        allowNamedFunctions: true
-      }
+        allowNamedFunctions: true,
+      },
     ],
     "no-param-reassign": [
       "error",
       {
         props: true,
         // Allow overwriting properties on 'memo' which is the name we tend to use in `.reduce(...)` calls
-        ignorePropertyModificationsFor: ["memo", "req"]
-      }
+        ignorePropertyModificationsFor: ["memo", "req"],
+      },
     ],
-    camelcase: 0
-  }
+    camelcase: 0,
+  },
 };
