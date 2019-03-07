@@ -1370,6 +1370,13 @@ CREATE UNIQUE INDEX uniq_user_emails_verified_email ON app_public.user_emails US
 
 
 --
+-- Name: user_authentications_user_id_idx; Type: INDEX; Schema: app_public; Owner: -
+--
+
+CREATE INDEX user_authentications_user_id_idx ON app_public.user_authentications USING btree (user_id);
+
+
+--
 -- Name: jobs _100_timestamps; Type: TRIGGER; Schema: app_jobs; Owner: -
 --
 
