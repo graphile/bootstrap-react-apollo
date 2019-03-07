@@ -88,13 +88,18 @@ yarn
 
 # Create and configure database
 yarn setup
+
+# Start everything
+yarn start
 ```
+
+Then load http://localhost:5678
 
 {TODO}
 
 ## Environmental Variables
 
-This package is configured through environmental variables.
+This package is configured through environmental variables. `yarn setup` creates a `.env` file for you which you can then customise.
 
 ## Conventions
 
