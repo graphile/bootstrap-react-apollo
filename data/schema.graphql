@@ -724,7 +724,7 @@ type UserEmailsConnection {
   pageInfo: PageInfo!
 
   """The count of *all* `UserEmail` you could get from the connection."""
-  totalCount: Int
+  totalCount: Int!
 }
 
 """A `UserEmail` edge in the connection."""

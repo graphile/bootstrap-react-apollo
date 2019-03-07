@@ -37,13 +37,6 @@ async function main() {
    * operate very rapidly to enable quick as possible server startup.
    */
   await middleware.installDatabasePools(app);
-  if (isDev) {
-    /*
-     * We're using a non-super-user connection string (authPgPool), so we need
-     * to install the watch fixtures ourselves.
-     */
-    await middleware.installDatabaseWatchFixtures(app);
-  }
   await middleware.installSession(app);
   await middleware.installPassport(app);
   await middleware.installLogging(app);

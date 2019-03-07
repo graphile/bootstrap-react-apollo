@@ -1,4 +1,5 @@
 const { postgraphile, makePluginHook } = require("postgraphile");
+const PgPubsub = require("@graphile/pg-pubsub");
 const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
 const chalk = require("chalk");
 const { getUserClaimsFromRequest } = require("./installPassport");
@@ -67,7 +68,7 @@ const isTest = process.env.NODE_ENV === "test";
 
 /* Load any PostGraphile server plugins (different from Graphile Engine schema plugins) */
 const pluginHook = makePluginHook(
-  [PostGraphileSupporter, PostGraphilePro].filter(_ => _)
+  [PgPubsub, PostGraphileSupporter, PostGraphilePro].filter(_ => _)
 );
 
 /*
@@ -79,6 +80,13 @@ function postgraphileOptions() {
   return {
     // This is for PostGraphile server plugins: https://www.graphile.org/postgraphile/plugins/
     pluginHook,
+
+    // This is so that PostGraphile installs the watch fixtures, it's also needed to enable live queries
+    ownerConnectionString: process.env.DATABASE_URL,
+
+    // Add websocket support to the PostGraphile server; you still need to use a subscriptions plugin such as
+    // @graphile/pg-pubsub
+    subscriptions: true,
 
     // enableQueryBatching: On the client side, use something like apollo-link-batch-http to make use of this
     enableQueryBatching: true,
