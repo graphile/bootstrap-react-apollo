@@ -103,6 +103,8 @@ This package is configured through environmental variables. `yarn setup` creates
 
 ## Conventions
 
+See [db/CONVENTIONS.md](db/CONVENTIONS.md).
+
 {TODO}
 
 ## Deploying
