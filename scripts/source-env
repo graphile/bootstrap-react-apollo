@@ -4,7 +4,7 @@
 # locally!) and checks for required envvars before continuing.
 
 if [ -x .env ]; then
-  . .env
+  . ./.env
 fi
 
 if [ "$DATABASE_URL" = "" ]; then
