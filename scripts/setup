@@ -135,7 +135,7 @@ fi
 
 echo "Installing or reinstalling the roles and database..."
 # Now we can reset the database
-psql -X -v ON_ERROR_STOP=1 template1 <<SQL
+psql -X -v ON_ERROR_STOP=1 -h $DATABASE_HOST template1 <<SQL
 -- RESET database
 DROP DATABASE IF EXISTS ${DATABASE_NAME};
 DROP DATABASE IF EXISTS ${DATABASE_NAME}_test;
