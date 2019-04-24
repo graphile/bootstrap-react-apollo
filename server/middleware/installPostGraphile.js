@@ -1,4 +1,4 @@
-const { postgraphile, makePluginHook } = require("postgraphile");
+const { postgraphile, makePluginHook, enhanceHttpServerWithSubscriptions } = require("postgraphile");
 const PgPubsub = require("@graphile/pg-pubsub");
 const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
 const chalk = require("chalk");
@@ -6,33 +6,8 @@ const { getUserClaimsFromRequest } = require("./installPassport");
 
 /* Load optional plugins */
 /* eslint-disable global-require, import/no-dynamic-require, import/no-unresolved, no-console */
-let PostGraphileSupporter;
-let enhanceHttpServerWithSubscriptions;
 let PostGraphilePro;
-try {
-  ({
-    default: PostGraphileSupporter,
-    enhanceHttpServerWithSubscriptions,
-  } = require("@graphile/supporter"));
-  console.log("Supporter plugin loaded - thanks! ❤️");
-} catch (e) {
-  // Failed to load supporter plugin
-  if (process.env.GRAPHILE_LICENSE) {
-    // You have a GRAPHILE_LICENSE, but the plugin failed to load. You might
-    // want to know about this (maybe the key is corrupt, or expires?). If you
-    // don't; delete this!
-    throw e;
-  }
-  console.log();
-  console.log(
-    `Please support PostGraphile development:\n\n  ${chalk.blue.bold.underline(
-      "https://graphile.org/donate"
-    )} 🙏`
-  );
-  console.log();
-}
-try {
-  ({ default: PostGraphilePro } = require("@graphile/pro"));
+if (process.env.GRAPHILE_LICENSE) {
   /*
    * The Pro plugin installs a number of protections to your GraphQL API.
    *
@@ -53,13 +28,15 @@ try {
    *   Envvar: GRAPHQL_COST_LIMIT=60000
    *
    */
-} catch (e) {
-  // Pro plugin not loaded
-  if (process.env.GRAPHILE_LICENSE) {
-    // You have a GRAPHILE_LICENSE, but the plugin failed to load. You might
-    // want to know about this. If you don't; delete this!
-    throw e;
-  }
+  ({ default: PostGraphilePro } = require("@graphile/pro"));
+} else {
+  console.log();
+  console.log(
+    `Please support PostGraphile development:\n\n  ${chalk.blue.bold.underline(
+      "https://graphile.org/donate"
+    )} 🙏`
+  );
+  console.log();
 }
 /* eslint-enable */
 
@@ -68,7 +45,7 @@ const isTest = process.env.NODE_ENV === "test";
 
 /* Load any PostGraphile server plugins (different from Graphile Engine schema plugins) */
 const pluginHook = makePluginHook(
-  [PgPubsub, PostGraphileSupporter, PostGraphilePro].filter(_ => _)
+  [PgPubsub, PostGraphilePro].filter(_ => _)
 );
 
 /*
@@ -87,6 +64,8 @@ function postgraphileOptions() {
     // Add websocket support to the PostGraphile server; you still need to use a subscriptions plugin such as
     // @graphile/pg-pubsub
     subscriptions: true,
+    // The `listen` subscription
+    simpleSubscriptions: true,
 
     // enableQueryBatching: On the client side, use something like apollo-link-batch-http to make use of this
     enableQueryBatching: true,
@@ -216,16 +195,6 @@ function postgraphileOptions() {
         claims,
       };
     },
-
-    /*
-     * Supporter plugin options (requires GRAPHILE_LICENSE)
-     */
-    ...(PostGraphileSupporter
-      ? {
-          simpleSubscriptions: true,
-          // subscriptionAuthorizationFunction: 'app_hidden.authorize_subscription',
-        }
-      : null),
 
     /*
      * Pro plugin options (requires GRAPHILE_LICENSE)

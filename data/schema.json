@@ -74,7 +74,7 @@
               "deprecationReason": null
             },
             {
-              "name": "userAuthenticationById",
+              "name": "userAuthentication",
               "description": null,
               "args": [
                 {
@@ -142,7 +142,7 @@
               "deprecationReason": null
             },
             {
-              "name": "userEmailById",
+              "name": "userEmail",
               "description": null,
               "args": [
                 {
@@ -210,7 +210,7 @@
               "deprecationReason": null
             },
             {
-              "name": "userById",
+              "name": "user",
               "description": null,
               "args": [
                 {
@@ -276,7 +276,7 @@
               "deprecationReason": null
             },
             {
-              "name": "userAuthentication",
+              "name": "userAuthenticationByNodeId",
               "description": "Reads a single `UserAuthentication` using its globally unique `ID`.",
               "args": [
                 {
@@ -303,7 +303,7 @@
               "deprecationReason": null
             },
             {
-              "name": "userEmail",
+              "name": "userEmailByNodeId",
               "description": "Reads a single `UserEmail` using its globally unique `ID`.",
               "args": [
                 {
@@ -330,7 +330,7 @@
               "deprecationReason": null
             },
             {
-              "name": "user",
+              "name": "userByNodeId",
               "description": "Reads a single `User` using its globally unique `ID`.",
               "args": [
                 {
@@ -1120,13 +1120,9 @@
               "description": "The count of *all* `UserEmail` you could get from the connection.",
               "args": [],
               "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                }
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -1276,7 +1272,7 @@
               "deprecationReason": null
             },
             {
-              "name": "updateUser",
+              "name": "updateUserByNodeId",
               "description": "Updates a single `User` using its globally unique id and a patch.",
               "args": [
                 {
@@ -1287,7 +1283,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "UpdateUserInput",
+                      "name": "UpdateUserByNodeIdInput",
                       "ofType": null
                     }
                   },
@@ -1303,7 +1299,7 @@
               "deprecationReason": null
             },
             {
-              "name": "updateUserById",
+              "name": "updateUser",
               "description": "Updates a single `User` using a unique key and a patch.",
               "args": [
                 {
@@ -1314,7 +1310,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "UpdateUserByIdInput",
+                      "name": "UpdateUserInput",
                       "ofType": null
                     }
                   },
@@ -1357,7 +1353,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deleteUserAuthentication",
+              "name": "deleteUserAuthenticationByNodeId",
               "description": "Deletes a single `UserAuthentication` using its globally unique id.",
               "args": [
                 {
@@ -1368,7 +1364,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "DeleteUserAuthenticationInput",
+                      "name": "DeleteUserAuthenticationByNodeIdInput",
                       "ofType": null
                     }
                   },
@@ -1384,7 +1380,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deleteUserAuthenticationById",
+              "name": "deleteUserAuthentication",
               "description": "Deletes a single `UserAuthentication` using a unique key.",
               "args": [
                 {
@@ -1395,7 +1391,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "DeleteUserAuthenticationByIdInput",
+                      "name": "DeleteUserAuthenticationInput",
                       "ofType": null
                     }
                   },
@@ -1438,7 +1434,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deleteUserEmail",
+              "name": "deleteUserEmailByNodeId",
               "description": "Deletes a single `UserEmail` using its globally unique id.",
               "args": [
                 {
@@ -1449,7 +1445,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "DeleteUserEmailInput",
+                      "name": "DeleteUserEmailByNodeIdInput",
                       "ofType": null
                     }
                   },
@@ -1465,7 +1461,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deleteUserEmailById",
+              "name": "deleteUserEmail",
               "description": "Deletes a single `UserEmail` using a unique key.",
               "args": [
                 {
@@ -1476,7 +1472,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "DeleteUserEmailByIdInput",
+                      "name": "DeleteUserEmailInput",
                       "ofType": null
                     }
                   },
@@ -1519,7 +1515,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deleteUser",
+              "name": "deleteUserByNodeId",
               "description": "Deletes a single `User` using its globally unique id.",
               "args": [
                 {
@@ -1530,7 +1526,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "DeleteUserInput",
+                      "name": "DeleteUserByNodeIdInput",
                       "ofType": null
                     }
                   },
@@ -1546,7 +1542,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deleteUserById",
+              "name": "deleteUser",
               "description": "Deletes a single `User` using a unique key.",
               "args": [
                 {
@@ -1557,7 +1553,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "DeleteUserByIdInput",
+                      "name": "DeleteUserInput",
                       "ofType": null
                     }
                   },
@@ -1811,8 +1807,8 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "UpdateUserInput",
-          "description": "All input for the `updateUser` mutation.",
+          "name": "UpdateUserByNodeIdInput",
+          "description": "All input for the `updateUserByNodeId` mutation.",
           "fields": null,
           "inputFields": [
             {
@@ -2061,8 +2057,8 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "UpdateUserByIdInput",
-          "description": "All input for the `updateUserById` mutation.",
+          "name": "UpdateUserInput",
+          "description": "All input for the `updateUser` mutation.",
           "fields": null,
           "inputFields": [
             {
@@ -2159,8 +2155,8 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "DeleteUserAuthenticationInput",
-          "description": "All input for the `deleteUserAuthentication` mutation.",
+          "name": "DeleteUserAuthenticationByNodeIdInput",
+          "description": "All input for the `deleteUserAuthenticationByNodeId` mutation.",
           "fields": null,
           "inputFields": [
             {
@@ -2222,7 +2218,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deletedUserAuthenticationId",
+              "name": "deletedUserAuthenticationNodeId",
               "description": null,
               "args": [],
               "type": {
@@ -2376,8 +2372,8 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "DeleteUserAuthenticationByIdInput",
-          "description": "All input for the `deleteUserAuthenticationById` mutation.",
+          "name": "DeleteUserAuthenticationInput",
+          "description": "All input for the `deleteUserAuthentication` mutation.",
           "fields": null,
           "inputFields": [
             {
@@ -2460,8 +2456,8 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "DeleteUserEmailInput",
-          "description": "All input for the `deleteUserEmail` mutation.",
+          "name": "DeleteUserEmailByNodeIdInput",
+          "description": "All input for the `deleteUserEmailByNodeId` mutation.",
           "fields": null,
           "inputFields": [
             {
@@ -2523,7 +2519,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deletedUserEmailId",
+              "name": "deletedUserEmailNodeId",
               "description": null,
               "args": [],
               "type": {
@@ -2597,8 +2593,8 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "DeleteUserEmailByIdInput",
-          "description": "All input for the `deleteUserEmailById` mutation.",
+          "name": "DeleteUserEmailInput",
+          "description": "All input for the `deleteUserEmail` mutation.",
           "fields": null,
           "inputFields": [
             {
@@ -2681,8 +2677,8 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "DeleteUserInput",
-          "description": "All input for the `deleteUser` mutation.",
+          "name": "DeleteUserByNodeIdInput",
+          "description": "All input for the `deleteUserByNodeId` mutation.",
           "fields": null,
           "inputFields": [
             {
@@ -2744,7 +2740,7 @@
               "deprecationReason": null
             },
             {
-              "name": "deletedUserId",
+              "name": "deletedUserNodeId",
               "description": null,
               "args": [],
               "type": {
@@ -2806,8 +2802,8 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "DeleteUserByIdInput",
-          "description": "All input for the `deleteUserById` mutation.",
+          "name": "DeleteUserInput",
+          "description": "All input for the `deleteUser` mutation.",
           "fields": null,
           "inputFields": [
             {
