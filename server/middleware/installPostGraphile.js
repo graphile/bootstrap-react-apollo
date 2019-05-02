@@ -120,6 +120,7 @@ function postgraphileOptions(overrides) {
     watchPg: isDev,
 
     // Keep data/schema.graphql and data/schema.json up to date
+    sortExport: true,
     exportGqlSchemaPath: isDev
       ? `${__dirname}/../../data/schema.graphql`
       : null,

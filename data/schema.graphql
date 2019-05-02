@@ -18,9 +18,6 @@ type CreateUserEmailPayload {
   """
   clientMutationId: String
 
-  """The `UserEmail` that was created by this mutation."""
-  userEmail: UserEmail
-
   """
   Our root query field type. Allows us to run any query from our mutation payload.
   """
@@ -28,6 +25,9 @@ type CreateUserEmailPayload {
 
   """Reads a single `User` that is related to this `UserEmail`."""
   user: User
+
+  """The `UserEmail` that was created by this mutation."""
+  userEmail: UserEmail
 
   """An edge for our `UserEmail`. May be used by Relay 1."""
   userEmailEdge(
@@ -69,11 +69,11 @@ input DeleteUserAuthenticationByServiceAndIdentifierInput {
   """
   clientMutationId: String
 
-  """The login service used, e.g. `twitter` or `github`."""
-  service: String!
-
   """A unique identifier for the user within the login service."""
   identifier: String!
+
+  """The login service used, e.g. `twitter` or `github`."""
+  service: String!
 }
 
 """All input for the `deleteUserAuthentication` mutation."""
@@ -93,15 +93,15 @@ type DeleteUserAuthenticationPayload {
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
-
-  """The `UserAuthentication` that was deleted by this mutation."""
-  userAuthentication: UserAuthentication
   deletedUserAuthenticationNodeId: ID
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
+
+  """The `UserAuthentication` that was deleted by this mutation."""
+  userAuthentication: UserAuthentication
 
   """An edge for our `UserAuthentication`. May be used by Relay 1."""
   userAuthenticationEdge(
@@ -157,10 +157,10 @@ input DeleteUserEmailByUserIdAndEmailInput {
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
-  userId: Int!
 
   """The users email address, in `a@b.c` format."""
   email: String!
+  userId: Int!
 }
 
 """All input for the `deleteUserEmail` mutation."""
@@ -180,9 +180,6 @@ type DeleteUserEmailPayload {
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
-
-  """The `UserEmail` that was deleted by this mutation."""
-  userEmail: UserEmail
   deletedUserEmailNodeId: ID
 
   """
@@ -192,6 +189,9 @@ type DeleteUserEmailPayload {
 
   """Reads a single `User` that is related to this `UserEmail`."""
   user: User
+
+  """The `UserEmail` that was deleted by this mutation."""
+  userEmail: UserEmail
 
   """An edge for our `UserEmail`. May be used by Relay 1."""
   userEmailEdge(
@@ -219,15 +219,15 @@ type DeleteUserPayload {
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
-
-  """The `User` that was deleted by this mutation."""
-  user: User
   deletedUserNodeId: ID
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
+
+  """The `User` that was deleted by this mutation."""
+  user: User
 
   """An edge for our `User`. May be used by Relay 1."""
   userEdge(
@@ -253,12 +253,12 @@ type ForgotPasswordPayload {
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
-  success: Boolean
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
+  success: Boolean
 }
 
 """
@@ -273,29 +273,21 @@ type Mutation {
     input: CreateUserEmailInput!
   ): CreateUserEmailPayload
 
-  """Updates a single `User` using its globally unique id and a patch."""
-  updateUserByNodeId(
+  """Deletes a single `User` using a unique key."""
+  deleteUser(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
-    input: UpdateUserByNodeIdInput!
-  ): UpdateUserPayload
+    input: DeleteUserInput!
+  ): DeleteUserPayload
 
-  """Updates a single `User` using a unique key and a patch."""
-  updateUser(
+  """Deletes a single `UserAuthentication` using a unique key."""
+  deleteUserAuthentication(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
-    input: UpdateUserInput!
-  ): UpdateUserPayload
-
-  """Updates a single `User` using a unique key and a patch."""
-  updateUserByUsername(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: UpdateUserByUsernameInput!
-  ): UpdateUserPayload
+    input: DeleteUserAuthenticationInput!
+  ): DeleteUserAuthenticationPayload
 
   """Deletes a single `UserAuthentication` using its globally unique id."""
   deleteUserAuthenticationByNodeId(
@@ -306,44 +298,12 @@ type Mutation {
   ): DeleteUserAuthenticationPayload
 
   """Deletes a single `UserAuthentication` using a unique key."""
-  deleteUserAuthentication(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserAuthenticationInput!
-  ): DeleteUserAuthenticationPayload
-
-  """Deletes a single `UserAuthentication` using a unique key."""
   deleteUserAuthenticationByServiceAndIdentifier(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
     input: DeleteUserAuthenticationByServiceAndIdentifierInput!
   ): DeleteUserAuthenticationPayload
-
-  """Deletes a single `UserEmail` using its globally unique id."""
-  deleteUserEmailByNodeId(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserEmailByNodeIdInput!
-  ): DeleteUserEmailPayload
-
-  """Deletes a single `UserEmail` using a unique key."""
-  deleteUserEmail(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserEmailInput!
-  ): DeleteUserEmailPayload
-
-  """Deletes a single `UserEmail` using a unique key."""
-  deleteUserEmailByUserIdAndEmail(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserEmailByUserIdAndEmailInput!
-  ): DeleteUserEmailPayload
 
   """Deletes a single `User` using its globally unique id."""
   deleteUserByNodeId(
@@ -354,20 +314,36 @@ type Mutation {
   ): DeleteUserPayload
 
   """Deletes a single `User` using a unique key."""
-  deleteUser(
-    """
-    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
-    """
-    input: DeleteUserInput!
-  ): DeleteUserPayload
-
-  """Deletes a single `User` using a unique key."""
   deleteUserByUsername(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
     input: DeleteUserByUsernameInput!
   ): DeleteUserPayload
+
+  """Deletes a single `UserEmail` using a unique key."""
+  deleteUserEmail(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserEmailInput!
+  ): DeleteUserEmailPayload
+
+  """Deletes a single `UserEmail` using its globally unique id."""
+  deleteUserEmailByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserEmailByNodeIdInput!
+  ): DeleteUserEmailPayload
+
+  """Deletes a single `UserEmail` using a unique key."""
+  deleteUserEmailByUserIdAndEmail(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: DeleteUserEmailByUserIdAndEmailInput!
+  ): DeleteUserEmailPayload
 
   """
   If you've forgotten your password, give us one of your email addresses and we'
@@ -390,6 +366,30 @@ type Mutation {
     """
     input: ResetPasswordInput!
   ): ResetPasswordPayload
+
+  """Updates a single `User` using a unique key and a patch."""
+  updateUser(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateUserInput!
+  ): UpdateUserPayload
+
+  """Updates a single `User` using its globally unique id and a patch."""
+  updateUserByNodeId(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateUserByNodeIdInput!
+  ): UpdateUserPayload
+
+  """Updates a single `User` using a unique key and a patch."""
+  updateUserByUsername(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: UpdateUserByUsernameInput!
+  ): UpdateUserPayload
 }
 
 """An object with a globally unique `ID`."""
@@ -402,6 +402,9 @@ interface Node {
 
 """Information about pagination in a connection."""
 type PageInfo {
+  """When paginating forwards, the cursor to continue."""
+  endCursor: Cursor
+
   """When paginating forwards, are there more items?"""
   hasNextPage: Boolean!
 
@@ -410,38 +413,31 @@ type PageInfo {
 
   """When paginating backwards, the cursor to continue."""
   startCursor: Cursor
-
-  """When paginating forwards, the cursor to continue."""
-  endCursor: Cursor
 }
 
 """The root query type which gives access points into the data universe."""
 type Query implements Node {
-  """
-  Exposes the root query type nested one level down. This is helpful for Relay 1
-  which can only query top level fields if they are in a particular form.
-  """
-  query: Query!
-
-  """
-  The root query type must be a `Node` to work well with Relay 1 mutations. This just resolves to `query`.
-  """
-  nodeId: ID!
+  """The currently logged in user (or null if not logged in)."""
+  currentUser: User
 
   """Fetches an object given its globally unique `ID`."""
   node(
     """The globally unique `ID`."""
     nodeId: ID!
   ): Node
-  userAuthentication(id: Int!): UserAuthentication
-  userAuthenticationByServiceAndIdentifier(service: String!, identifier: String!): UserAuthentication
-  userEmail(id: Int!): UserEmail
-  userEmailByUserIdAndEmail(userId: Int!, email: String!): UserEmail
-  user(id: Int!): User
-  userByUsername(username: String!): User
 
-  """The currently logged in user (or null if not logged in)."""
-  currentUser: User
+  """
+  The root query type must be a `Node` to work well with Relay 1 mutations. This just resolves to `query`.
+  """
+  nodeId: ID!
+
+  """
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
+  """
+  query: Query!
+  user(id: Int!): User
+  userAuthentication(id: Int!): UserAuthentication
 
   """Reads a single `UserAuthentication` using its globally unique `ID`."""
   userAuthenticationByNodeId(
@@ -450,18 +446,22 @@ type Query implements Node {
     """
     nodeId: ID!
   ): UserAuthentication
-
-  """Reads a single `UserEmail` using its globally unique `ID`."""
-  userEmailByNodeId(
-    """The globally unique `ID` to be used in selecting a single `UserEmail`."""
-    nodeId: ID!
-  ): UserEmail
+  userAuthenticationByServiceAndIdentifier(identifier: String!, service: String!): UserAuthentication
 
   """Reads a single `User` using its globally unique `ID`."""
   userByNodeId(
     """The globally unique `ID` to be used in selecting a single `User`."""
     nodeId: ID!
   ): User
+  userByUsername(username: String!): User
+  userEmail(id: Int!): UserEmail
+
+  """Reads a single `UserEmail` using its globally unique `ID`."""
+  userEmailByNodeId(
+    """The globally unique `ID` to be used in selecting a single `UserEmail`."""
+    nodeId: ID!
+  ): UserEmail
+  userEmailByUserIdAndEmail(email: String!, userId: Int!): UserEmail
 }
 
 """All input for the `resetPassword` mutation."""
@@ -471,9 +471,9 @@ input ResetPasswordInput {
   payload verbatim. May be used to track mutations by the client.
   """
   clientMutationId: String
-  userId: Int!
-  resetToken: String!
   newPassword: String!
+  resetToken: String!
+  userId: Int!
 }
 
 """The output of our `resetPassword` mutation."""
@@ -483,12 +483,12 @@ type ResetPasswordPayload {
   unchanged and unused. May be used by a client to track mutations.
   """
   clientMutationId: String
-  user: User
 
   """
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
+  user: User
 
   """An edge for our `User`. May be used by Relay 1."""
   userEdge(
@@ -541,13 +541,13 @@ input UpdateUserInput {
   """
   clientMutationId: String
 
+  """Unique identifier for the user."""
+  id: Int!
+
   """
   An object where the defined keys will be set on the `User` being updated.
   """
   patch: UserPatch!
-
-  """Unique identifier for the user."""
-  id: Int!
 }
 
 """The output of our update `User` mutation."""
@@ -558,13 +558,13 @@ type UpdateUserPayload {
   """
   clientMutationId: String
 
-  """The `User` that was updated by this mutation."""
-  user: User
-
   """
   Our root query field type. Allows us to run any query from our mutation payload.
   """
   query: Query
+
+  """The `User` that was updated by this mutation."""
+  user: User
 
   """An edge for our `User`. May be used by Relay 1."""
   userEdge(
@@ -575,30 +575,38 @@ type UpdateUserPayload {
 
 """A user who can log in to the application."""
 type User implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
+  """Optional avatar URL."""
+  avatarUrl: String
+  createdAt: Datetime!
 
   """Unique identifier for the user."""
   id: Int!
 
-  """Public-facing username (or 'handle') of the user."""
-  username: String!
+  """If true, the user has elevated privileges."""
+  isAdmin: Boolean!
 
   """Public-facing name (or pseudonym) of the user."""
   name: String
 
-  """Optional avatar URL."""
-  avatarUrl: String
-
-  """If true, the user has elevated privileges."""
-  isAdmin: Boolean!
-  createdAt: Datetime!
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
   updatedAt: Datetime!
 
   """Reads and enables pagination through a set of `UserEmail`."""
   userEmails(
+    """Read all values in the set after (below) this cursor."""
+    after: Cursor
+
+    """Read all values in the set before (above) this cursor."""
+    before: Cursor
+
+    """
+    A condition to be used in determining which values should be returned by the collection.
+    """
+    condition: UserEmailCondition
+
     """Only read the first `n` values of the set."""
     first: Int
 
@@ -611,38 +619,31 @@ type User implements Node {
     """
     offset: Int
 
-    """Read all values in the set before (above) this cursor."""
-    before: Cursor
-
-    """Read all values in the set after (below) this cursor."""
-    after: Cursor
-
     """The method to use when ordering `UserEmail`."""
     orderBy: [UserEmailsOrderBy!] = [PRIMARY_KEY_ASC]
-
-    """
-    A condition to be used in determining which values should be returned by the collection.
-    """
-    condition: UserEmailCondition
   ): UserEmailsConnection!
+
+  """Public-facing username (or 'handle') of the user."""
+  username: String!
 }
 
 """
 Contains information about the login providers this user has used, so that they may disconnect them should they wish.
 """
 type UserAuthentication implements Node {
+  createdAt: Datetime!
+  id: Int!
+
+  """A unique identifier for the user within the login service."""
+  identifier: String!
+
   """
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
-  id: Int!
 
   """The login service used, e.g. `twitter` or `github`."""
   service: String!
-
-  """A unique identifier for the user within the login service."""
-  identifier: String!
-  createdAt: Datetime!
   updatedAt: Datetime!
 }
 
@@ -657,37 +658,38 @@ type UserAuthenticationsEdge {
 
 """Methods to use when ordering `UserAuthentication`."""
 enum UserAuthenticationsOrderBy {
-  NATURAL
   ID_ASC
   ID_DESC
-  SERVICE_ASC
-  SERVICE_DESC
+  NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  SERVICE_ASC
+  SERVICE_DESC
 }
 
 """Information about a user's email address."""
 type UserEmail implements Node {
-  """
-  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
-  """
-  nodeId: ID!
-  id: Int!
-  userId: Int!
+  createdAt: Datetime!
 
   """The users email address, in `a@b.c` format."""
   email: String!
+  id: Int!
 
   """
   True if the user has is_verified their email address (by clicking the link in
   the email we sent them, or logging in with a social login provider), false otherwise.
   """
   isVerified: Boolean!
-  createdAt: Datetime!
+
+  """
+  A globally unique identifier. Can be used in various places throughout the system to identify this single value.
+  """
+  nodeId: ID!
   updatedAt: Datetime!
 
   """Reads a single `User` that is related to this `UserEmail`."""
   user: User
+  userId: Int!
 }
 
 """
@@ -710,19 +712,19 @@ input UserEmailInput {
 
 """A connection to a list of `UserEmail` values."""
 type UserEmailsConnection {
-  """A list of `UserEmail` objects."""
-  nodes: [UserEmail!]!
-
   """
   A list of edges which contains the `UserEmail` and cursor to aid in pagination.
   """
   edges: [UserEmailsEdge!]!
 
+  """A list of `UserEmail` objects."""
+  nodes: [UserEmail!]!
+
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """The count of *all* `UserEmail` you could get from the connection."""
-  totalCount: Int
+  totalCount: Int!
 }
 
 """A `UserEmail` edge in the connection."""
@@ -736,22 +738,22 @@ type UserEmailsEdge {
 
 """Methods to use when ordering `UserEmail`."""
 enum UserEmailsOrderBy {
-  NATURAL
   ID_ASC
   ID_DESC
-  USER_ID_ASC
-  USER_ID_DESC
+  NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  USER_ID_ASC
+  USER_ID_DESC
 }
 
 """Represents an update to a `User`. Fields that are set will be updated."""
 input UserPatch {
-  """Public-facing name (or pseudonym) of the user."""
-  name: String
-
   """Optional avatar URL."""
   avatarUrl: String
+
+  """Public-facing name (or pseudonym) of the user."""
+  name: String
 }
 
 """A `User` edge in the connection."""
@@ -765,11 +767,11 @@ type UsersEdge {
 
 """Methods to use when ordering `User`."""
 enum UsersOrderBy {
-  NATURAL
   ID_ASC
   ID_DESC
-  USERNAME_ASC
-  USERNAME_DESC
+  NATURAL
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
+  USERNAME_ASC
+  USERNAME_DESC
 }
