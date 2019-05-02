@@ -7,6 +7,9 @@ module.exports = function installFrontendServer(app) {
     target: `http://localhost:${process.env.CLIENT_PORT}`,
     ws: true,
   });
+  proxy.on('error', e => {
+    console.error("Proxy error occurred:", e);
+  });
   app.use((req, res, _next) => {
     proxy.web(req, res, {}, e => {
       console.error(e);
