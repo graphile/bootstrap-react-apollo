@@ -13,7 +13,7 @@
     "setup": "scripts/setup",
     "server:dev": "cd server && nodemon",
     "client:dev": "cd client && BROWSER=none PORT=\"$CLIENT_PORT\" npm run start",
-    "start": ". ./scripts/source-env && concurrently --kill-others 'npm run server:dev' 'npm run client:dev'",
+    "start": ". ./scripts/source-env && concurrently --kill-others --names server,client 'npm run server:dev' 'npm run client:dev'",
     "test": "jest"
   },
   "repository": {
