@@ -42,11 +42,11 @@ module.exports = async app => {
 
   const passportInitializeMiddleware = passport.initialize();
   app.use(passportInitializeMiddleware);
-  app.get("socketMiddlewares").push(passportInitializeMiddleware);
+  app.get("websocketMiddlewares").push(passportInitializeMiddleware);
 
   const passportSessionMiddleware = passport.session();
   app.use(passportSessionMiddleware);
-  app.get("socketMiddlewares").push(passportSessionMiddleware);
+  app.get("websocketMiddlewares").push(passportSessionMiddleware);
 
   app.get("/logout", (req, res) => {
     req.logout();

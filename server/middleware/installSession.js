@@ -27,5 +27,5 @@ module.exports = app => {
     secret: SECRET,
   });
   app.use(sessionMiddleware);
-  app.get("socketMiddlewares").push(sessionMiddleware);
+  app.get("websocketMiddlewares").push(sessionMiddleware);
 };

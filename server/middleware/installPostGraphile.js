@@ -1,4 +1,8 @@
-const { postgraphile, makePluginHook, enhanceHttpServerWithSubscriptions } = require("postgraphile");
+const {
+  postgraphile,
+  makePluginHook,
+  enhanceHttpServerWithSubscriptions,
+} = require("postgraphile");
 const PgPubsub = require("@graphile/pg-pubsub");
 const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
 const chalk = require("chalk");
@@ -44,16 +48,14 @@ const isDev = process.env.NODE_ENV === "development";
 const isTest = process.env.NODE_ENV === "test";
 
 /* Load any PostGraphile server plugins (different from Graphile Engine schema plugins) */
-const pluginHook = makePluginHook(
-  [PgPubsub, PostGraphilePro].filter(_ => _)
-);
+const pluginHook = makePluginHook([PgPubsub, PostGraphilePro].filter(_ => _));
 
 /*
  * This function generates the options for a PostGraphile instance to use. We
  * make it a separate function call so that we may call it from other places
  * (such as tests) and even parameterise it if we want.
  */
-function postgraphileOptions() {
+function postgraphileOptions(overrides) {
   return {
     // This is for PostGraphile server plugins: https://www.graphile.org/postgraphile/plugins/
     pluginHook,
@@ -212,32 +214,35 @@ function postgraphileOptions() {
           // readReplicaPgPool ...,
         }
       : null),
+
+    // When running in the server, we need to set websocketMiddlewares
+    ...overrides,
   };
 }
 
 module.exports = app => {
   const httpServer = app.get("httpServer");
   const authPgPool = app.get("authPgPool");
+  /*
+   * If we're using subscriptions, they may want access to sessions/etc. Make
+   * sure any websocketMiddlewares are installed before this point. Note that
+   * socket middlewares must always call `next()`, otherwise you're going to
+   * have some issues.
+   */
+  const websocketMiddlewares = app.get("websocketMiddlewares");
 
   // Install the PostGraphile middleware
   const middleware = postgraphile(
     authPgPool,
     "app_public",
-    postgraphileOptions()
+    postgraphileOptions({
+      websocketMiddlewares,
+    })
   );
   app.use(middleware);
 
   if (enhanceHttpServerWithSubscriptions) {
-    /*
-     * If we're using subscriptions, they may want access to sessions/etc. Make
-     * sure any socketMiddlewares are installed before this point. Note that
-     * socket middlewares must always call `next()`, otherwise you're going to
-     * have some issues.
-     */
-    const socketMiddlewares = app.get("socketMiddlewares");
-    enhanceHttpServerWithSubscriptions(httpServer, middleware, {
-      middlewares: socketMiddlewares,
-    });
+    enhanceHttpServerWithSubscriptions(httpServer, middleware);
   }
 };
 
