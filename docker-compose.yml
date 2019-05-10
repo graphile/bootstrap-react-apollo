@@ -31,6 +31,8 @@ services:
       - ./.env
     volumes:
       - .:/home/node/
+      # use seperate volume for node_modules, makes it easier to manage and faster to reset
+      - node_modules:/home/node/node_modules
     working_dir: /home/node
 
   # needed as sessions store for logins
@@ -58,3 +60,4 @@ networks:
 volumes:
   db-volume:
   redisdata:
+  node_modules:
