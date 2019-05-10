@@ -5,12 +5,7 @@
   "main": "index.js",
   "scripts": {
     "db:migrate:create": "node db/scripts/create-migration.js",
-    "db:migrate:dev": ". ./scripts/source-env && npm run db:migrate:_cmd up && ./scripts/dump-schema",
-    "db:mrm:dev": ". ./scripts/source-env && npm run db:migrate:_cmd up && npm run db:migrate:_cmd down && npm run db:migrate:_cmd up && ./scripts/dump-schema",
-    "db:rollback:dev": ". ./scripts/source-env && npm run db:migrate:_cmd down && ./scripts/dump-schema",
-    "db:reset:dev": ". ./scripts/source-env && npm run db:migrate:_cmd reset && npm run db:migrate:_cmd up && ./scripts/dump-schema",
-    "db:migrate:_cmd": "db-migrate --migrations-dir db/migrations/.db-migrate",
-    "setup": "scripts/setup",
+    "setup:init:docker:node": "docker-compose -f docker-compose.builder.yml run --rm install",
     "server:dev": "cd server && nodemon",
     "client:dev": "cd client && BROWSER=none PORT=\"$CLIENT_PORT\" npm run start",
     "start": ". ./scripts/source-env && concurrently --kill-others --names server,client 'npm run server:dev' 'npm run client:dev'",
