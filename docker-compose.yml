@@ -10,6 +10,9 @@ services:
     volumes:
       # all our database data gets it's one volume
       - db-volume:/var/lib/postgresql/data
+      # scripts & data are needed to run dump-schema after migrations
+      - ./scripts:/scripts
+      - ./data:/data
     env_file:
       - ./.env
     networks:
