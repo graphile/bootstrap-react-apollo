@@ -16,13 +16,9 @@ DROP DATABASE IF EXISTS ${DATABASE_NAME};
 DROP DATABASE IF EXISTS ${DATABASE_NAME}_test;
 DROP ROLE IF EXISTS ${DATABASE_VISITOR};
 DROP ROLE IF EXISTS ${DATABASE_AUTHENTICATOR};
-DROP ROLE IF EXISTS ${DATABASE_OWNER};
 -- Now to set up the database cleanly:
 -- Ref: https://devcenter.heroku.com/articles/heroku-postgresql#connection-permissions
 -- This is the root role for the database
-CREATE ROLE ${DATABASE_OWNER} WITH LOGIN PASSWORD '${DATABASE_OWNER_PASSWORD}'
-  -- IMPORTANT: don't grant SUPERUSER in production, we only need this so we can load the watch fixtures!
-  SUPERUSER;
 -- This is the no-access role that PostGraphile will run as by default
 CREATE ROLE ${DATABASE_AUTHENTICATOR} WITH LOGIN PASSWORD '${DATABASE_AUTHENTICATOR_PASSWORD}' NOINHERIT;
 -- This is the role that PostGraphile will switch to (from ${DATABASE_AUTHENTICATOR}) during a GraphQL request
