@@ -1,4 +1,6 @@
 #!/bin/bash
+chmod +x wait-for.sh
+
 set -e
  NODE_ENV=development
 
@@ -130,5 +132,7 @@ docker-compose up --build -d db && sleep 1 && docker-compose logs db
 if [ $? -eq 0 ]; then
 # All done
 echo "✅ Setup success; now running 'yarn db:migrate:dev' to run the migrations"
-
-yarn db:migrate:dev
+  # ./wait-for.sh localhost:5432 -- docker-compose exec nodejs sh
+  # docker-compose up --build -d nodejs
+  ./wait-for.sh localhost:5432 -- yarn db:migrate:dev;
+fi
