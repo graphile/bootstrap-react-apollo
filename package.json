@@ -13,7 +13,8 @@
     "setup": "npm run setup:init:docker:node && bash scripts/setup",
     "server:dev": "cd server && nodemon",
     "client:dev": "cd client && BROWSER=none PORT=\"$CLIENT_PORT\" npm run start",
-    "start": ". ./scripts/source-env && concurrently --kill-others --names server,client 'npm run server:dev' 'npm run client:dev'",
+    "start": "docker-compose down && docker-compose up db adminer redis nodejs",
+    "start:servers": "npx concurrently --kill-others --names server,client 'npm run client:dev' 'npm run server:dev' ",
     "test": "jest"
   },
   "repository": {
