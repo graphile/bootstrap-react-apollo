@@ -5,7 +5,12 @@
   "main": "index.js",
   "scripts": {
     "db:migrate:create": "node db/scripts/create-migration.js",
+    "db:migrate:dev": "npm run db:migrate:up && npm run db:migrate:dev:dump",
+    "db:migrate:dev:dump": "docker-compose run db bash -c \"./scripts/dump-schema\"",
+    "db:migrate:up": "docker-compose run nodejs bash -c \"npx db-migrate --migrations-dir db/migrations/.db-migrate up\"",
+    "db:migrate:down": "docker-compose run nodejs bash -c \"npx db-migrate --migrations-dir db/migrations/.db-migrate down\"",
     "setup:init:docker:node": "docker-compose -f docker-compose.builder.yml run --rm install",
+    "setup": "npm run setup:init:docker:node && bash scripts/setup",
     "server:dev": "cd server && nodemon",
     "client:dev": "cd client && BROWSER=none PORT=\"$CLIENT_PORT\" npm run start",
     "start": ". ./scripts/source-env && concurrently --kill-others --names server,client 'npm run server:dev' 'npm run client:dev'",
