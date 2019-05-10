@@ -14,6 +14,8 @@
     "db:migrate:down": "docker-compose run nodejs bash -c \"npx db-migrate --migrations-dir db/migrations/.db-migrate down\"",
     "db:migrate:reset": "docker-compose run nodejs bash -c \"npx db-migrate --migrations-dir db/migrations/.db-migrate reset\"",
     "setup:init:docker:node": "docker-compose -f docker-compose.builder.yml run --rm install",
+    "setup:reset:volumes": "bash -c \"docker volume rm bootstrap-react-apollo_db-volume bootstrap-react-apollo_redisdata bootstrap-react-apollo_node_modules\"",
+    "setup:reset": "bash -c 'rm .env; touch .env; docker-compose down' && bash -c \"npm run setup:reset:volumes || true\" && npm run setup",
     "setup": "npm run setup:init:docker:node && bash scripts/setup",
     "server:dev": "cd server && nodemon",
     "client:dev": "cd client && BROWSER=none PORT=\"$CLIENT_PORT\" npm run start",
