@@ -30,6 +30,8 @@ services:
       - 3000:3000
       # express site / and /graphiql
       - 5678:5678
+    # starts both servers
+    command: ["npm", "run", "start:servers"]
     env_file:
       - ./.env
     volumes:
