@@ -23,9 +23,9 @@ if [ -x .env ]; then
   echo "Configuration already exists, using existing secrets."
 else
 
-  echo "What's the hostname of your database? [Enter for 'localhost']"
+  echo "What's the hostname of your database? [Enter for default ("db")]"
   read DATABASE_HOST
-  if [ "$DATABASE_HOST" = "" ]; then DATABASE_HOST="localhost"; fi
+  if [ "$DATABASE_HOST" = "" ]; then DATABASE_HOST="db"; fi
 
   echo "What's the name of the database you wish to use?"
   read DATABASE_NAME
