@@ -124,7 +124,9 @@ CONFIG
   . .env
 fi
 
-cat <<MSG
+echo "downloading current postgraphile watch-fixtures sql"
+WATCH_FIXTURES_URL=https://raw.githubusercontent.com/graphile/graphile-engine/master/packages/graphile-build-pg/res/watch-fixtures.sql
+curl $WATCH_FIXTURES_URL -o ./db/init/0001_watch_fixtures.sql
 
 echo "Starting docker services and setup postgres initdb, which runs ./db/init/*.{sh,sql} "
 docker-compose up --build -d db && sleep 1 && docker-compose logs db
