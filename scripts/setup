@@ -116,7 +116,7 @@ GITHUB_KEY=
 GITHUB_SECRET=
 CONFIG
 
-  echo "Passwords generated and configuration written to .env"
+echo "Passwords generated and configuration written to .env"
 
   # To source our .env file from the shell it has to be executable.
   chmod +x .env
@@ -132,8 +132,8 @@ echo "Starting docker services and setup postgres initdb, which runs ./db/init/*
 docker-compose up --build -d db && sleep 1 && docker-compose logs db
 
 if [ $? -eq 0 ]; then
-# All done
-echo "✅ Setup success; now running 'yarn db:migrate:dev' to run the migrations"
+  # All done
+  echo "✅ Setup success; now running 'yarn db:migrate:dev' to run the migrations"
   # ./wait-for.sh localhost:5432 -- docker-compose exec nodejs sh
   # docker-compose up --build -d nodejs
   ./wait-for.sh localhost:5432 -- yarn db:migrate:dev;
