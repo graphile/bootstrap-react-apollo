@@ -31,6 +31,7 @@ else
   read DATABASE_NAME
   if [[ "$DATABASE_NAME" =~ ^[a-z][a-z0-9_]+$ ]]; then
     echo "Database name '${DATABASE_NAME}' looks okay"
+    DATABASE_OWNER=${DATABASE_NAME}
   else
     echo "Invalid DATABASE_NAME: '${DATABASE_NAME}' - must be lower case alphanumeric" >&2
     exit 3
@@ -56,7 +57,7 @@ NODE_ENV=development
 # Where's the DB, and who owns it?
 DATABASE_HOST=${DATABASE_HOST}
 DATABASE_NAME=${DATABASE_NAME}
-DATABASE_OWNER=${DATABASE_NAME}
+DATABASE_OWNER=${DATABASE_OWNER}
 DATABASE_OWNER_PASSWORD=$DATABASE_OWNER_PASSWORD
 
 # Used by docker postgres as default variables
