@@ -1,0 +1,60 @@
+version: "3.7"
+services:
+  # postgres db
+  db:
+    container_name: graphiledemo-db
+    restart: always
+    image: graphiledemo-db
+    build:
+      context: ./db
+    volumes:
+      # all our database data gets it's one volume
+      - db-volume:/var/lib/postgresql/data
+    env_file:
+      - ./.env
+    networks:
+      - default
+    ports:
+      # postgres default
+      - 5432:5432
+
+  # runs express serving graphql & graphiql and also runs client (react) dev server
+  nodejs:
+    image: node:11
+    container_name: nodejs
+    ports:
+      # client dev server
+      - 3000:3000
+      # express site / and /graphiql
+      - 5678:5678
+    env_file:
+      - ./.env
+    volumes:
+      - .:/home/node/
+    working_dir: /home/node
+
+  # needed as sessions store for logins
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redisdata:/data
+
+  # for debug purposes, so we can poke around in our db
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      - ADMINER_PLUGINS=edit-foreign
+    ports:
+      - 8888:8080
+
+networks:
+  default:
+    name: graphiledemo-network
+
+volumes:
+  db-volume:
+  redisdata:
