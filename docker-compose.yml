@@ -22,23 +22,38 @@ services:
       - 5432:5432
 
   # runs express serving graphql & graphiql and also runs client (react) dev server
-  nodejs:
+  db-migrate:
     image: node:11
-    container_name: nodejs
+    container_name: db-migrate
+    env_file:
+      - ./.env
+    command: ["npm", "run", "start"]
+    volumes:
+      - ./db-migrate:/home/node/
+      # access to db scripts & migrations
+      - ./db/migrations:/home/node/db/migrations
+      - ./db/scripts:/home/node/db/scripts
+      # use seperate volume for node_modules, makes it easier to manage and faster to reset
+      - node_modules_db-migrate:/home/node/node_modules
+    working_dir: /home/node
+
+  nuxtjs:
+    image: node:11
+    env_file:
+      - ./.env
+    volumes:
+      - ./server-nuxtjs/:/home/node/
+      - node_modules_nuxtjs:/home/node/node_modules
+    working_dir: /home/node
+    container_name: nuxtjs-vue-website
+    restart: always
     ports:
+      - "3333:3333"
       # client dev server
       - 3000:3000
       # express site / and /graphiql
       - 5678:5678
-    # starts both servers
-    command: ["npm", "run", "start:servers"]
-    env_file:
-      - ./.env
-    volumes:
-      - .:/home/node/
-      # use seperate volume for node_modules, makes it easier to manage and faster to reset
-      - node_modules:/home/node/node_modules
-    working_dir: /home/node
+    command: "npm run dev"
 
   # needed as sessions store for logins
   redis:
@@ -65,4 +80,5 @@ networks:
 volumes:
   db-volume:
   redisdata:
-  node_modules:
+  node_modules_nuxtjs:
+  node_modules_db-migrate:

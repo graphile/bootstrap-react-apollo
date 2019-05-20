@@ -1,23 +1,38 @@
 version: "2"
 services:
-  base:
+  #nuxtjs
+  nuxtjs:
     image: node:11
     volumes:
-      - .:/home/node
-      - node_modules:/home/node/node_modules
+      - ./server-nuxtjs:/home/node
+      - node_modules_nuxtjs:/home/node/node_modules
     working_dir: /home/node
-  install:
+  install-nuxtjs:
     extends:
-      service: base
-    command: npm install
-  build:
+      service: nuxtjs
+    command: yarn install
+  build-nuxtjs:
     extends:
-      service: base
-    command: npm run build
-  create-bundles:
+      service: nuxtjs
+    command: yarn run build
+
+  #db-migrate
+  # has different package.json
+  db-migrate:
+    image: node:11
+    volumes:
+      - ./db-migrate:/home/node
+      - node_modules_db-migrate:/home/node/node_modules
+    working_dir: /home/node
+  install-db-migrate:
     extends:
-      service: base
-    command: npm run create-bundles
+      service: db-migrate
+    command: yarn install
+  build-db-migrate:
+    extends:
+      service: db-migrate
+    command: yarn run build
 
 volumes:
-  node_modules:
+  node_modules_nuxtjs:
+  node_modules_db-migrate:
