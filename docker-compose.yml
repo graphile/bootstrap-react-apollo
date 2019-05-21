@@ -3,7 +3,6 @@ services:
   # postgres db
   db:
     container_name: graphiledemo-db
-    restart: always
     image: graphiledemo-db
     build:
       context: ./db
@@ -67,7 +66,6 @@ services:
   # for debug purposes, so we can poke around in our db
   adminer:
     image: adminer
-    restart: always
     environment:
       - ADMINER_PLUGINS=edit-foreign
     ports:
