@@ -7,28 +7,21 @@ const sharedUtils = require("./utils");
 const middleware = require("./middleware");
 const packageJson = require("../package");
 
-/*
-  * Our Express server
-  */
-const app = express();
 
 sharedUtils.sanitiseEnv();
+const isDev = !(process.env.NODE_ENV === "production");
+const CLIENT_PORT = process.env.CLIENT_PORT;
+
 // Import and Set Nuxt.js options
 let config = require('../nuxt.config.js')
-const isDev = !(process.env.NODE_ENV === "production");
+// Init Nuxt.js
+const nuxt = new Nuxt(config)
+const { host, port: hostPort } = nuxt.options.server
+const PORT = hostPort;
+
 
 async function main() {
 
-  // Init Nuxt.js
-  const nuxt = new Nuxt(config)
-
-  const { host, port } = nuxt.options.server
-  const PORT = port;
-  /*
-   * Getting access to the HTTP server directly means that we can do things
-   * with websockets if we need to (e.g. GraphQL subscriptions).
-   */
-  // Build only in dev mode
   if (isDev) {
     const builder = new Builder(nuxt)
     await builder.build()
@@ -36,9 +29,14 @@ async function main() {
     await nuxt.ready()
   }
 
-  // Give nuxt middleware to express
-  app.use(nuxt.render)
-
+  /*
+  * Our Express server
+  */
+  const app = express();
+  /*
+   * Getting access to the HTTP server directly means that we can do things
+   * with websockets if we need to (e.g. GraphQL subscriptions).
+   */
   const httpServer = createServer(app);
   app.set("httpServer", httpServer);
 
@@ -63,10 +61,20 @@ async function main() {
   await middleware.installSharedStatic(app);
   await middleware.installPostGraphile(app);
 
+  const app_nuxt = express();
+  // Build only in dev mode
+
+  // Give nuxt middleware to express
+  app_nuxt.use(nuxt.render);
+
+  // Listen the nuxtjs-server on client port
+  app_nuxt.listen(CLIENT_PORT, host);
+
+  // In development, the client runs its own server
+  await middleware.installClientServerProxy(app);
   // And finally, we open the listen port
   httpServer.listen(PORT, () => {
     const address = httpServer.address();
-    debugger;
     const actualPort =
       typeof address === "string" ? address : address.port || PORT;
     console.log();

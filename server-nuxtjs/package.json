@@ -24,6 +24,7 @@
     "express-session": "^1.16.1",
     "graphql": "^14.3.0",
     "graphql-tag": "^2.10.1",
+    "http-proxy": "^1.17.0",
     "morgan": "^1.9.1",
     "nuxt": "^2.4.0",
     "passport": "^0.4.0",
