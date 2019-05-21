@@ -45,11 +45,9 @@ services:
       - node_modules_nuxtjs:/home/node/node_modules
     working_dir: /home/node
     container_name: nuxtjs-vue-website
-    restart: always
+    stdin_open: true
+    tty: true
     ports:
-      - "3333:3333"
-      # client dev server
-      - 3000:3000
       # express site / and /graphiql
       - 5678:5678
     command: "npm run dev"
