@@ -48,8 +48,10 @@ services:
     stdin_open: true
     tty: true
     ports:
-      # express site / and /graphiql
-      - 5678:5678
+      # express server, for / and /graphiql
+      - ${PORT}:${PORT}
+      # node debugger port
+      - 9229:9229
     command: "npm run dev"
 
   # needed as sessions store for logins
