@@ -42,6 +42,7 @@ services:
       - ./.env
     volumes:
       - ./server-nuxtjs/:/home/node/
+      - ./data:/home/node/data
       - node_modules_nuxtjs:/home/node/node_modules
     working_dir: /home/node
     container_name: nuxtjs-vue-website
