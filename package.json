@@ -20,6 +20,7 @@
     "db:migrate:up": "docker-compose run db-migrate bash -c \"yarn migrate:up\"",
     "db:migrate:down": "docker-compose run db-migrate bash -c \"yarn migrate:down\"",
     "db:migrate:reset": "docker-compose run db-migrate bash -c \"yarn migrate:reset\"",
+    "windows:enable:watcher": "start cmd /k docker-volume-watcher nuxtjs-vue-website",
     "test": "jest"
   },
   "repository": {
