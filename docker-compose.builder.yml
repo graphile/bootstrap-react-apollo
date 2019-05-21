@@ -2,7 +2,7 @@ version: "2"
 services:
   #nuxtjs
   nuxtjs:
-    image: node:11
+    image: node:12
     volumes:
       - ./server-nuxtjs:/home/node
       - node_modules_nuxtjs:/home/node/node_modules
@@ -19,7 +19,7 @@ services:
   #db-migrate
   # has different package.json
   db-migrate:
-    image: node:11
+    image: node:12
     volumes:
       - ./db-migrate:/home/node
       - node_modules_db-migrate:/home/node/node_modules

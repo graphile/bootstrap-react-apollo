@@ -23,7 +23,7 @@ services:
 
   # runs express serving graphql & graphiql and also runs client (react) dev server
   db-migrate:
-    image: node:11
+    image: node:12
     container_name: db-migrate
     env_file:
       - ./.env
@@ -38,7 +38,7 @@ services:
     working_dir: /home/node
 
   nuxtjs:
-    image: node:11
+    image: node:12
     env_file:
       - ./.env
     volumes:
