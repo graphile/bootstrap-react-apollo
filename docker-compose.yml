@@ -72,6 +72,31 @@ services:
     ports:
       - 8888:8080
 
+  graphiql:
+    container_name: postgraphile
+    restart: always
+    image: graphile/postgraphile
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - default
+    ports:
+      - 5433:5433
+
+    command:
+      [
+        "postgraphile",
+        "--connection",
+        "${DATABASE_URL}",
+        "--schema",
+        "app_public",
+        "--port",
+        "5433",
+        "--enhance-graphiql",
+      ]
+
 networks:
   default:
     name: graphiledemo-network
