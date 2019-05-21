@@ -3,29 +3,19 @@
   "version": "1.0.0",
   "description": "db-migrate for postgraphile bootstrape-vue-apollo example",
   "scripts": {
+    "start": "yarn db:migrate:up",
     "migrate:up": "db-migrate --migrations-dir db/migrations/.db-migrate up",
     "migrate:down": "db-migrate --migrations-dir db/migrations/.db-migrate down",
     "migrate:reset": "db-migrate --migrations-dir db/migrations/.db-migrate reset",
-    "db:mrm:dev": "bash ./scripts/source-env && npm run db:migrate:up && npm run db:migrate:down && npm run db:migrate:up && npm run db:migrate:dev:dump",
-    "db:rollback:dev": "bash./scripts/source-env && npm run db:migrate:down &&  npm run db:migrate:dev:dump",
-    "db:reset:dev": "bash ./scripts/source-env && npm run db:migrate:reset && npm run db:migrate:up && npm run db:migrate:dev:dump",
-    "start": "npm run db:migrate:up"
+    "db:mrm:dev": "bash ./scripts/source-env && yarn db:migrate:up && yarn db:migrate:down && yarn db:migrate:up && npm run db:migrate:dev:dump",
+    "db:rollback:dev": "bash./scripts/source-env && yarn db:migrate:down &&  yarn db:migrate:dev:dump",
+    "db:reset:dev": "bash ./scripts/source-env && yarn db:migrate:reset && yarn db:migrate:up && yarn db:migrate:dev:dump"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/graphile/boilerplate-react-apollo.git"
   },
-  "keywords": [
-    "postgraphile",
-    "graphile",
-    "boilerplate",
-    "apollo",
-    "ssr",
-    "graphql",
-    "postgresql",
-    "pg",
-    "postgres"
-  ],
+  "keywords": [],
   "author": "Benjie Gillam <code@benjiegillam.com>",
   "license": "MIT",
   "bugs": {
