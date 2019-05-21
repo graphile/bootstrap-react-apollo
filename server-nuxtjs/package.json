@@ -5,28 +5,32 @@
   "author": "Joe Schroecker",
   "private": true,
   "scripts": {
-    "dev": "cross-env NODE_ENV=development HOST=0.0.0.0 nodemon --inspect=0.0.0.0 server/index.js --watch server",
-    "build": "nuxt build",
     "start": "cross-env NODE_ENV=production HOST=0.0.0.0 node server/index.js",
+    "dev": "cross-env NODE_ENV=development HOST=0.0.0.0 nodemon  --delay 80ms --exec 'yarn dev:inspector:kill && yarn dev:inspector:start' --watch server",
+    "build": "nuxt build",
     "generate": "nuxt generate",
-    "test": "jest"
+    "test": "jest",
+    "dev:inspector:start": "node --inspect=0.0.0.0:9229 server/index.js ",
+    "dev:inspector:kill": "kill-port --port 9229"
   },
   "dependencies": {
+    "@nuxtjs/pwa": "^2.6.0",
     "cross-env": "^5.2.0",
-    "nuxt": "^2.4.0",
     "express": "^4.16.4",
+    "nuxt": "^2.4.0",
+    "pg": "^7.11.0",
     "vuetify": "^1.5.5",
-    "vuetify-loader": "^1.2.1",
-    "@nuxtjs/pwa": "^2.6.0"
+    "vuetify-loader": "^1.2.1"
   },
   "devDependencies": {
-    "nodemon": "^1.18.9",
-    "stylus": "^0.54.5",
-    "stylus-loader": "^3.0.2",
     "@vue/test-utils": "^1.0.0-beta.27",
     "babel-core": "7.0.0-bridge.0",
     "babel-jest": "^24.1.0",
     "jest": "^24.1.0",
+    "kill-port": "^1.5.0",
+    "nodemon": "^1.18.9",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
     "vue-jest": "^3.0.3"
   }
 }
