@@ -31,7 +31,6 @@ module.exports = {
         env: "literal",
         schemaJson: require("./data/schema.json"),
         requiredFields: ["id", "nodeId"],
-        ignoreFragmentSpreads: true,
       },
     ],
 
