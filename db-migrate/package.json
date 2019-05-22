@@ -1,0 +1,30 @@
+{
+  "name": "db-migrate-bootstrap-nuxtjs-apollo",
+  "version": "1.0.0",
+  "description": "db-migrate for postgraphile bootstrape-vue-apollo example",
+  "scripts": {
+    "start": "yarn db:migrate:up",
+    "migrate:up": "db-migrate --migrations-dir db/migrations/.db-migrate up",
+    "migrate:down": "db-migrate --migrations-dir db/migrations/.db-migrate down",
+    "migrate:reset": "db-migrate --migrations-dir db/migrations/.db-migrate reset",
+    "db:mrm:dev": "bash ./scripts/source-env && yarn db:migrate:up && yarn db:migrate:down && yarn db:migrate:up && npm run db:migrate:dev:dump",
+    "db:rollback:dev": "bash./scripts/source-env && yarn db:migrate:down &&  yarn db:migrate:dev:dump",
+    "db:reset:dev": "bash ./scripts/source-env && yarn db:migrate:reset && yarn db:migrate:up && yarn db:migrate:dev:dump"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/graphile/boilerplate-react-apollo.git"
+  },
+  "keywords": [],
+  "author": "Benjie Gillam <code@benjiegillam.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/graphile/boilerplate-react-apollo/issues"
+  },
+  "homepage": "https://github.com/graphile/boilerplate-react-apollo#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "db-migrate": "^0.11.5",
+    "db-migrate-pg": "^0.5.0"
+  }
+}

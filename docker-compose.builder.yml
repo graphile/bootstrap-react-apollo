@@ -1,23 +1,34 @@
 version: "2"
 services:
-  base:
-    image: node:11
+  #node
+  node:
+    image: node:12
     volumes:
       - .:/home/node
-      - node_modules:/home/node/node_modules
+      - node_modules_node:/home/node/node_modules
     working_dir: /home/node
-  install:
+  install-node:
     extends:
-      service: base
+      service: node
     command: yarn install
-  build:
+  build-node:
     extends:
-      service: base
+      service: node
     command: yarn run build
-  create-bundles:
+
+  #db-migrate
+  # has different package.json
+  db-migrate:
+    image: node:12
+    volumes:
+      - ./db-migrate:/home/node
+      - node_modules_db-migrate:/home/node/node_modules
+    working_dir: /home/node
+  install-db-migrate:
     extends:
-      service: base
-    command: yarn run create-bundles
+      service: db-migrate
+    command: yarn install
 
 volumes:
-  node_modules:
+  node_modules_node:
+  node_modules_db-migrate:
