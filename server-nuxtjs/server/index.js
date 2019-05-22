@@ -22,6 +22,9 @@ const PORT = hostPort;
 
 async function main() {
 
+  /*
+  * Build nuxtjs only in dev mode
+  */
   if (isDev) {
     const builder = new Builder(nuxt)
     await builder.build()
@@ -61,17 +64,13 @@ async function main() {
   await middleware.installSharedStatic(app);
   await middleware.installPostGraphile(app);
 
-  const app_nuxt = express();
-  // Build only in dev mode
+  /*
+   * Give nuxt middleware to express
+   ! Needs to be placed after `middleware.installPostGraphile`
+   ! otherwise postgraphile routes won't work
+   */
+  app.use(nuxt.render);
 
-  // Give nuxt middleware to express
-  app_nuxt.use(nuxt.render);
-
-  // Listen the nuxtjs-server on client port
-  app_nuxt.listen(CLIENT_PORT, host);
-
-  // In development, the client runs its own server
-  await middleware.installClientServerProxy(app);
   // And finally, we open the listen port
   httpServer.listen(PORT, () => {
     const address = httpServer.address();
@@ -91,7 +90,12 @@ async function main() {
     );
     console.log(
       `  GraphiQL: ${chalk.bold.underline(
-        `http://localhost:${actualPort}/graphiql`
+        `http://localhost:${actualPort}/api/graphiql`
+      )}`
+    );
+    console.log(
+      `  GraphQL: ${chalk.bold.underline(
+        `http://localhost:${actualPort}/api/graphql`
       )}`
     );
     console.log();

@@ -96,28 +96,37 @@ function postgraphileOptions(overrides) {
     extendedErrors:
       isDev || isTest
         ? [
-            "errcode",
-            "severity",
-            "detail",
-            "hint",
-            "positon",
-            "internalPosition",
-            "internalQuery",
-            "where",
-            "schema",
-            "table",
-            "column",
-            "dataType",
-            "constraint",
-            "file",
-            "line",
-            "routine",
-          ]
+          "errcode",
+          "severity",
+          "detail",
+          "hint",
+          "positon",
+          "internalPosition",
+          "internalQuery",
+          "where",
+          "schema",
+          "table",
+          "column",
+          "dataType",
+          "constraint",
+          "file",
+          "line",
+          "routine",
+        ]
         : ["errcode"],
     showErrorStack: isDev,
 
     // Automatically update GraphQL schema when database changes
     watchPg: isDev,
+
+    /*
+    * (optional) Routes to avoid conflict with nuxt.js default routing
+    * Be aware: this won't fix nuxt.js handling to catch all routes,
+    * which makes /graphql /graphiql not reachable.
+    * To fixt that: nuxt.js need to be ininitalized after this middleware
+    */
+    graphqlRoute: '/api/graphql',
+    graphiqlRoute: '/api/graphiql',
 
     // Keep data/schema.graphql and data/schema.json up to date
     sortExport: true,
@@ -204,16 +213,16 @@ function postgraphileOptions(overrides) {
      */
     ...(PostGraphilePro
       ? {
-          defaultPaginationCap:
-            parseInt(process.env.GRAPHQL_PAGINATION_CAP, 10) || 50,
-          graphqlDepthLimit:
-            parseInt(process.env.GRAPHQL_DEPTH_LIMIT, 10) || 12,
-          graphqlCostLimit:
-            parseInt(process.env.GRAPHQL_COST_LIMIT, 10) || 30000,
-          exposeGraphQLCost:
-            (parseInt(process.env.HIDE_QUERY_COST, 10) || 0) < 1,
-          // readReplicaPgPool ...,
-        }
+        defaultPaginationCap:
+          parseInt(process.env.GRAPHQL_PAGINATION_CAP, 10) || 50,
+        graphqlDepthLimit:
+          parseInt(process.env.GRAPHQL_DEPTH_LIMIT, 10) || 12,
+        graphqlCostLimit:
+          parseInt(process.env.GRAPHQL_COST_LIMIT, 10) || 30000,
+        exposeGraphQLCost:
+          (parseInt(process.env.HIDE_QUERY_COST, 10) || 0) < 1,
+        // readReplicaPgPool ...,
+      }
       : null),
 
     // When running in the server, we need to set websocketMiddlewares
