@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.4
--- Dumped by pg_dump version 10.4
+-- Dumped from database version 11.2
+-- Dumped by pg_dump version 11.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -41,20 +41,6 @@ CREATE SCHEMA app_private;
 --
 
 CREATE SCHEMA app_public;
-
-
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
@@ -127,7 +113,7 @@ CREATE TABLE app_jobs.jobs (
 
 CREATE FUNCTION app_jobs.add_job(identifier character varying, payload jsonb, queue_name character varying DEFAULT (public.gen_random_uuid())::character varying, run_at timestamp with time zone DEFAULT now()) RETURNS app_jobs.jobs
     LANGUAGE sql STRICT
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
   INSERT INTO app_jobs.jobs(task_identifier, payload, queue_name, run_at)
     VALUES(identifier, payload, queue_name, run_at)
@@ -141,7 +127,7 @@ $$;
 
 CREATE FUNCTION app_jobs.complete_job(worker_id character varying, job_id integer) RETURNS app_jobs.jobs
     LANGUAGE plpgsql STRICT
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 DECLARE
   v_row app_jobs.jobs;
@@ -188,7 +174,7 @@ COMMENT ON FUNCTION app_jobs.do_notify() IS 'Performs pg_notify passing the firs
 
 CREATE FUNCTION app_jobs.fail_job(worker_id character varying, job_id integer, error_message character varying) RETURNS app_jobs.jobs
     LANGUAGE plpgsql STRICT
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 DECLARE
   v_row app_jobs.jobs;
@@ -215,7 +201,7 @@ $$;
 
 CREATE FUNCTION app_jobs.get_job(worker_id character varying, identifiers character varying[]) RETURNS app_jobs.jobs
     LANGUAGE plpgsql STRICT
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 DECLARE
   v_job_id int;
@@ -265,7 +251,7 @@ $$;
 
 CREATE FUNCTION app_jobs.jobs__decrease_job_queue_count() RETURNS trigger
     LANGUAGE plpgsql
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 BEGIN
   UPDATE app_jobs.job_queues
@@ -288,7 +274,7 @@ $$;
 
 CREATE FUNCTION app_jobs.jobs__increase_job_queue_count() RETURNS trigger
     LANGUAGE plpgsql
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 BEGIN
   INSERT INTO app_jobs.job_queues(queue_name, job_count)
@@ -393,7 +379,7 @@ COMMENT ON COLUMN app_public.users.is_admin IS 'If true, the user has elevated p
 
 CREATE FUNCTION app_private.link_or_register_user(f_user_id integer, f_service character varying, f_identifier character varying, f_profile json, f_auth_details json) RETURNS app_public.users
     LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 declare
   v_matched_user_id int;
@@ -483,7 +469,7 @@ COMMENT ON FUNCTION app_private.link_or_register_user(f_user_id integer, f_servi
 
 CREATE FUNCTION app_private.login(username text, password text) RETURNS app_public.users
     LANGUAGE plpgsql STRICT SECURITY DEFINER
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 declare
   v_user app_public.users;
@@ -559,7 +545,7 @@ COMMENT ON FUNCTION app_private.login(username text, password text) IS 'Returns 
 
 CREATE FUNCTION app_private.really_create_user(username text, email text, email_is_verified boolean, name text, avatar_url text, password text DEFAULT NULL::text) RETURNS app_public.users
     LANGUAGE plpgsql
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 declare
   v_user app_public.users;
@@ -628,7 +614,7 @@ COMMENT ON FUNCTION app_private.really_create_user(username text, email text, em
 
 CREATE FUNCTION app_private.register_user(f_service character varying, f_identifier character varying, f_profile json, f_auth_details json, f_email_is_verified boolean DEFAULT false) RETURNS app_public.users
     LANGUAGE plpgsql SECURITY DEFINER
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 declare
   v_user app_public.users;
@@ -677,7 +663,7 @@ COMMENT ON FUNCTION app_private.register_user(f_service character varying, f_ide
 
 CREATE FUNCTION app_private.tg__add_job() RETURNS trigger
     LANGUAGE plpgsql
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 begin
   perform app_jobs.add_job(tg_argv[0], json_build_object('id', NEW.id), tg_argv[1]);
@@ -699,11 +685,11 @@ COMMENT ON FUNCTION app_private.tg__add_job() IS 'Useful shortcut to create a jo
 
 CREATE FUNCTION app_private.tg__timestamps() RETURNS trigger
     LANGUAGE plpgsql
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 begin
   NEW.created_at = (case when TG_OP = 'INSERT' then NOW() else OLD.created_at end);
-  NEW.updated_at = (case when TG_OP = 'UPDATE' and OLD.updated_at <= NOW() then OLD.updated_at + interval '1 millisecond' else NOW() end);
+  NEW.updated_at = (case when TG_OP = 'UPDATE' and OLD.updated_at >= NOW() then OLD.updated_at + interval '1 millisecond' else NOW() end);
   return NEW;
 end;
 $$;
@@ -722,7 +708,7 @@ COMMENT ON FUNCTION app_private.tg__timestamps() IS 'This trigger should be call
 
 CREATE FUNCTION app_private.tg_user_email_secrets__insert_with_user_email() RETURNS trigger
     LANGUAGE plpgsql
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 declare
   v_verification_token text;
@@ -749,7 +735,7 @@ COMMENT ON FUNCTION app_private.tg_user_email_secrets__insert_with_user_email() 
 
 CREATE FUNCTION app_private.tg_user_secrets__insert_with_user() RETURNS trigger
     LANGUAGE plpgsql
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 begin
   insert into app_private.user_secrets(user_id) values(NEW.id);
@@ -771,7 +757,7 @@ COMMENT ON FUNCTION app_private.tg_user_secrets__insert_with_user() IS 'Ensures 
 
 CREATE FUNCTION app_private.tg_users__make_first_user_admin() RETURNS trigger
     LANGUAGE plpgsql
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 begin
   if not exists(select 1 from app_public.users limit 1) then
@@ -788,7 +774,7 @@ $$;
 
 CREATE FUNCTION app_public."current_user"() RETURNS app_public.users
     LANGUAGE sql STABLE
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
   select users.* from app_public.users where id = app_public.current_user_id();
 $$;
@@ -807,7 +793,7 @@ COMMENT ON FUNCTION app_public."current_user"() IS 'The currently logged in user
 
 CREATE FUNCTION app_public.current_user_id() RETURNS integer
     LANGUAGE sql STABLE
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
   select nullif(current_setting('jwt.claims.user_id', true), '')::int;
 $$;
@@ -827,7 +813,7 @@ Handy method to get the current user ID for use in RLS policies, etc; in GraphQL
 
 CREATE FUNCTION app_public.forgot_password(email text) RETURNS boolean
     LANGUAGE plpgsql STRICT SECURITY DEFINER
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 declare
   v_user_email app_public.user_emails;
@@ -902,7 +888,7 @@ If you''ve forgotten your password, give us one of your email addresses and we''
 
 CREATE FUNCTION app_public.reset_password(user_id integer, reset_token text, new_password text) RETURNS app_public.users
     LANGUAGE plpgsql STRICT SECURITY DEFINER
-    SET search_path TO "$user", public
+    SET search_path TO '$user', 'public'
     AS $$
 declare
   v_user app_public.users;
@@ -1422,21 +1408,21 @@ CREATE TRIGGER _900_notify_worker AFTER INSERT ON app_jobs.jobs FOR EACH STATEME
 -- Name: users _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
 
 
 --
 -- Name: user_emails _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
 
 
 --
 -- Name: user_authentications _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_authentications FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.user_authentications FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
 
 
 --

@@ -36,7 +36,7 @@ comment on column app_public.users.is_admin is
   E'If true, the user has elevated privileges.';
 
 create trigger _100_timestamps
-  after insert or update on app_public.users
+  before insert or update on app_public.users
   for each row
   execute procedure app_private.tg__timestamps();
 

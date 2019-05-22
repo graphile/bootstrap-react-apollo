@@ -11,7 +11,7 @@ create table app_public.user_authentications (
 create index on app_public.user_authentications (user_id);
 alter table app_public.user_authentications enable row level security;
 create trigger _100_timestamps
-  after insert or update on app_public.user_authentications
+  before insert or update on app_public.user_authentications
   for each row
   execute procedure app_private.tg__timestamps();
 
