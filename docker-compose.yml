@@ -41,7 +41,7 @@ services:
     env_file:
       - ./.env
     volumes:
-      - ./server-nuxtjs/:/home/node/
+      - ./server/:/home/node/
       - ./data:/home/node/data
       - node_modules_nuxtjs:/home/node/node_modules
     working_dir: /home/node

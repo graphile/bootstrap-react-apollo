@@ -4,7 +4,7 @@ services:
   nuxtjs:
     image: node:12
     volumes:
-      - ./server-nuxtjs:/home/node
+      - ./server:/home/node
       - node_modules_nuxtjs:/home/node/node_modules
     working_dir: /home/node
   install-nuxtjs:

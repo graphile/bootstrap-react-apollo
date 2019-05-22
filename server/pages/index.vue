@@ -16,7 +16,7 @@
       <v-card>
         <v-card-title class="headline">Welcome to the Postgraphile + Nuxt.js +  Vuetify bootstrap</v-card-title>
         <v-card-text>
-          <p> Edit <code>/server-nuxtjs/pages/index.vue</code> and save to hot-reload. </p>
+          <p> Edit <code>/server/pages/index.vue</code> and save to hot-reload. </p>
           <p className="HomePage-p">
 
             <router-link :to="'login'">Login</router-link>
