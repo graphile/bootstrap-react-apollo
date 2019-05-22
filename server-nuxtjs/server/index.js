@@ -6,6 +6,7 @@ const chalk = require("chalk");
 const sharedUtils = require("./utils");
 const middleware = require("./middleware");
 const packageJson = require("../package");
+const consola = require('consola')
 
 
 sharedUtils.sanitiseEnv();
@@ -76,29 +77,15 @@ async function main() {
     const address = httpServer.address();
     const actualPort =
       typeof address === "string" ? address : address.port || PORT;
-    console.log();
-    console.log(
-      chalk.green(
-        `${chalk.bold(packageJson.name)} listening on port ${chalk.bold(
-          actualPort
-        )}`
-      )
-    );
-    console.log();
-    console.log(
-      `  Site:     ${chalk.bold.underline(`http://localhost:${actualPort}`)}`
-    );
-    console.log(
-      `  GraphiQL: ${chalk.bold.underline(
-        `http://localhost:${actualPort}/api/graphiql`
-      )}`
-    );
-    console.log(
-      `  GraphQL: ${chalk.bold.underline(
-        `http://localhost:${actualPort}/api/graphql`
-      )}`
-    );
-    console.log();
+    consola.ready({
+      message: `
+        ${chalk.bold(packageJson.name)} listening on port ${chalk.bold(actualPort)}
+        Site:     ${chalk.bold.underline(`http://localhost:${actualPort}`)}
+        GraphiQL: ${chalk.bold.underline(`http://localhost:${actualPort}/api/graphiql`)}
+        GraphQL: ${chalk.bold.underline(`http://localhost:${actualPort}/api/graphql`)}
+        `,
+      badge: true
+    });
   });
 }
 
