@@ -890,6 +890,18 @@ If you''ve forgotten your password, give us one of your email addresses and we''
 
 
 --
+-- Name: login(text, text); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.login(username text, password text) RETURNS app_public.users
+    LANGUAGE sql STRICT SECURITY DEFINER
+    SET search_path TO '$user', 'public'
+    AS $$
+  select app_private.login(username, password);
+$$;
+
+
+--
 -- Name: reset_password(integer, text, text); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
@@ -1075,7 +1087,9 @@ COMMENT ON COLUMN app_private.user_email_secrets.password_reset_email_sent_at IS
 
 CREATE TABLE app_private.user_secrets (
     user_id integer NOT NULL,
-    password_hash text
+    password_hash text,
+    first_failed_password_attempt timestamp with time zone,
+    password_attempts integer DEFAULT 0 NOT NULL
 );
 
 

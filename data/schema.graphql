@@ -261,6 +261,38 @@ type ForgotPasswordPayload {
   success: Boolean
 }
 
+"""All input for the `login` mutation."""
+input LoginInput {
+  """
+  An arbitrary string value with no semantic meaning. Will be included in the
+  payload verbatim. May be used to track mutations by the client.
+  """
+  clientMutationId: String
+  password: String!
+  username: String!
+}
+
+"""The output of our `login` mutation."""
+type LoginPayload {
+  """
+  The exact same `clientMutationId` that was provided in the mutation input,
+  unchanged and unused. May be used by a client to track mutations.
+  """
+  clientMutationId: String
+
+  """
+  Our root query field type. Allows us to run any query from our mutation payload.
+  """
+  query: Query
+  user: User
+
+  """An edge for our `User`. May be used by Relay 1."""
+  userEdge(
+    """The method to use when ordering `User`."""
+    orderBy: [UsersOrderBy!] = PRIMARY_KEY_ASC
+  ): UsersEdge
+}
+
 """
 The root mutation type which contains root level fields which mutate data.
 """
@@ -355,6 +387,12 @@ type Mutation {
     """
     input: ForgotPasswordInput!
   ): ForgotPasswordPayload
+  login(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: LoginInput!
+  ): LoginPayload
 
   """
   After triggering forgotPassword, you'll be sent a reset token. Combine this
