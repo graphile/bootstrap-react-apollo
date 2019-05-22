@@ -6,7 +6,7 @@
   "scripts": {
     "setup": "yarn reset && yarn setup:node:install && bash scripts/setup",
     "start": "docker-compose down && docker-compose up -d db adminer redis && docker-compose up node",
-    "test": "docker-compose run node bash -c \"yarn test\"",
+    "test": "docker-compose run node bash -c \"yarn jest\"",
     "reset": "yarn reset:docker:down && bash -c \"yarn reset:volumes || true\" && yarn reset:docker:rebuild && yarn reset:env",
     "start:servers": "npx concurrently --kill-others --names server,client 'npm run start:servers:react' 'npm run start:servers:postgraphile' ",
     "start:servers:postgraphile": "cd server && nodemon",
