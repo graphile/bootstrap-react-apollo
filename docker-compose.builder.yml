@@ -9,15 +9,15 @@ services:
   install:
     extends:
       service: base
-    command: npm install
+    command: yarn install
   build:
     extends:
       service: base
-    command: npm run build
+    command: yarn run build
   create-bundles:
     extends:
       service: base
-    command: npm run create-bundles
+    command: yarn run create-bundles
 
 volumes:
   node_modules:
