@@ -75,6 +75,42 @@ module.exports = async app => {
       }),
       ["token", "tokenSecret"]
     );
+  } else {
+    if (process.env.NODE_ENV === "development") {
+      app.get("/auth/github", (req, res, next) => {
+        res.type('html').send(`\
+<!DOCTYPE html>
+<html>
+<body>
+<h1><code>process.env.GITHUB_KEY</code> not present</h1>
+<p>To enable login with GitHub, create a GitHub application by visiting
+<a
+href="https://github.com/settings/applications/new">https://github.com/settings/applications/new</a>
+and entering the details below. Once done, enter the Client ID/Secret into your
+<code>.env</code> file and kill and restart the server.</p>
+
+<table>
+<tr><td>
+Name:
+</td><td>
+<input size="40" readonly value="PostGraphile Bootstrap (Dev)" />
+</td></tr>
+<tr><td>
+Homepage URL:
+</td><td>
+<input size="40" readonly value="http://localhost:5678" />
+</td></tr>
+<tr><td>
+Authorization callback URL:
+</td><td>
+<input size="40" value="http://localhost:5678/auth/github/callback" />
+</td></tr>
+</table>
+</body>
+</html>
+`);
+      });
+    }
   }
 };
 
