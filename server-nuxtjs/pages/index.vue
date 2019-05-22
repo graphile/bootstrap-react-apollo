@@ -14,7 +14,42 @@
         <vuetify-logo />
       </div>
       <v-card>
-        <v-card-title class="headline">Welcome to the Vuetify + Nuxt.js template</v-card-title>
+        <v-card-title class="headline">Welcome to the Postgraphile + Nuxt.js +  Vuetify bootstrap</v-card-title>
+        <v-card-text>
+          <p> Edit <code>/server-nuxtjs/pages/index.vue</code> and save to hot-reload. </p>
+          <p className="HomePage-p">
+
+            <router-link :to="'login'">Login</router-link>
+            <br />
+            <!--
+              This is an "a" tag because we want a full page reload,
+              GraphiQL is not embedded into our React app
+            -->
+            <a href="/api/graphiql"  target="_blank"> View API in GraphiQL </a>
+            <br />
+            <br />
+            <a
+              className="HomePage-link"
+              href="https://github.com/graphile/bootstrap-react-apollo/blob/master/README.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View README for project structure
+            </a>
+            <br />
+            <a
+              className="HomePage-link"
+              href="https://www.graphile.org/postgraphile/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Learn PostGraphile
+            </a>
+            <br />
+          </p>
+        </v-card-text>
+
+        <v-card-title class="headline">Vuetify.js</v-card-title>
         <v-card-text>
           <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower developers to create amazing applications.</p>
           <p>For more information on Vuetify, check out the <a
