@@ -1,6 +1,6 @@
 module.exports = {
   parser: "babel-eslint",
-  extends: ["airbnb", "prettier", "prettier/react"],
+  extends: ["airbnb", "prettier", "plugin:vue/recommended",],
   plugins: ["jest", "react", "prettier", "graphql"],
   env: {
     browser: true,
@@ -10,6 +10,39 @@ module.exports = {
   rules: {
     // Autofix removes debugger automatically, which makes debugging annoying.
     "no-debugger": 0,
+
+    "vue/html-self-closing": [
+      "error",
+      {
+        html: {
+          void: "never",
+          normal: "any",
+          component: "any",
+        },
+        svg: "always",
+        math: "always",
+      },
+    ],
+    "vue/html-indent": [
+      "error",
+      2,
+      {
+        attribute: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+        ignores: [],
+      },
+    ],
+    "vue/max-attributes-per-line": [
+      2,
+      {
+        singleline: 2,
+        multiline: {
+          max: 1,
+          allowFirstLine: false,
+        },
+      },
+    ],
 
     // GraphQL
     "graphql/template-strings": [
@@ -32,21 +65,6 @@ module.exports = {
         schemaJson: require("./data/schema.json"),
         requiredFields: ["id", "nodeId"],
         ignoreFragmentSpreads: true,
-      },
-    ],
-
-    // React
-    "react/require-default-props": 0,
-    "react/prefer-stateless-function": 0,
-    "react/no-unescaped-entities": 1,
-    "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx"] }],
-    "jsx-a11y/mouse-events-have-key-events": 0,
-    "jsx-a11y/anchor-is-valid": [
-      "error",
-      {
-        components: ["Link"],
-        specialLink: ["to"],
-        aspects: ["noHref", "invalidHref", "preferButton"],
       },
     ],
 
