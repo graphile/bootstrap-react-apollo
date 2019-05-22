@@ -696,7 +696,7 @@ CREATE FUNCTION app_private.tg__timestamps() RETURNS trigger
     AS $$
 begin
   NEW.created_at = (case when TG_OP = 'INSERT' then NOW() else OLD.created_at end);
-  NEW.updated_at = (case when TG_OP = 'UPDATE' and OLD.updated_at <= NOW() then OLD.updated_at + interval '1 millisecond' else NOW() end);
+  NEW.updated_at = (case when TG_OP = 'UPDATE' and OLD.updated_at >= NOW() then OLD.updated_at + interval '1 millisecond' else NOW() end);
   return NEW;
 end;
 $$;
@@ -1457,21 +1457,21 @@ CREATE TRIGGER _900_notify_worker AFTER INSERT ON app_jobs.jobs FOR EACH STATEME
 -- Name: users _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.users FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
 
 
 --
 -- Name: user_emails _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
 
 
 --
 -- Name: user_authentications _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
-CREATE TRIGGER _100_timestamps AFTER INSERT OR UPDATE ON app_public.user_authentications FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
+CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_public.user_authentications FOR EACH ROW EXECUTE PROCEDURE app_private.tg__timestamps();
 
 
 --
