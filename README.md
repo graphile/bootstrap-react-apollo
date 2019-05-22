@@ -53,23 +53,6 @@ Deployment:
 - [ ] Procfile for Heroku
 - [ ] Dockerfile or similar
 
-Dockerize
-
-- [x] No `yarn install` aka no local `node_modules/` needed
-- [x] Migrate `yarn setup` scripts to work with now isolated docker-compose/v3, kubernets services
-- [x] `yarn start`: starts all docker services to be development ready
-- [X] `Postgres` DB service
-- [X] Using `PostGraphile` as a Library
-- [X] Standalone `PostGraphile` service (for standalone /graphiql, debugging, testing, etc)
-- [X] `Redis` service (wip: I have not experience with redis, but I suppose it works)
-- [X] Isolate `db-migrate` from yarn scripts into seperate service with own package.json dependencies
-- [X] Nodejs service for `react` client & `express` server
-- [X] `Adminer` service
-- [ ] Tests are not failing
-- [ ] Auth: oauth is working. wip: currently register works, login not so much
-- [ ] split up react-client and express-server into seperate `package.json`
-- [ ] idea: maye use `make` to install, setup and build, so top-level `package.json` is only responsible for express-server [ ] Production ready (e.g. node docker on `restart:always` so it restarts on failure, ...)
-
 ## Layout
 
 The project is split into the following folders:
@@ -96,30 +79,18 @@ We use the following tools to make our life easier
 - Prettier for consistent code formatting
 - Express.js to implement our server
 - db-migrate for performing migrations
-- docker-compose for never saying "but it runs on my machine..." again
 
 ## Getting Started
-
-### First Time Only
-
-- Install `docker`: https://docs.docker.com/install/
-- Install `docker-compose`: https://docs.docker.com/compose/install/
-
-#### Create and configure database
 
 ```
 # Create and configure database
 yarn setup
-```
 
-### Start developing
-
-```
 # Start everything
 yarn start
 ```
 
-Then open http://localhost:5678
+Then load http://localhost:5678
 
 {TODO}
 

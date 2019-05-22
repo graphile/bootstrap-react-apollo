@@ -3,7 +3,6 @@ services:
   # postgres db
   db:
     container_name: graphiledemo-db
-    restart: always
     image: graphiledemo-db
     build:
       context: ./db
@@ -22,23 +21,38 @@ services:
       - 5432:5432
 
   # runs express serving graphql & graphiql and also runs client (react) dev server
-  nodejs:
-    image: node:11
-    container_name: nodejs
-    ports:
-      # client dev server
-      - 3000:3000
-      # express site / and /graphiql
-      - 5678:5678
-    # starts both servers
-    command: ["npm", "run", "start:servers"]
+  db-migrate:
+    image: node:12
+    container_name: db-migrate
+    env_file:
+      - ./.env
+    command: ["npm", "run", "start"]
+    volumes:
+      - ./db-migrate:/home/node/
+      # access to db scripts & migrations
+      - ./db/migrations:/home/node/db/migrations
+      - ./db/scripts:/home/node/db/scripts
+      # use seperate volume for node_modules, makes it easier to manage and faster to reset
+      - node_modules_db-migrate:/home/node/node_modules
+    working_dir: /home/node
+
+  node:
+    image: node:12
     env_file:
       - ./.env
     volumes:
       - .:/home/node/
-      # use seperate volume for node_modules, makes it easier to manage and faster to reset
-      - node_modules:/home/node/node_modules
+      - node_modules_node:/home/node/node_modules
     working_dir: /home/node
+    container_name: node-react-website
+    stdin_open: true
+    tty: true
+    ports:
+      # express server, for / and /graphiql
+      - ${PORT}:${PORT}
+      # node debugger port
+      - 9229:9229
+    command: ["npm", "run", "start:servers"]
 
   # needed as sessions store for logins
   redis:
@@ -52,11 +66,35 @@ services:
   # for debug purposes, so we can poke around in our db
   adminer:
     image: adminer
-    restart: always
     environment:
       - ADMINER_PLUGINS=edit-foreign
     ports:
       - 8888:8080
+
+  graphiql:
+    container_name: postgraphile
+    restart: always
+    image: graphile/postgraphile
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - default
+    ports:
+      - 5433:5433
+
+    command:
+      [
+        "postgraphile",
+        "--connection",
+        "${DATABASE_URL}",
+        "--schema",
+        "app_public",
+        "--port",
+        "5433",
+        "--enhance-graphiql",
+      ]
 
 networks:
   default:
@@ -65,4 +103,5 @@ networks:
 volumes:
   db-volume:
   redisdata:
-  node_modules:
+  node_modules_node:
+  node_modules_db-migrate:
