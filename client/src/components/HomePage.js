@@ -19,7 +19,7 @@ export default class HomePage extends React.Component {
     const status = (() => {
       if (loading) return "Loading...";
       if (error) return `Error: ${error.message}`;
-      if (data.currentUser) return "👋 Logged in";
+      if (data.currentUser) return <span><span className="wave">👋</span> Logged in</span>;
       if (data.nodeId === "query") return "✅ Working";
       return "This should not happen";
     })();
@@ -33,15 +33,21 @@ export default class HomePage extends React.Component {
           </p>
           <p className="HomePage-p">GraphQL status check: {status}</p>
           <p className="HomePage-p">
-            <Link
-              // This is an "Link" tag because we can go there without
-              // reloading the page
-              className="HomePage-link"
-              to="/login/"
-              rel="noopener noreferrer"
-            >
-              Log In
-            </Link>
+            {data.currentUser ? (
+              <a className="HomePage-link" href="/logout/">
+                Log Out
+              </a>
+            ) : (
+              <Link
+                // This is an "Link" tag because we can go there without
+                // reloading the page
+                className="HomePage-link"
+                to="/login/"
+                rel="noopener noreferrer"
+              >
+                Log In
+              </Link>
+            )}
             <br />
             <a
               // This is an "a" tag because we want a full page reload,

@@ -10,7 +10,7 @@ create table app_public.user_emails (
 create unique index uniq_user_emails_verified_email on app_public.user_emails(email) where is_verified is true;
 alter table app_public.user_emails enable row level security;
 create trigger _100_timestamps
-  after insert or update on app_public.user_emails
+  before insert or update on app_public.user_emails
   for each row
   execute procedure app_private.tg__timestamps();
 create trigger _900_send_verification_email
