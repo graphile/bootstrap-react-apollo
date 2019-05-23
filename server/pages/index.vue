@@ -14,22 +14,36 @@
         <vuetify-logo />
       </div>
       <v-card>
-        <v-card-title class="headline">Welcome to the Postgraphile + Nuxt.js +  Vuetify bootstrap</v-card-title>
+        <v-card-title class="headline">Welcome to the Postgraphile + Nuxt.js +  Vuetify bootstrap!</v-card-title>
         <v-card-text>
           <p> Edit <code>/server/pages/index.vue</code> and save to hot-reload. </p>
-          <p className="HomePage-p">
-
+          <p>
+            <div v-if="isLoggedIn">
+              <span><span className="wave">👋</span> Logged in</span>;
+            </div>
+            <br />
+            <div v-if="computedApolloWorking">
+                <v-btn round="round" dark="dark" color="green lighten-3" :to="'login'" :loading="isLoading">
+                    <v-icon>thumb_up</v-icon>
+                </v-btn>
+            </div>
+            <div v-if="!computedApolloWorking">
+                <v-btn round="round" dark="dark" color="red lighten-3" :to="'login'" :loading="isLoading">
+                    <v-icon>thumb_down</v-icon>
+                </v-btn>
+            </div>
+            <br />
+            <br />
             <router-link :to="'login'">Login</router-link>
             <br />
             <!--
               This is an "a" tag because we want a full page reload,
-              GraphiQL is not embedded into our React app
+              GraphiQL is not embedded into our Vue app
             -->
             <a href="/api/graphiql"  target="_blank"> View API in GraphiQL </a>
             <br />
             <br />
             <a
-              className="HomePage-link"
               href="https://github.com/graphile/bootstrap-react-apollo/blob/master/README.md"
               target="_blank"
               rel="noopener noreferrer"
@@ -38,7 +52,6 @@
             </a>
             <br />
             <a
-              className="HomePage-link"
               href="https://www.graphile.org/postgraphile/"
               target="_blank"
               rel="noopener noreferrer"
@@ -95,14 +108,43 @@
   </v-layout>
 </template>
 
+
 <script>
 import Logo from '~/components/Logo.vue'
 import VuetifyLogo from '~/components/VuetifyLogo.vue'
+import gql from "graphql-tag";
 
 export default {
+  apollo: {
+    // Simple query that will give us information about the graphql api status
+    nodeId: gql`
+      query {
+        nodeId
+      }`,
+    currentUser: gql`
+      query {
+        currentUser {
+          nodeId
+        }
+      }`,
+  },
   components: {
     Logo,
     VuetifyLogo
+  },
+  computed: {
+    isLoading() {
+      if (this.$apollo.loading) return true;
+      return false;
+    },
+    isLoggedIn() {
+      if (this.currentUser) return true;
+      return false;
+    },
+    computedApolloWorking() {
+      if (this.nodeId === "query") return true;
+      return false;
+    }
   }
 }
 </script>

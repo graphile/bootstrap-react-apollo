@@ -48,7 +48,24 @@ module.exports = {
   */
   modules: [
     '@nuxtjs/pwa',
+    '@nuxtjs/apollo',
   ],
+
+  apollo: {
+    defaultOptions: {
+      // See 'apollo' definition
+      // For example: default query options
+      $query: {
+        loadingKey: 'loading',
+        fetchPolicy: 'cache-and-network',
+      },
+    },
+    clientConfigs: {
+      default: {
+        httpEndpoint: "http://localhost:5678/api/graphql", // TODO: add to .env setup script
+      }
+    }
+  },
 
   /*
   ** Build configuration
