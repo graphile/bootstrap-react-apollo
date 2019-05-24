@@ -5061,6 +5061,14 @@ graphile-build@4.4.0:
     pluralize "^7.0.0"
     semver "^5.6.0"
 
+graphile-utils@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/graphile-utils/-/graphile-utils-4.4.0.tgz#e033647ab6f3cdc05e1a7052f8f3db6d74ab6eb7"
+  integrity sha512-F/6uvTFHD4sOY3Md+MC2eSgxAdP2kIz46GbVORYjT0O0i65skI5aXen8FgAwnkUHalF0wruZ1p6daqvnQPHsIg==
+  dependencies:
+    debug ">=2 <3"
+    graphql ">=0.9 <0.14 || ^14.0.2"
+
 graphql-anywhere@^4.1.0-alpha.0:
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/graphql-anywhere/-/graphql-anywhere-4.2.2.tgz#b68126f2f8e055f323d2376dc7be7e1810f4c894"
@@ -5129,6 +5137,13 @@ graphql-upload@^8.0.2:
     fs-capacitor "^2.0.1"
     http-errors "^1.7.2"
     object-path "^0.11.4"
+
+"graphql@>=0.9 <0.14 || ^14.0.2":
+  version "14.3.1"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-14.3.1.tgz#b3aa50e61a841ada3c1f9ccda101c483f8e8c807"
+  integrity sha512-FZm7kAa3FqKdXy8YSSpAoTtyDFMIYSpCDOr+3EqlI1bxmtHu+Vv/I2vrSeT1sBOEnEniX3uo4wFhFdS/8XN6gA==
+  dependencies:
+    iterall "^1.2.2"
 
 "graphql@>=0.9 <15", "graphql@^0.6.0 || ^0.7.0 || ^0.8.0-b || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.2", graphql@^14.1.1, graphql@^14.3.0:
   version "14.3.0"
