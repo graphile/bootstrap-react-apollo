@@ -5,11 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Docker: Attach to Node",
       "type": "node",
       "request": "attach",
-      "localRoot": "./server/server",
-      "remoteRoot": "/home/node/"
-    }
+      "name": "Attach",
+      "port": 9229,
+      "localRoot": "${workspaceFolder}/server/",
+      "remoteRoot": "/home/node/server",
+      "smartStep": true,
+    },
   ]
 }
