@@ -94,7 +94,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
         { selectGraphQLResultFromTable }
       ) {
         const { username, password } = args.input;
-        const { rootPgPool, login, pgClient } = context;
+        const { rootPgPool, pgClient, req } = context;
         console.log(">> login", { username, password });
         try {
           // Call our login function to find out if the username/password combination exists
@@ -110,7 +110,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
           }
 
           // Tell Passport.js we're logged in
-          await login(user);
+          await req.login(user, () => { console.debug(`${user.username} is logged in`) });
           // Tell pg we're logged in
           await pgClient.query("select set_config($1, $2, true);", [
             "jwt.claims.user_id",

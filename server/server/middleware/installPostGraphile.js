@@ -243,13 +243,12 @@ module.exports = app => {
        * access to, e.g., the logged in user.
        */
       async additionalGraphQLContextFromRequest(req) {
-        const { login } = req;
         const claims = getUserClaimsFromRequest(req);
         const rootPgPool = app.get("rootPgPool");
         return {
           claims,
           rootPgPool,
-          login,
+          req
         };
       },
     })
