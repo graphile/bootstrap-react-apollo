@@ -58,8 +58,8 @@ async function main() {
    * operate very rapidly to enable quick as possible server startup.
    */
   await middleware.installDatabasePools(app);
-  await middleware.installSession(app);
   await middleware.installPassport(app);
+  await middleware.installSession(app);
   await middleware.installLogging(app);
   // These are our assets: images/etc; served out of the /client/public folder
   await middleware.installSharedStatic(app);
