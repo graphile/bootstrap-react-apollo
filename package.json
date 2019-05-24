@@ -9,7 +9,7 @@
     "test": "docker-compose run node bash -c \"yarn test\"",
     "reset": "yarn reset:docker:down && bash -c \"yarn reset:volumes || true\" && yarn reset:docker:rebuild && yarn reset:env",
     "start:servers": "npx concurrently --kill-others --names server,client 'npm run start:servers:react' 'npm run start:servers:postgraphile' ",
-    "start:servers:postgraphile": "cd server && nodemon",
+    "start:servers:postgraphile": "cd server && nodemon --inspect=0.0.0.0:9229",
     "start:servers:react": "cd client && BROWSER=none PORT=\"$CLIENT_PORT\" npm run start",
     "reset:env": "bash -c 'rm .env; touch .env'",
     "reset:docker:rebuild": "echo PORT=666 > .env && docker-compose build",
@@ -73,6 +73,7 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-react-app": "^8.0.0",
     "bfj": "^6.1.1",
+    "body-parser": "^1.19.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chalk": "^2.4.2",
     "connect-redis": "^3.4.1",
@@ -129,6 +130,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
+    "concurrently": "^4.1.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-prettier": "^4.1.0",
     "eslint-loader": "^2.1.2",
@@ -139,7 +141,6 @@
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.12.4",
-    "concurrently": "^4.1.0",
     "eslint_d": "^7.3.0",
     "nodemon": "^1.18.11",
     "prettier": "^1.17.0"
