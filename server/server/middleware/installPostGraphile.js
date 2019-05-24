@@ -7,7 +7,7 @@ const PgPubsub = require("@graphile/pg-pubsub");
 const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
 const chalk = require("chalk");
 const { getUserClaimsFromRequest } = require("./installPassport");
-const PassportLoginPlugin = require("../../plugins/authentication");
+const PassportLoginPlugin = require("../plugins/authentication");
 
 /* Load optional plugins */
 /* eslint-disable global-require, import/no-dynamic-require, import/no-unresolved, no-console */
