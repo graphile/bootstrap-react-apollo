@@ -97,23 +97,23 @@ function postgraphileOptions(overrides) {
     extendedErrors:
       isDev || isTest
         ? [
-            "errcode",
-            "severity",
-            "detail",
-            "hint",
-            "positon",
-            "internalPosition",
-            "internalQuery",
-            "where",
-            "schema",
-            "table",
-            "column",
-            "dataType",
-            "constraint",
-            "file",
-            "line",
-            "routine",
-          ]
+          "errcode",
+          "severity",
+          "detail",
+          "hint",
+          "positon",
+          "internalPosition",
+          "internalQuery",
+          "where",
+          "schema",
+          "table",
+          "column",
+          "dataType",
+          "constraint",
+          "file",
+          "line",
+          "routine",
+        ]
         : ["errcode"],
     showErrorStack: isDev,
 
@@ -194,16 +194,16 @@ function postgraphileOptions(overrides) {
      */
     ...(PostGraphilePro
       ? {
-          defaultPaginationCap:
-            parseInt(process.env.GRAPHQL_PAGINATION_CAP, 10) || 50,
-          graphqlDepthLimit:
-            parseInt(process.env.GRAPHQL_DEPTH_LIMIT, 10) || 12,
-          graphqlCostLimit:
-            parseInt(process.env.GRAPHQL_COST_LIMIT, 10) || 30000,
-          exposeGraphQLCost:
-            (parseInt(process.env.HIDE_QUERY_COST, 10) || 0) < 1,
-          // readReplicaPgPool ...,
-        }
+        defaultPaginationCap:
+          parseInt(process.env.GRAPHQL_PAGINATION_CAP, 10) || 50,
+        graphqlDepthLimit:
+          parseInt(process.env.GRAPHQL_DEPTH_LIMIT, 10) || 12,
+        graphqlCostLimit:
+          parseInt(process.env.GRAPHQL_COST_LIMIT, 10) || 30000,
+        exposeGraphQLCost:
+          (parseInt(process.env.HIDE_QUERY_COST, 10) || 0) < 1,
+        // readReplicaPgPool ...,
+      }
       : null),
 
     // When running in the server, we need to set websocketMiddlewares
@@ -234,13 +234,12 @@ module.exports = app => {
        * access to, e.g., the logged in user.
        */
       async additionalGraphQLContextFromRequest(req) {
-        const { login } = req;
         const claims = getUserClaimsFromRequest(req);
         const rootPgPool = app.get("rootPgPool");
         return {
           claims,
           rootPgPool,
-          login,
+          req
         };
       },
     })
