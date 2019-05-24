@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=production HOST=0.0.0.0 node server/index.js",
-    "dev": "cross-env NODE_ENV=development HOST=0.0.0.0 nodemon  --delay 80ms --exec 'yarn dev:inspector:kill && yarn dev:inspector:start' --watch server",
+    "dev": "cross-env NODE_ENV=development HOST=0.0.0.0 DEBUG=graphile-build:warn nodemon --delay 250ms --exec 'yarn dev:inspector:kill && yarn dev:inspector:start' --watch server",
     "build": "nuxt build",
     "generate": "nuxt generate",
     "test": "jest",
@@ -24,6 +24,7 @@
     "cross-env": "^5.2.0",
     "express": "^4.16.4",
     "express-session": "^1.16.1",
+    "graphile-utils": "^4.4.0",
     "graphql": "^14.3.0",
     "graphql-tag": "^2.10.1",
     "http-proxy": "^1.17.0",

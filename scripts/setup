@@ -100,7 +100,7 @@ ROOT_DOMAIN=localhost:$PORT
 ROOT_URL=http://$ROOT_DOMAIN
 
 # Our session store uses redis
-REDIS_URL=redis://localhost/3
+REDIS_URL=redis://redis/3
 
 # To enable login with GitHub, create a GitHub application by visiting
 # https://github.com/settings/applications/new and then enter the Client
