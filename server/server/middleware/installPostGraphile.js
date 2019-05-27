@@ -241,6 +241,7 @@ module.exports = app => {
        * These properties are merged into context (the third argument to GraphQL
        * resolvers). This is useful if you write your own plugins that need
        * access to, e.g., the logged in user.
+       * login: we need to bind req to call passport.js/login() with right scope in authentication.js
        */
       async additionalGraphQLContextFromRequest(req) {
         const claims = getUserClaimsFromRequest(req);
