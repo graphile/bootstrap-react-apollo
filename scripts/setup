@@ -44,6 +44,8 @@ else
   DATABASE_AUTHENTICATOR="${DATABASE_NAME}_authenticator"
   DATABASE_AUTHENTICATOR_PASSWORD="$(openssl rand -base64 30 | tr '+/' '-_')"
   DATABASE_VISITOR="${DATABASE_NAME}_visitor"
+  PORT=5678
+  ROOT_DOMAIN=localhost:${PORT}
 
   # This is our '.env' config file, we're writing it now so that if something goes wrong we won't lose the passwords.
   cat >> .env <<CONFIG
@@ -90,14 +92,14 @@ TEST_ROOT_DATABASE_URL=postgres://${DATABASE_OWNER}:$DATABASE_OWNER_PASSWORD@$DA
 TEST_AUTH_DATABASE_URL=postgres://${DATABASE_AUTHENTICATOR}:$DATABASE_AUTHENTICATOR_PASSWORD@$DATABASE_HOST/${DATABASE_NAME}_test
 
 # This port is the one you'll connect to
-PORT=5678
+PORT=${PORT}
 
 # This is the port that create-react-app runs as, don't connect to it directly
-CLIENT_PORT=5679
+CLIENT_PORT=$(($PORT + 1))
 
 # This is needed any time we use absolute URLs, e.g. for OAuth callback URLs
-ROOT_DOMAIN=localhost:$PORT
-ROOT_URL=http://$ROOT_DOMAIN
+ROOT_DOMAIN=${ROOT_DOMAIN}
+ROOT_URL=http://${ROOT_DOMAIN}
 
 # Our session store uses redis
 REDIS_URL=redis://redis/3
@@ -134,5 +136,7 @@ docker-compose up --build -d db && sleep 1 && docker-compose logs db
 if [ $? -eq 0 ]; then
   # All done
   echo "✅ Setup success; now running 'yarn db:migrate:dev' to run the migrations"
+  # ./wait-for.sh localhost:5432 -- docker-compose exec nodejs sh
+  # docker-compose up --build -d nodejs
   ./wait-for.sh localhost:5432 -- yarn setup:db:dev:schema;
 fi
