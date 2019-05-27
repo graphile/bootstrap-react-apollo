@@ -248,7 +248,7 @@ module.exports = app => {
         return {
           claims,
           rootPgPool,
-          req
+          login: req.login.bind(req),
         };
       },
     })
