@@ -261,6 +261,15 @@ type ForgotPasswordPayload {
   success: Boolean
 }
 
+input LoginInput {
+  password: String!
+  username: String!
+}
+
+type LoginPayload {
+  user: User!
+}
+
 """
 The root mutation type which contains root level fields which mutate data.
 """
@@ -355,6 +364,18 @@ type Mutation {
     """
     input: ForgotPasswordInput!
   ): ForgotPasswordPayload
+  login(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: LoginInput!
+  ): LoginPayload
+  register(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: RegisterInput!
+  ): RegisterPayload
 
   """
   After triggering forgotPassword, you'll be sent a reset token. Combine this
@@ -462,6 +483,18 @@ type Query implements Node {
     nodeId: ID!
   ): UserEmail
   userEmailByUserIdAndEmail(email: String!, userId: Int!): UserEmail
+}
+
+input RegisterInput {
+  avatarUrl: String
+  email: String!
+  name: String
+  password: String!
+  username: String!
+}
+
+type RegisterPayload {
+  user: User!
 }
 
 """All input for the `resetPassword` mutation."""
