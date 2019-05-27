@@ -90,7 +90,7 @@ yarn setup
 yarn start
 ```
 
-Then load http://localhost:5678
+Then load http://localhost:8080
 
 {TODO}
 

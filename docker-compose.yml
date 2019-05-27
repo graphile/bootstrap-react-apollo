@@ -50,7 +50,7 @@ services:
     tty: true
     ports:
       # express server, for / and /graphiql
-      - ${PORT}:${PORT}
+      - 8080:${PORT}
       # node debugger port
       - 9229:9229
     command: "npm run dev"
