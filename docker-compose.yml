@@ -59,11 +59,6 @@ services:
   redis:
     container_name: redis
     image: redis:latest
-    ports:
-      - 6379:6379
-    volumes:
-      - redisdata:/data
-
   # for debug purposes, so we can poke around in our db
   adminer:
     image: adminer
@@ -103,6 +98,5 @@ networks:
 
 volumes:
   db-volume:
-  redisdata:
   node_modules_nuxtjs:
   node_modules_db-migrate:
