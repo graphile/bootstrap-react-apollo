@@ -35,10 +35,10 @@ export default class RegisterPage extends React.Component {
         <h3>Register</h3>
         <Link to="/login">Already have an account? Log in</Link>
         <p>
-        <button onClick={() => (window.location = "/auth/github")}>
-          Login with GitHub
-        </button>
-      </p>
+          <button onClick={() => (window.location = "/auth/github")}>
+            Login with GitHub
+          </button>
+        </p>
       </div>
     );
   }

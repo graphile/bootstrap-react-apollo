@@ -8,6 +8,8 @@ module.exports = {
     node: true,
   },
   rules: {
+    "prettier/prettier": "error",
+
     // Autofix removes debugger automatically, which makes debugging annoying.
     "no-debugger": 0,
 

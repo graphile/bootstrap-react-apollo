@@ -19,7 +19,12 @@ export default class HomePage extends React.Component {
     const status = (() => {
       if (loading) return "Loading...";
       if (error) return `Error: ${error.message}`;
-      if (data.currentUser) return <span><span className="wave">👋</span> Logged in</span>;
+      if (data.currentUser)
+        return (
+          <span>
+            <span className="wave">👋</span> Logged in
+          </span>
+        );
       if (data.nodeId === "query") return "✅ Working";
       return "This should not happen";
     })();

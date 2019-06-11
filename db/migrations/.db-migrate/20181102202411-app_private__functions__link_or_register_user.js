@@ -1,2 +1,4 @@
 /* This is boilerplate, you want the parent directory for the actual migrations */
-module.exports = require('../../scripts/migrate')("20181102_202411.app_private.functions.link_or_register_user");
+module.exports = require("../../scripts/migrate")(
+  "20181102_202411.app_private.functions.link_or_register_user"
+);
