@@ -10,6 +10,7 @@
     "db:rollback:dev": ". ./scripts/source-env && npm run db:migrate:_cmd down && ./scripts/dump-schema",
     "db:reset:dev": ". ./scripts/source-env && npm run db:migrate:_cmd reset && npm run db:migrate:_cmd up && ./scripts/dump-schema",
     "db:migrate:_cmd": "db-migrate --migrations-dir db/migrations/.db-migrate",
+    "eslint": "eslint .",
     "setup": "scripts/setup",
     "server:dev": "cd server && nodemon",
     "client:dev": "cd client && BROWSER=none PORT=\"$CLIENT_PORT\" npm run start",
