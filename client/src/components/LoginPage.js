@@ -5,6 +5,7 @@ import { Mutation } from "react-apollo";
 import LoadingPage from "./LoadingPage";
 import ErrorPage from "./ErrorPage";
 import Layout from "./Layout";
+import "./form-table.css";
 
 const LOGIN = gql`
   mutation Login($username: String!, $password: String!) {
@@ -90,7 +91,7 @@ export default class LoginPage extends React.Component {
         <Mutation mutation={LOGIN}>
           {login => (
             <form onSubmit={this.handleSubmitWith(login)}>
-              <table>
+              <table className="form-table">
                 <tbody>
                   <tr>
                     <th>Username / email:</th>
