@@ -1,0 +1,11 @@
+.form-table th {
+  text-align: right;
+  vertical-align: top;
+}
+.form-table td .error {
+  color: red;
+}
+.form-table td .help-text {
+  font-style: italic;
+  color: gray;
+}
