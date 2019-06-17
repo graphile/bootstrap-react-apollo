@@ -31,6 +31,7 @@ export default class LoginPage extends React.Component {
   state = {
     username: "",
     password: "",
+    error: null,
     loggingIn: false,
   };
 
@@ -67,6 +68,7 @@ export default class LoginPage extends React.Component {
 
   render() {
     const { data, loading, error } = this.props;
+    const { username, password, loggingIn } = this.state;
     if (loading) return <LoadingPage />;
     if (error) {
       return (
@@ -95,7 +97,7 @@ export default class LoginPage extends React.Component {
                     <td>
                       <input
                         type="text"
-                        value={this.state.username}
+                        value={username}
                         onChange={this.handleUsernameChange}
                       />
                     </td>
@@ -105,7 +107,7 @@ export default class LoginPage extends React.Component {
                     <td>
                       <input
                         type="password"
-                        value={this.state.password}
+                        value={password}
                         onChange={this.handlePasswordChange}
                       />
                     </td>
@@ -116,9 +118,9 @@ export default class LoginPage extends React.Component {
               <button
                 type="submit"
                 disabled={
-                  !this.state.username ||
-                  !this.state.password ||
-                  this.state.loggingIn
+                  !username ||
+                  !password ||
+                  loggingIn
                 }
               >
                 Log in
