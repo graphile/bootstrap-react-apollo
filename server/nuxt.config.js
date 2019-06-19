@@ -62,7 +62,7 @@ module.exports = {
     },
     clientConfigs: {
       default: {
-        httpEndpoint: "http://localhost:5678/api/graphql", // TODO: add to .env setup script
+        httpEndpoint: "http://localhost:8080/api/graphql", // TODO: add to .env setup script
       }
     }
   },

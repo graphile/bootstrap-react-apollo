@@ -75,8 +75,7 @@ async function main() {
   // And finally, we open the listen port
   httpServer.listen(PORT, () => {
     const address = httpServer.address();
-    const actualPort =
-      typeof address === "string" ? address : address.port || PORT;
+    const actualPort = "8080"; // as configured in docker-compose.yml
     consola.ready({
       message: `
         ${chalk.bold(packageJson.name)} listening on port ${chalk.bold(actualPort)}
