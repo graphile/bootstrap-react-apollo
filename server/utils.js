@@ -13,14 +13,5 @@ exports.sanitiseEnv = () => {
       );
     }
   });
-  const recommendedEnvvars = {
-    REDIS_URL: "without this, sessions will reset when the server restarts",
-  };
-  Object.entries(recommendedEnvvars).forEach(([envvar, reason]) => {
-    if (!process.env[envvar]) {
-      console.warn(`WARNING: Could not find process.env.${envvar} - ${reason}`);
-    }
-  });
-
   process.env.NODE_ENV = process.env.NODE_ENV || "development";
 };

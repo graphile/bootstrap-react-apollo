@@ -61,7 +61,7 @@
     "bfj": "^6.1.1",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "chalk": "^2.4.2",
-    "connect-redis": "^3.4.1",
+    "connect-pg-simple": "^5.0.0",
     "css-loader": "^2.1.1",
     "db-migrate": "^0.11.6",
     "db-migrate-pg": "^1.0.0",
