@@ -85,13 +85,13 @@ export default {
   ,
   methods: {
      submit () {
-            if (this.$refs.form.validate()) {
-              this.$refs.form.$el.submit()
-            }
-          },
-          clear () {
-            this.$refs.form.reset()
-          }
+    if (this.$refs.form.validate()) {
+      this.$refs.form.$el.submit()
+    }
+    },
+    clear () {
+      this.$refs.form.reset()
+    }
   }
 }
 </script>
