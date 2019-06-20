@@ -2,7 +2,7 @@ create table app_public.users (
   id serial primary key,
   username citext not null unique check(length(username) >= 2 and length(username) <= 24 and username ~ '^[a-zA-Z]([a-zA-Z0-9][_]?)+$'),
   name text,
-  avatar_url text check(avatar_url ~ '^https?://[^/]+'),
+  avatar_url text check(avatar_url is null or avatar_url ~ '^https?://[^/]+'),
   is_admin boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
