@@ -17,25 +17,31 @@
         <v-card-title class="headline">Welcome to the Postgraphile + Nuxt.js +  Vuetify bootstrap!</v-card-title>
         <v-card-text>
           <p> Edit <code>/server/pages/index.vue</code> and save to hot-reload. </p>
-          <p>
-            <div v-if="isLoggedIn">
-              <span><span className="wave">👋</span> Logged in</span>;
+          <div>
+            <div>
+              <div v-if="computedApolloWorking">
+                  <v-btn round="round" dark="dark" color="green lighten-3" :to="'login'" :loading="isLoading">
+                      <v-icon>thumb_up</v-icon><span>&nbsp;GraphQl connected</span>
+                  </v-btn>
+              </div>
+              <div v-if="!computedApolloWorking">
+                  <v-btn round="round" dark="dark" color="red lighten-3" :to="'index'" :loading="isLoading">
+                      <v-icon>thumb_down</v-icon><span>&nbsp;GraphQl not connected</span>
+                  </v-btn>
+              </div>
+              <div v-if="isLoggedIn">
+                <span><span className="wave">👋</span> And Logged in</span>;
+              </div>
+              <div v-if="!isLoggedIn">
+                  <v-btn round="round" dark="dark" color="red lighten-3" :to="'login'" :loading="isLoading">
+                <v-icon>https</v-icon> Not logged in
+              </v-btn>
+              </div>
+              <br />
+              <br />
+              <router-link :to="'login'">Login</router-link>
+              <br />
             </div>
-            <br />
-            <div v-if="computedApolloWorking">
-                <v-btn round="round" dark="dark" color="green lighten-3" :to="'login'" :loading="isLoading">
-                    <v-icon>thumb_up</v-icon>
-                </v-btn>
-            </div>
-            <div v-if="!computedApolloWorking">
-                <v-btn round="round" dark="dark" color="red lighten-3" :to="'login'" :loading="isLoading">
-                    <v-icon>thumb_down</v-icon>
-                </v-btn>
-            </div>
-            <br />
-            <br />
-            <router-link :to="'login'">Login</router-link>
-            <br />
             <!--
               This is an "a" tag because we want a full page reload,
               GraphiQL is not embedded into our Vue app
@@ -59,7 +65,7 @@
               Learn PostGraphile
             </a>
             <br />
-          </p>
+          </div>
         </v-card-text>
 
         <v-card-title class="headline">Vuetify.js</v-card-title>
