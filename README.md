@@ -61,7 +61,6 @@ The project is split into the following folders:
 - `/data` - generated data, such as the GraphQL and database schema dumps
 - `/client` - everything related to the web browser: the react components, routes, etc
 - `/server` - everything related to running the server: the middlewares, PostGraphile configuration, SSR, integration tests, etc
-- `/worker` - everything related to background tasks; i.e. the job queue
 
 We currently use a root-level `package.json` between all of them. In future we
 might take a monorepo approach using yarn workspaces, but for now we figured
@@ -117,7 +116,6 @@ See [db/CONVENTIONS.md](db/CONVENTIONS.md).
 - `app_public` - contains everything to be exposed over GraphQL
 - `app_hidden` - same permissions as `app_public`, but will not be exposed over GraphQL
 - `app_private` - database-owner-only storage, for storing things users should never have direct access to, like bcrypt password hashes.
-- `app_jobs` - used for our job queue (requires database-owner privileges)
 
 ## Why the `/data` folder?
 
