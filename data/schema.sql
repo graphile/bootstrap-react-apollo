@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.2
--- Dumped by pg_dump version 11.2
+-- Dumped from database version 11.3
+-- Dumped by pg_dump version 11.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,6 +12,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -20,13 +21,6 @@ SET row_security = off;
 --
 
 CREATE SCHEMA app_hidden;
-
-
---
--- Name: app_jobs; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA app_jobs;
 
 
 --
@@ -88,230 +82,6 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 SET default_tablespace = '';
 
 SET default_with_oids = false;
-
---
--- Name: jobs; Type: TABLE; Schema: app_jobs; Owner: -
---
-
-CREATE TABLE app_jobs.jobs (
-    id integer NOT NULL,
-    queue_name character varying DEFAULT (public.gen_random_uuid())::character varying NOT NULL,
-    task_identifier character varying NOT NULL,
-    payload jsonb DEFAULT '{}'::jsonb NOT NULL,
-    priority integer DEFAULT 0 NOT NULL,
-    run_at timestamp with time zone DEFAULT now() NOT NULL,
-    attempts integer DEFAULT 0 NOT NULL,
-    last_error character varying,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
---
--- Name: add_job(character varying, jsonb, character varying, timestamp with time zone); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.add_job(identifier character varying, payload jsonb, queue_name character varying DEFAULT (public.gen_random_uuid())::character varying, run_at timestamp with time zone DEFAULT now()) RETURNS app_jobs.jobs
-    LANGUAGE sql STRICT
-    SET search_path TO '$user', 'public'
-    AS $$
-  INSERT INTO app_jobs.jobs(task_identifier, payload, queue_name, run_at)
-    VALUES(identifier, payload, queue_name, run_at)
-    RETURNING *;
-$$;
-
-
---
--- Name: complete_job(character varying, integer); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.complete_job(worker_id character varying, job_id integer) RETURNS app_jobs.jobs
-    LANGUAGE plpgsql STRICT
-    SET search_path TO '$user', 'public'
-    AS $$
-DECLARE
-  v_row app_jobs.jobs;
-BEGIN
-  DELETE FROM app_jobs.jobs
-    WHERE id = job_id
-    RETURNING * INTO v_row;
-
-  UPDATE app_jobs.job_queues
-    SET locked_by = null, locked_at = null
-    WHERE queue_name = v_row.queue_name AND locked_by = worker_id;
-
-  RETURN v_row;
-END;
-$$;
-
-
---
--- Name: do_notify(); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.do_notify() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  -- This is a STATEMENT trigger, so we do not have access to the individual
-  -- rows.
-  PERFORM pg_notify(TG_ARGV[0], '');
-  RETURN NEW;
-END;
-$$;
-
-
---
--- Name: FUNCTION do_notify(); Type: COMMENT; Schema: app_jobs; Owner: -
---
-
-COMMENT ON FUNCTION app_jobs.do_notify() IS 'Performs pg_notify passing the first argument as the topic.';
-
-
---
--- Name: fail_job(character varying, integer, character varying); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.fail_job(worker_id character varying, job_id integer, error_message character varying) RETURNS app_jobs.jobs
-    LANGUAGE plpgsql STRICT
-    SET search_path TO '$user', 'public'
-    AS $$
-DECLARE
-  v_row app_jobs.jobs;
-BEGIN
-  UPDATE app_jobs.jobs
-    SET
-      last_error = error_message,
-      run_at = greatest(now(), run_at) + (exp(least(attempts, 10))::text || ' seconds')::interval
-    WHERE id = job_id
-    RETURNING * INTO v_row;
-
-  UPDATE app_jobs.job_queues
-    SET locked_by = null, locked_at = null
-    WHERE queue_name = v_row.queue_name AND locked_by = worker_id;
-
-  RETURN v_row;
-END;
-$$;
-
-
---
--- Name: get_job(character varying, character varying[]); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.get_job(worker_id character varying, identifiers character varying[]) RETURNS app_jobs.jobs
-    LANGUAGE plpgsql STRICT
-    SET search_path TO '$user', 'public'
-    AS $$
-DECLARE
-  v_job_id int;
-  v_queue_name varchar;
-  v_default_job_expiry text = (4 * 60 * 60)::text;
-  v_default_job_maximum_attempts text = '25';
-  v_row app_jobs.jobs;
-BEGIN
-  IF worker_id IS NULL OR length(worker_id) < 10 THEN
-    RAISE EXCEPTION 'Invalid worker ID';
-  END IF;
-
-  SELECT job_queues.queue_name, jobs.id INTO v_queue_name, v_job_id
-    FROM app_jobs.job_queues
-    INNER JOIN app_jobs.jobs USING (queue_name)
-    WHERE (locked_at IS NULL OR locked_at < (now() - (COALESCE(current_setting('jobs.expiry', true), v_default_job_expiry) || ' seconds')::interval))
-    AND run_at <= now()
-    AND attempts < COALESCE(current_setting('jobs.maximum_attempts', true), v_default_job_maximum_attempts)::int
-    AND (identifiers IS NULL OR task_identifier = any(identifiers))
-    ORDER BY priority ASC, run_at ASC, id ASC
-    LIMIT 1
-    FOR UPDATE SKIP LOCKED;
-
-  IF v_queue_name IS NULL THEN
-    RETURN NULL;
-  END IF;
-
-  UPDATE app_jobs.job_queues
-    SET
-      locked_by = worker_id,
-      locked_at = now()
-    WHERE job_queues.queue_name = v_queue_name;
-
-  UPDATE app_jobs.jobs
-    SET attempts = attempts + 1
-    WHERE id = v_job_id
-    RETURNING * INTO v_row;
-
-  RETURN v_row;
-END;
-$$;
-
-
---
--- Name: jobs__decrease_job_queue_count(); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.jobs__decrease_job_queue_count() RETURNS trigger
-    LANGUAGE plpgsql
-    SET search_path TO '$user', 'public'
-    AS $$
-BEGIN
-  UPDATE app_jobs.job_queues
-    SET job_count = job_queues.job_count - 1
-    WHERE queue_name = OLD.queue_name
-    AND job_queues.job_count > 1;
-
-  IF NOT FOUND THEN
-    DELETE FROM app_jobs.job_queues WHERE queue_name = OLD.queue_name;
-  END IF;
-
-  RETURN OLD;
-END;
-$$;
-
-
---
--- Name: jobs__increase_job_queue_count(); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.jobs__increase_job_queue_count() RETURNS trigger
-    LANGUAGE plpgsql
-    SET search_path TO '$user', 'public'
-    AS $$
-BEGIN
-  INSERT INTO app_jobs.job_queues(queue_name, job_count)
-    VALUES(NEW.queue_name, 1)
-    ON CONFLICT (queue_name) DO UPDATE SET job_count = job_queues.job_count + 1;
-
-  RETURN NEW;
-END;
-$$;
-
-
---
--- Name: update_timestamps(); Type: FUNCTION; Schema: app_jobs; Owner: -
---
-
-CREATE FUNCTION app_jobs.update_timestamps() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  IF TG_OP = 'INSERT' THEN
-    NEW.created_at = NOW();
-    NEW.updated_at = NOW();
-  ELSIF TG_OP = 'UPDATE' THEN
-    NEW.created_at = OLD.created_at;
-    NEW.updated_at = GREATEST(NOW(), OLD.updated_at + INTERVAL '1 millisecond');
-  END IF;
-  RETURN NEW;
-END;
-$$;
-
-
---
--- Name: FUNCTION update_timestamps(); Type: COMMENT; Schema: app_jobs; Owner: -
---
-
-COMMENT ON FUNCTION app_jobs.update_timestamps() IS 'Ensures that created_at, updated_at are monotonically increasing.';
-
 
 --
 -- Name: users; Type: TABLE; Schema: app_public; Owner: -
@@ -658,28 +428,6 @@ COMMENT ON FUNCTION app_private.register_user(f_service character varying, f_ide
 
 
 --
--- Name: tg__add_job(); Type: FUNCTION; Schema: app_private; Owner: -
---
-
-CREATE FUNCTION app_private.tg__add_job() RETURNS trigger
-    LANGUAGE plpgsql
-    SET search_path TO '$user', 'public'
-    AS $$
-begin
-  perform app_jobs.add_job(tg_argv[0], json_build_object('id', NEW.id), tg_argv[1]);
-  return NEW;
-end;
-$$;
-
-
---
--- Name: FUNCTION tg__add_job(); Type: COMMENT; Schema: app_private; Owner: -
---
-
-COMMENT ON FUNCTION app_private.tg__add_job() IS 'Useful shortcut to create a job on insert/update. Pass the task name as the first trigger argument, and optionally the queue name as the second argument. The record id will automatically be available on the JSON payload.';
-
-
---
 -- Name: tg__timestamps(); Type: FUNCTION; Schema: app_private; Owner: -
 --
 
@@ -864,8 +612,7 @@ begin
     set password_reset_email_sent_at = now()
     where user_email_id = v_user_email.id;
 
-    -- Trigger email send
-    perform app_jobs.add_job('user__forgot_password', json_build_object('id', v_user_email.user_id, 'email', v_user_email.email::text, 'token', v_reset_token));
+    -- TODO: Trigger email send
     return true;
 
   end if;
@@ -951,38 +698,6 @@ $$;
 --
 
 COMMENT ON FUNCTION app_public.reset_password(user_id integer, reset_token text, new_password text) IS 'After triggering forgotPassword, you''ll be sent a reset token. Combine this with your user ID and a new password to reset your password.';
-
-
---
--- Name: job_queues; Type: TABLE; Schema: app_jobs; Owner: -
---
-
-CREATE TABLE app_jobs.job_queues (
-    queue_name character varying NOT NULL,
-    job_count integer DEFAULT 0 NOT NULL,
-    locked_at timestamp with time zone,
-    locked_by character varying
-);
-
-
---
--- Name: jobs_id_seq; Type: SEQUENCE; Schema: app_jobs; Owner: -
---
-
-CREATE SEQUENCE app_jobs.jobs_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: app_jobs; Owner: -
---
-
-ALTER SEQUENCE app_jobs.jobs_id_seq OWNED BY app_jobs.jobs.id;
 
 
 --
@@ -1231,13 +946,6 @@ ALTER SEQUENCE public.migrations_id_seq OWNED BY public.migrations.id;
 
 
 --
--- Name: jobs id; Type: DEFAULT; Schema: app_jobs; Owner: -
---
-
-ALTER TABLE ONLY app_jobs.jobs ALTER COLUMN id SET DEFAULT nextval('app_jobs.jobs_id_seq'::regclass);
-
-
---
 -- Name: user_authentications id; Type: DEFAULT; Schema: app_public; Owner: -
 --
 
@@ -1263,22 +971,6 @@ ALTER TABLE ONLY app_public.users ALTER COLUMN id SET DEFAULT nextval('app_publi
 --
 
 ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.migrations_id_seq'::regclass);
-
-
---
--- Name: job_queues job_queues_pkey; Type: CONSTRAINT; Schema: app_jobs; Owner: -
---
-
-ALTER TABLE ONLY app_jobs.job_queues
-    ADD CONSTRAINT job_queues_pkey PRIMARY KEY (queue_name);
-
-
---
--- Name: jobs jobs_pkey; Type: CONSTRAINT; Schema: app_jobs; Owner: -
---
-
-ALTER TABLE ONLY app_jobs.jobs
-    ADD CONSTRAINT jobs_pkey PRIMARY KEY (id);
 
 
 --
@@ -1384,48 +1076,6 @@ CREATE INDEX user_authentications_user_id_idx ON app_public.user_authentications
 
 
 --
--- Name: jobs _100_timestamps; Type: TRIGGER; Schema: app_jobs; Owner: -
---
-
-CREATE TRIGGER _100_timestamps BEFORE INSERT OR UPDATE ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.update_timestamps();
-
-
---
--- Name: jobs _500_decrease_job_queue_count; Type: TRIGGER; Schema: app_jobs; Owner: -
---
-
-CREATE TRIGGER _500_decrease_job_queue_count BEFORE DELETE ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.jobs__decrease_job_queue_count();
-
-
---
--- Name: jobs _500_decrease_job_queue_count_update; Type: TRIGGER; Schema: app_jobs; Owner: -
---
-
-CREATE TRIGGER _500_decrease_job_queue_count_update AFTER UPDATE ON app_jobs.jobs FOR EACH ROW WHEN (((new.queue_name)::text IS DISTINCT FROM (old.queue_name)::text)) EXECUTE PROCEDURE app_jobs.jobs__decrease_job_queue_count();
-
-
---
--- Name: jobs _500_increase_job_queue_count; Type: TRIGGER; Schema: app_jobs; Owner: -
---
-
-CREATE TRIGGER _500_increase_job_queue_count AFTER INSERT ON app_jobs.jobs FOR EACH ROW EXECUTE PROCEDURE app_jobs.jobs__increase_job_queue_count();
-
-
---
--- Name: jobs _500_increase_job_queue_count_update; Type: TRIGGER; Schema: app_jobs; Owner: -
---
-
-CREATE TRIGGER _500_increase_job_queue_count_update AFTER UPDATE ON app_jobs.jobs FOR EACH ROW WHEN (((new.queue_name)::text IS DISTINCT FROM (old.queue_name)::text)) EXECUTE PROCEDURE app_jobs.jobs__increase_job_queue_count();
-
-
---
--- Name: jobs _900_notify_worker; Type: TRIGGER; Schema: app_jobs; Owner: -
---
-
-CREATE TRIGGER _900_notify_worker AFTER INSERT ON app_jobs.jobs FOR EACH STATEMENT EXECUTE PROCEDURE app_jobs.do_notify('jobs:insert');
-
-
---
 -- Name: users _100_timestamps; Type: TRIGGER; Schema: app_public; Owner: -
 --
 
@@ -1468,13 +1118,6 @@ CREATE TRIGGER _500_insert_secrets AFTER INSERT ON app_public.user_emails FOR EA
 
 
 --
--- Name: user_emails _900_send_verification_email; Type: TRIGGER; Schema: app_public; Owner: -
---
-
-CREATE TRIGGER _900_send_verification_email AFTER INSERT ON app_public.user_emails FOR EACH ROW WHEN ((new.is_verified IS FALSE)) EXECUTE PROCEDURE app_private.tg__add_job('user_emails__send_verification');
-
-
---
 -- Name: user_authentication_secrets user_authentication_secrets_user_authentication_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
 --
 
@@ -1513,12 +1156,6 @@ ALTER TABLE ONLY app_public.user_authentications
 ALTER TABLE ONLY app_public.user_emails
     ADD CONSTRAINT user_emails_user_id_fkey FOREIGN KEY (user_id) REFERENCES app_public.users(id) ON DELETE CASCADE;
 
-
---
--- Name: job_queues; Type: ROW SECURITY; Schema: app_jobs; Owner: -
---
-
-ALTER TABLE app_jobs.job_queues ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: user_authentication_secrets; Type: ROW SECURITY; Schema: app_private; Owner: -

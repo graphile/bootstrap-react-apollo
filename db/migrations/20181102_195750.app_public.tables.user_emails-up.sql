@@ -13,10 +13,6 @@ create trigger _100_timestamps
   before insert or update on app_public.user_emails
   for each row
   execute procedure app_private.tg__timestamps();
-create trigger _900_send_verification_email
-  after insert on app_public.user_emails
-  for each row when (NEW.is_verified is false)
-  execute procedure app_private.tg__add_job('user_emails__send_verification');
 -- `@omit all` because there's no point exposing `allUserEmails` - you can only
 -- see your own, and having this behaviour can lead to bad practices from
 -- frontend teams.
