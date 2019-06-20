@@ -48,8 +48,7 @@ begin
     set password_reset_email_sent_at = now()
     where user_email_id = v_user_email.id;
 
-    -- Trigger email send
-    perform app_jobs.add_job('user__forgot_password', json_build_object('id', v_user_email.user_id, 'email', v_user_email.email::text, 'token', v_reset_token));
+    -- TODO: Trigger email send
     return true;
 
   end if;
