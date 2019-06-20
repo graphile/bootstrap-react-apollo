@@ -12,7 +12,7 @@ const MAXIMUM_SESSION_DURATION_IN_MILLISECONDS =
   parseInt(process.env.MAXIMUM_SESSION_DURATION_IN_MILLISECONDS, 10) || 3 * DAY;
 
 module.exports = app => {
-  const pool = app.get("authPgPool");  // from `middleware.installDatabasePools`
+  const pool = app.get("rootPgPool");  // from `middleware.installDatabasePools`
   const sessionMiddleware = session({
     rolling: true,
     saveUninitialized: false,
