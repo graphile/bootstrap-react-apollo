@@ -10,6 +10,7 @@ module.exports = {
   rules: {
     // Autofix removes debugger automatically, which makes debugging annoying.
     "no-debugger": 0,
+    "import/no-extraneous-dependencies": 0,
 
     // GraphQL
     "graphql/template-strings": [
