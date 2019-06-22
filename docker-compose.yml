@@ -54,15 +54,6 @@ services:
       - 9229:9229
     command: ["npm", "run", "start:servers"]
 
-  # needed as sessions store for logins
-  redis:
-    container_name: redis
-    image: redis:latest
-    ports:
-      - 6379:6379
-    volumes:
-      - redisdata:/data
-
   # for debug purposes, so we can poke around in our db
   adminer:
     image: adminer
@@ -102,6 +93,5 @@ networks:
 
 volumes:
   db-volume:
-  redisdata:
   node_modules_node:
   node_modules_db-migrate:

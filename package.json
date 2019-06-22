@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "setup": "yarn reset && yarn setup:node:install && bash scripts/setup",
-    "start": "docker-compose down && docker-compose up -d db adminer redis && docker-compose up node",
+    "start": "docker-compose down && docker-compose up -d db adminer && docker-compose up node",
     "test": "docker-compose run node bash -c \"yarn test\"",
     "reset": "yarn reset:docker:down && bash -c \"yarn reset:volumes || true\" && yarn reset:docker:rebuild && yarn reset:env",
     "start:servers": "npx concurrently --kill-others --names server,client 'npm run start:servers:react' 'npm run start:servers:postgraphile' ",
@@ -14,7 +14,7 @@
     "reset:env": "bash -c 'rm .env; touch .env'",
     "reset:docker:rebuild": "echo PORT=666 > .env && docker-compose build",
     "reset:docker:down": "echo PORT=666 > .env && docker-compose down",
-    "reset:volumes": "bash -c \"docker volume rm bootstrap-react-apollo_db-volume bootstrap-react-apollo_redisdata bootstrap-react-apollo_node_modules_db-migrate bootstrap-react-apollo_node_modules_node\"",
+    "reset:volumes": "bash -c \"docker volume rm bootstrap-react-apollo_db-volume  bootstrap-react-apollo_node_modules_db-migrate bootstrap-react-apollo_node_modules_node\"",
     "setup:node:install": "yarn setup:node:install:dbmigrate && yarn setup:node:install:node",
     "setup:node:install:node": "docker-compose -f docker-compose.builder.yml run --rm install-node",
     "setup:node:install:dbmigrate": "docker-compose -f docker-compose.builder.yml run --rm install-db-migrate",
