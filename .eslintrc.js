@@ -1,13 +1,29 @@
 module.exports = {
-  parser: "babel-eslint",
-  extends: ["airbnb", "prettier", "plugin:vue/recommended",],
-  plugins: ["jest", "react", "prettier", "graphql"],
+  root: true,
   env: {
     browser: true,
-    jest: true,
-    node: true,
+    node: true
   },
+  parserOptions: {
+    parser: 'babel-eslint'
+  },
+  extends: [
+    "eslint:recommended",
+    // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
+    // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
+    "plugin:vue/recommended",
+    "plugin:prettier/recommended"
+  ],
+  // required to lint *.vue files
+  plugins: [
+    "jest", "vue", "graphql"
+  ],
+  // add your custom rules here
   rules: {
+    "semi": [2, "never"],
+    "no-console": "off",
+    "vue/max-attributes-per-line": "off",
+    "prettier/prettier": ["error", { "semi": false }],
     // Autofix removes debugger automatically, which makes debugging annoying.
     "no-debugger": 0,
 
@@ -33,16 +49,6 @@ module.exports = {
         ignores: [],
       },
     ],
-    "vue/max-attributes-per-line": [
-      2,
-      {
-        singleline: 2,
-        multiline: {
-          max: 1,
-          allowFirstLine: false,
-        },
-      },
-    ],
 
     // GraphQL
     "graphql/template-strings": [
@@ -64,7 +70,6 @@ module.exports = {
         env: "literal",
         schemaJson: require("./data/schema.json"),
         requiredFields: ["id", "nodeId"],
-        ignoreFragmentSpreads: true,
       },
     ],
 
