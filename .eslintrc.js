@@ -2,15 +2,19 @@ module.exports = {
   root: true,
   env: {
     browser: true,
-    node: true
+    node: true,
+    jest: true,
+    es6: true,
   },
   parserOptions: {
     parser: 'babel-eslint'
   },
   extends: [
+    "airbnb-base",
     "eslint:recommended",
     // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
     // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
+    "prettier/vue",
     "plugin:vue/recommended",
     "plugin:prettier/recommended"
   ],
@@ -18,9 +22,14 @@ module.exports = {
   plugins: [
     "jest", "vue", "graphql"
   ],
+
+  globals: {
+    $nuxt: true
+  },
   // add your custom rules here
   rules: {
     "semi": [2, "never"],
+    "import/no-unresolved": "off", // because node-modules is in "hidden" docker volume
     "no-console": "off",
     "vue/max-attributes-per-line": "off",
     "prettier/prettier": ["error", { "semi": false }],
