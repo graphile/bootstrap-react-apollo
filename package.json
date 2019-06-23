@@ -6,7 +6,7 @@
   "scripts": {
     "setup": "yarn reset && yarn setup:node:install && bash scripts/setup",
     "start": "docker-compose down && docker-compose up -d db adminer && docker-compose up node",
-    "test": "docker-compose run node bash -c \"yarn test\"",
+    "test": "docker-compose run node bash -c \"cd client; yarn test\"",
     "reset": "yarn reset:docker:down && bash -c \"yarn reset:volumes || true\" && yarn reset:docker:rebuild && yarn reset:env",
     "start:servers": "npx concurrently --kill-others --names server,client 'npm run start:servers:react' 'npm run start:servers:postgraphile' ",
     "start:servers:postgraphile": "cd server && nodemon --inspect=0.0.0.0:9229",
@@ -67,7 +67,6 @@
     "apollo-link-error": "^1.1.10",
     "apollo-link-http": "^1.5.14",
     "babel-eslint": "^10.0.1",
-    "babel-jest": "^24.7.1",
     "babel-loader": "^8.0.5",
     "babel-plugin-named-asset-import": "^0.3.2",
     "babel-polyfill": "^6.26.0",

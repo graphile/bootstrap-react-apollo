@@ -7,11 +7,20 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js"
   },
-  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"],
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
   "jest": {
-    "collectCoverageFrom": ["src/**/*.{js,jsx}"],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx}"
+    ],
     "resolver": "jest-pnp-resolver",
-    "setupFiles": ["react-app-polyfill/jsdom"],
+    "setupFiles": [
+      "react-app-polyfill/jsdom"
+    ],
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx}",
       "<rootDir>/src/**/?(*.)(spec|test).{js,jsx}"
@@ -31,6 +40,16 @@
       "^react-native$": "react-native-web",
       "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
     },
-    "moduleFileExtensions": ["web.js", "js", "json", "web.jsx", "jsx", "node"]
+    "moduleFileExtensions": [
+      "web.js",
+      "js",
+      "json",
+      "web.jsx",
+      "jsx",
+      "node"
+    ]
+  },
+  "devDependencies": {
+    "babel-jest": "^24.8.0"
   }
 }
