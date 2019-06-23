@@ -239,7 +239,16 @@ module.exports = app => {
         return {
           claims,
           rootPgPool,
-          req
+          // Passport.js `login` function, converted to a Promise implementation
+          login: user => {
+            if (!user) throw new Error("user argument is required");
+            return new Promise((resolve, reject) => {
+              req.login(user, err => {
+                if (err) reject(new Error(err));
+                resolve(user);
+              });
+            });
+          },
         };
       },
     })

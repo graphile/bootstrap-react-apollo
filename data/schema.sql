@@ -1089,6 +1089,17 @@ COMMENT ON TABLE app_private.user_secrets IS 'The contents of this table should 
 
 
 --
+-- Name: user_sessions; Type: TABLE; Schema: app_private; Owner: -
+--
+
+CREATE TABLE app_private.user_sessions (
+    sid character varying NOT NULL,
+    sess jsonb NOT NULL,
+    expire timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: user_authentications; Type: TABLE; Schema: app_public; Owner: -
 --
 
@@ -1341,6 +1352,14 @@ ALTER TABLE ONLY app_private.user_email_secrets
 
 ALTER TABLE ONLY app_private.user_secrets
     ADD CONSTRAINT user_secrets_pkey PRIMARY KEY (user_id);
+
+
+--
+-- Name: user_sessions user_sessions_pkey; Type: CONSTRAINT; Schema: app_private; Owner: -
+--
+
+ALTER TABLE ONLY app_private.user_sessions
+    ADD CONSTRAINT user_sessions_pkey PRIMARY KEY (sid);
 
 
 --
