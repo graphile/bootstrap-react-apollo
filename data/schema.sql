@@ -1026,7 +1026,9 @@ COMMENT ON COLUMN app_private.user_email_secrets.password_reset_email_sent_at IS
 
 CREATE TABLE app_private.user_secrets (
     user_id integer NOT NULL,
-    password_hash text
+    password_hash text,
+    first_failed_password_attempt timestamp with time zone,
+    password_attempts integer DEFAULT 0 NOT NULL
 );
 
 
