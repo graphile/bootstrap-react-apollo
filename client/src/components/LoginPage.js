@@ -1,7 +1,10 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Redirect, Link } from "react-router-dom";
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
+import { queryGenFromComponent } from "../GraphQLRoute";
+import HomePage from "./HomePage";
 import LoadingPage from "./LoadingPage";
 import ErrorPage from "./ErrorPage";
 import Layout from "./Layout";
@@ -12,9 +15,7 @@ const LOGIN = gql`
     login(input: { username: $username, password: $password }) {
       user {
         nodeId
-        id
         username
-        name
       }
     }
   }
@@ -28,6 +29,10 @@ export default class LoginPage extends React.Component {
       }
     }
   `;
+
+  static propTypes = {
+    history: PropTypes.object.isRequired,
+  };
 
   state = {
     username: "",
@@ -46,12 +51,14 @@ export default class LoginPage extends React.Component {
 
   handleSubmitWith = login => async e => {
     e.preventDefault();
+    const { history } = this.props;
     const { username, password } = this.state;
     this.setState({ loggingIn: true });
     try {
       const { data } = await login({ variables: { username, password } });
       if (data.login && data.login.user) {
-        this.setState({ loggingIn: false, loggedInAs: data.login.user });
+        this.setState({ loggingIn: false, error: null });
+        history.push(this.getNext());
       } else {
         throw new Error("Login failed");
       }
@@ -78,7 +85,7 @@ export default class LoginPage extends React.Component {
         </ErrorPage>
       );
     }
-    if (data.currentUser || this.state.loggedInAs) {
+    if (data.currentUser) {
       return <Redirect to={this.getNext()} />;
     }
     return (
@@ -88,7 +95,25 @@ export default class LoginPage extends React.Component {
           Login with GitHub
         </button>
         <h3>Log in with email</h3>
-        <Mutation mutation={LOGIN}>
+        <Mutation
+          mutation={LOGIN}
+          update={(
+            cache,
+            {
+              data: {
+                login: { user },
+              },
+            }
+          ) => {
+            const query = queryGenFromComponent(HomePage);
+            const cacheData = cache.readQuery({ query });
+            const data = {
+              ...cacheData,
+              currentUser: user,
+            };
+            cache.writeQuery({ query, data });
+          }}
+        >
           {login => (
             <form onSubmit={this.handleSubmitWith(login)}>
               <table className="form-table">
@@ -118,11 +143,7 @@ export default class LoginPage extends React.Component {
               {this.state.error ? <p>{this.state.error}</p> : null}
               <button
                 type="submit"
-                disabled={
-                  !username ||
-                  !password ||
-                  loggingIn
-                }
+                disabled={!username || !password || loggingIn}
               >
                 Log in
               </button>
