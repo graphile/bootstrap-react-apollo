@@ -451,6 +451,36 @@ COMMENT ON FUNCTION app_private.tg__timestamps() IS 'This trigger should be call
 
 
 --
+-- Name: tg_send_verification_email_for_user_email(); Type: FUNCTION; Schema: app_private; Owner: -
+--
+
+CREATE FUNCTION app_private.tg_send_verification_email_for_user_email() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO '$user', 'public'
+    AS $$
+declare
+  v_verification_token text;
+begin
+  -- Trigger email send
+  perform graphile_worker.add_job(
+    'sendVerificationEmailForUserEmail',
+    json_build_object(
+      'id', NEW.id
+    )
+  );
+  return NEW;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION tg_send_verification_email_for_user_email(); Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON FUNCTION app_private.tg_send_verification_email_for_user_email() IS 'Enqueue a job to send a verification email for unverified user email addresses.';
+
+
+--
 -- Name: tg_user_email_secrets__insert_with_user_email(); Type: FUNCTION; Schema: app_private; Owner: -
 --
 
@@ -612,7 +642,16 @@ begin
     set password_reset_email_sent_at = now()
     where user_email_id = v_user_email.id;
 
-    -- TODO: Trigger email send
+    -- Trigger email send
+    perform graphile_worker.add_job(
+      'sendEmail',
+      json_build_object(
+        'to', v_user_email.email::text,
+        'subject', 'reset password',
+        'text', format('Token: %s', v_reset_token)
+      )
+    );
+
     return true;
 
   end if;
@@ -717,6 +756,7 @@ CREATE TABLE app_private.user_authentication_secrets (
 CREATE TABLE app_private.user_email_secrets (
     user_email_id integer NOT NULL,
     verification_token text,
+    verification_email_sent_at timestamp with time zone,
     password_reset_email_sent_at timestamp with time zone
 );
 
@@ -726,6 +766,13 @@ CREATE TABLE app_private.user_email_secrets (
 --
 
 COMMENT ON TABLE app_private.user_email_secrets IS 'The contents of this table should never be visible to the user. Contains data mostly related to email verification and avoiding spamming users.';
+
+
+--
+-- Name: COLUMN user_email_secrets.verification_email_sent_at; Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON COLUMN app_private.user_email_secrets.verification_email_sent_at IS 'We store the time the last verification email was sent to this email to prevent the email getting flooded.';
 
 
 --
@@ -1115,6 +1162,13 @@ CREATE TRIGGER _500_insert_secrets AFTER INSERT ON app_public.users FOR EACH ROW
 --
 
 CREATE TRIGGER _500_insert_secrets AFTER INSERT ON app_public.user_emails FOR EACH ROW EXECUTE PROCEDURE app_private.tg_user_email_secrets__insert_with_user_email();
+
+
+--
+-- Name: user_emails _900_send_verification_email; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _900_send_verification_email AFTER INSERT ON app_public.user_emails FOR EACH ROW WHEN ((new.is_verified IS FALSE)) EXECUTE PROCEDURE app_private.tg_send_verification_email_for_user_email();
 
 
 --
