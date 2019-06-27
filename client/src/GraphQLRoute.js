@@ -3,7 +3,7 @@ import { Route } from "react-router-dom";
 import { Query } from "react-apollo";
 import gql from "graphql-tag";
 
-function queryGenFromComponent(Component) {
+export function queryGenFromComponent(Component) {
   const componentName = Component.displayName || Component.name;
   const fragment = Component.QueryFragment;
   if (!fragment) {
@@ -26,7 +26,7 @@ function queryGenFromComponent(Component) {
 }
 
 export default class GraphQLRoute extends React.Component {
-  renderComponent = () => {
+  renderComponent = (routerProps) => {
     const {
       component: Component,
       variables,
@@ -36,7 +36,7 @@ export default class GraphQLRoute extends React.Component {
       typeof queryGen === "function" ? queryGen(this.props) : queryGen;
     return (
       <Query query={query} variables={variables}>
-        {result => <Component {...result} />}
+        {result => <Component {...result} {...routerProps} />}
       </Query>
     );
   };

@@ -109,6 +109,7 @@
     "postcss-safe-parser": "^4.0.1",
     "postgraphile": "^4.4.0",
     "prettier": "^1.17.0",
+    "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-apollo": "^2.5.5",
     "react-app-polyfill": "^1.0.0",
