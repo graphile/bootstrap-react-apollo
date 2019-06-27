@@ -48,7 +48,16 @@ begin
     set password_reset_email_sent_at = now()
     where user_email_id = v_user_email.id;
 
-    -- TODO: Trigger email send
+    -- Trigger email send
+    perform graphile_worker.add_job(
+      'sendEmail',
+      json_build_object(
+        'to', v_user_email.email::text,
+        'subject', 'reset password',
+        'text', format('Token: %s', v_reset_token)
+      )
+    );
+
     return true;
 
   end if;

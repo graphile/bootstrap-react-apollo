@@ -411,6 +411,12 @@ type Mutation {
     """
     input: UpdateUserByUsernameInput!
   ): UpdateUserPayload
+  verifyUserEmail(
+    """
+    The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
+    """
+    input: VerifyUserEmailInput!
+  ): VerifyUserEmailPayload
 }
 
 """An object with a globally unique `ID`."""
@@ -807,4 +813,12 @@ enum UsersOrderBy {
   PRIMARY_KEY_DESC
   USERNAME_ASC
   USERNAME_DESC
+}
+
+input VerifyUserEmailInput {
+  token: String!
+}
+
+type VerifyUserEmailPayload {
+  userEmail: UserEmail!
 }

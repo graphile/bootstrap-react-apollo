@@ -23,9 +23,18 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
       user: User! @pgField
     }
 
+    input VerifyUserEmailInput {
+      token: String!
+    }
+
+    type VerifyUserEmailPayload {
+      userEmail: UserEmail! @pgField
+    }
+
     extend type Mutation {
       register(input: RegisterInput!): RegisterPayload
       login(input: LoginInput!): LoginPayload
+      verifyUserEmail(input: VerifyUserEmailInput!): VerifyUserEmailPayload
     }
   `,
   resolvers: {
@@ -151,6 +160,47 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
           console.error(e);
           throw e;
         }
+      },
+
+      async verifyUserEmail(
+        mutation,
+        args,
+        context,
+        resolveInfo,
+        { selectGraphQLResultFromTable }
+      ) {
+        const { token } = args.input;
+        const { rootPgPool } = context;
+        const updateResult = await rootPgPool.query(
+          `
+          UPDATE app_public.user_emails
+          SET is_verified = true
+          WHERE id = (
+            SELECT user_email_id
+            FROM app_private.user_email_secrets
+            WHERE verification_token = $1
+            AND verification_email_sent_at > now() - '7 days'::interval
+          )
+          RETURNING id
+          `,
+          [token]
+        );
+        if (updateResult.rowCount === 0) {
+          throw new Error("Invalid token");
+        }
+        const userEmailId = updateResult.rows[0].id;
+        const sql = build.pgSql;
+        const [row] = await selectGraphQLResultFromTable(
+          sql.fragment`app_public.user_emails`,
+          (tableAlias, sqlBuilder) => {
+            sqlBuilder.where(
+              sql.fragment`${tableAlias}.id = ${sql.value(userEmailId)}`
+            );
+          }
+        );
+        return {
+          data: row,
+        };
       },
     },
   },
