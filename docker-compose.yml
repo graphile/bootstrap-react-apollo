@@ -1,0 +1,102 @@
+version: "3.7"
+services:
+  # postgres db
+  db:
+    container_name: graphiledemo-db
+    image: graphiledemo-db
+    build:
+      context: ./db
+    volumes:
+      # all our database data gets it's one volume
+      - db-volume:/var/lib/postgresql/data
+      # scripts & data are needed to run dump-schema after migrations
+      - ./scripts:/scripts
+      - ./data:/data
+    env_file:
+      - ./.env
+    networks:
+      - default
+    ports:
+      # postgres default
+      - 5432:5432
+
+  # runs express serving graphql & graphiql and also runs client (react) dev server
+  db-migrate:
+    image: node:12
+    container_name: db-migrate
+    env_file:
+      - ./.env
+    command: ["npm", "run", "start"]
+    volumes:
+      - ./db-migrate:/home/node/
+      # access to db scripts & migrations
+      - ./db/migrations:/home/node/db/migrations
+      - ./db/scripts:/home/node/db/scripts
+      # use seperate volume for node_modules, makes it easier to manage and faster to reset
+      - node_modules_db-migrate:/home/node/node_modules
+    working_dir: /home/node
+
+  nuxtjs:
+    image: node:12
+    env_file:
+      - ./.env
+    volumes:
+      - ./server/:/home/node/
+      - ./data:/home/node/data
+      - node_modules_nuxtjs:/home/node/node_modules
+    working_dir: /home/node
+    container_name: nuxtjs-vue-website
+    stdin_open: true
+    tty: true
+    ports:
+      # express server, for / and /graphiql
+      - 8080:${PORT}
+      # node debugger port
+      - 9229:9229
+    command: "npm run dev"
+
+  # needed as sessions store for logins
+  redis:
+    container_name: redis
+    image: redis:latest
+  # for debug purposes, so we can poke around in our db
+  adminer:
+    image: adminer
+    environment:
+      - ADMINER_PLUGINS=edit-foreign
+    ports:
+      - 8888:8080
+
+  graphiql:
+    container_name: postgraphile
+    restart: always
+    image: graphile/postgraphile
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    networks:
+      - default
+    ports:
+      - 5433:5433
+
+    command:
+      [
+        "postgraphile",
+        "--connection",
+        "${DATABASE_URL}",
+        "--schema",
+        "app_public",
+        "--port",
+        "5433",
+        "--enhance-graphiql",
+      ]
+
+networks:
+  default:
+    name: graphiledemo-network
+
+volumes:
+  db-volume:
+  node_modules_nuxtjs:
+  node_modules_db-migrate:

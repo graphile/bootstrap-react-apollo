@@ -1,15 +1,48 @@
 module.exports = {
-  parser: "babel-eslint",
-  extends: ["airbnb", "prettier", "prettier/react"],
-  plugins: ["jest", "react", "prettier", "graphql"],
+  root: true,
   env: {
     browser: true,
-    jest: true,
     node: true,
+    jest: true,
+    es6: true,
   },
+  parserOptions: {
+    parser: 'babel-eslint'
+  },
+  extends: [
+    "airbnb-base",
+    "eslint:recommended",
+    // https://github.com/vuejs/eslint-plugin-vue#priority-a-essential-error-prevention
+    // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
+    "plugin:vue/recommended",
+  ],
+  // required to lint *.vue files
+  plugins: [
+    "jest", "vue", "graphql"
+  ],
+
+  globals: {
+    $nuxt: true
+  },
+  // add your custom rules here
   rules: {
+    "semi": [2, "never"],
+    "import/no-unresolved": "off", // because node-modules is in "hidden" docker volume
+    "no-console": "off",
+    "vue/max-attributes-per-line": "off",
     // Autofix removes debugger automatically, which makes debugging annoying.
     "no-debugger": 0,
+
+    "vue/html-indent": [
+      "error",
+      2,
+      {
+        attribute: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+        ignores: [],
+      },
+    ],
 
     // GraphQL
     "graphql/template-strings": [
@@ -31,21 +64,6 @@ module.exports = {
         env: "literal",
         schemaJson: require("./data/schema.json"),
         requiredFields: ["id", "nodeId"],
-      },
-    ],
-
-    // React
-    "react/require-default-props": 0,
-    "react/prefer-stateless-function": 0,
-    "react/no-unescaped-entities": 1,
-    "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx"] }],
-    "jsx-a11y/mouse-events-have-key-events": 0,
-    "jsx-a11y/anchor-is-valid": [
-      "error",
-      {
-        components: ["Link"],
-        specialLink: ["to"],
-        aspects: ["noHref", "invalidHref", "preferButton"],
       },
     ],
 

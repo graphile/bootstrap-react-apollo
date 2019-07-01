@@ -83,9 +83,6 @@ We use the following tools to make our life easier
 ## Getting Started
 
 ```
-# Install dependencies:
-yarn
-
 # Create and configure database
 yarn setup
 
@@ -93,7 +90,7 @@ yarn setup
 yarn start
 ```
 
-Then load http://localhost:5678
+Then load http://localhost:8080
 
 {TODO}
 

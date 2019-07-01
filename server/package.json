@@ -1,0 +1,53 @@
+{
+  "name": "postgraphile-nuxtjs",
+  "version": "1.0.0",
+  "description": "example for a dockerized postgraphile nuxt.js application",
+  "author": "Joe Schroecker",
+  "private": true,
+  "scripts": {
+    "start": "cross-env NODE_ENV=production HOST=0.0.0.0 node server/index.js",
+    "dev": "cross-env NODE_ENV=development HOST=0.0.0.0 DEBUG=graphile-build:warn nodemon --delay 250ms --exec 'yarn dev:inspector:kill && yarn dev:inspector:start' --watch server",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "test": "jest",
+    "dev:inspector:start": "node --inspect=0.0.0.0:9229 server/index.js ",
+    "dev:inspector:kill": "kill-port --port 9229"
+  },
+  "dependencies": {
+    "@graphile-contrib/pg-simplify-inflector": "^5.0.0-beta.1",
+    "@graphile/pg-pubsub": "^4.4.0-rc.1",
+    "@graphile/pro": "^0.7.0",
+    "@nuxtjs/apollo": "^4.0.0-rc6",
+    "@nuxtjs/pwa": "^2.6.0",
+    "connect-redis": "^3.4.1",
+    "consola": "^2.6.2",
+    "cross-env": "^5.2.0",
+    "express": "^4.16.4",
+    "express-session": "^1.16.1",
+    "graphile-utils": "^4.4.0",
+    "graphql": "^14.3.0",
+    "graphql-tag": "^2.10.1",
+    "http-proxy": "^1.17.0",
+    "morgan": "^1.9.1",
+    "nuxt": "^2.4.0",
+    "passport": "^0.4.0",
+    "passport-github": "^1.1.0",
+    "pg": "^7.11.0",
+    "postgraphile": "^4.4.0",
+    "vuetify": "^1.5.5",
+    "vuetify-loader": "^1.2.1"
+  },
+  "devDependencies": {
+    "@vue/test-utils": "^1.0.0-beta.27",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "^24.1.0",
+    "jest": "^24.7.1",
+    "jest-pnp-resolver": "^1.2.1",
+    "jest-resolve": "^24.7.1",
+    "kill-port": "^1.5.0",
+    "nodemon": "^1.18.9",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "vue-jest": "^3.0.3"
+  }
+}
