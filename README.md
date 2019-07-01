@@ -1,4 +1,4 @@
-# PostGraphile Boilerplate - React & Apollo
+# PostGraphile Boilerplate - Vue/Nuxt.js & Apollo & Docker
 
 This repository will help you get started with PostGraphile quickly. It's currently a work in progress, but despite this it should be a good jumping-off point.
 
@@ -23,20 +23,21 @@ Server:
 - [ ] OAuth support (login with GitHub, Twitter, Facebook, ... via Passport.js)
 - [ ] Double-submit token to avoid CSRF
 - [ ] Background worker
-- [ ] Server-side rendering (SSR)
+- [X] Server-side rendering (SSR)
 - [ ] Test suite
 
 Client:
 
-- [x] React app
-- [x] Development mode has React hot loading
-- [x] react-apollo GraphQL client
+- [x] Vue/Nuxt.js app
+- [x] Development mode has hot loading
+- [x] vue-apollo GraphQL client
 - [x] Send double-submit token (if present) with GraphQL requests (`window.CSRF_TOKEN`)
-- [x] Routing via React Router
+- [x] Routing via Nuxt.js Router
 - [ ] Register/login with social providers
 - [ ] Register with username/password
 - [ ] Login with username/password
-- [ ] [Storybook](https://storybook.js.org/) for React component previews
+- [ ] `vue ui` working
+- [ ] [Storybook](https://storybook.js.org/) for Vue component previews
 - [ ] Test suite
 - [ ] Automatic bundle splitting
 
@@ -51,7 +52,7 @@ General:
 Deployment:
 
 - [ ] Procfile for Heroku
-- [ ] Dockerfile or similar
+- [X] Dockerfile or similar
 
 ## Layout
 
@@ -59,7 +60,7 @@ The project is split into the following folders:
 
 - `/db` - everything related to the database: migrations, unit tests, etc
 - `/data` - generated data, such as the GraphQL and database schema dumps
-- `/client` - everything related to the web browser: the react components, routes, etc
+- `/server/pages` - everything related to the web browser / client: the Vue components, routes, etc [see](https://nuxtjs.org/guide/routing/)
 - `/server` - everything related to running the server: the middlewares, PostGraphile configuration, SSR, integration tests, etc
 - `/worker` - everything related to background tasks; i.e. the job queue
 
@@ -73,7 +74,7 @@ We use the following tools to make our life easier
 
 - PostGraphile (obviously) to turn our database into a GraphQL API, and to output the GraphQL schema for other tools
 - Apollo Client to consume this GraphQL API and manage caching
-- React for rendering
+- Vue/Nuxt.js for rendering
 - Webpack to bundle everything up
 - ESLint for powerful linting and autocorrection
 - Prettier for consistent code formatting
@@ -81,6 +82,12 @@ We use the following tools to make our life easier
 - db-migrate for performing migrations
 
 ## Getting Started
+
+Prerequisites:
+
+* [`docker`](https://docs.docker.com/install/)
+* [`docker-compose`](https://docs.docker.com/compose/install/).
+
 
 ```
 # Create and configure database
