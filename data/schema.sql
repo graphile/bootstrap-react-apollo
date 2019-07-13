@@ -458,8 +458,6 @@ CREATE FUNCTION app_private.tg_send_verification_email_for_user_email() RETURNS 
     LANGUAGE plpgsql
     SET search_path TO '$user', 'public'
     AS $$
-declare
-  v_verification_token text;
 begin
   -- Trigger email send
   perform graphile_worker.add_job(
