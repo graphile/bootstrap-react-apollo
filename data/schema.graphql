@@ -516,7 +516,7 @@ input ResetPasswordInput {
   """
   clientMutationId: String
   newPassword: String!
-  resetToken: String!
+  token: String!
   userId: Int!
 }
 
