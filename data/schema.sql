@@ -620,33 +620,26 @@ begin
     set
       reset_password_token = (
         case
-        when reset_password_token is null or reset_password_token_generated < NOW() - v_reset_max_duration
+        when reset_password_token is null or reset_password_token_generated_at < NOW() - v_reset_max_duration
         then encode(gen_random_bytes(6), 'hex')
         else reset_password_token
         end
       ),
-      reset_password_token_generated = (
+      reset_password_token_generated_at = (
         case
-        when reset_password_token is null or reset_password_token_generated < NOW() - v_reset_max_duration
+        when reset_password_token is null or reset_password_token_generated_at < NOW() - v_reset_max_duration
         then now()
-        else reset_password_token_generated
+        else reset_password_token_generated_at
         end
       )
     where user_id = v_user_email.user_id
     returning reset_password_token into v_reset_token;
 
-    -- Don't allow spamming an email
-    update app_private.user_email_secrets
-    set password_reset_email_sent_at = now()
-    where user_email_id = v_user_email.id;
-
     -- Trigger email send
     perform graphile_worker.add_job(
-      'sendEmail',
+      'sendPasswordResetEmail',
       json_build_object(
-        'to', v_user_email.email::text,
-        'subject', 'reset password',
-        'text', format('Token: %s', v_reset_token)
+        'id', v_user_email.id
       )
     );
 
@@ -670,12 +663,13 @@ If you''ve forgotten your password, give us one of your email addresses and we''
 -- Name: reset_password(integer, text, text); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
-CREATE FUNCTION app_public.reset_password(user_id integer, reset_token text, new_password text) RETURNS app_public.users
+CREATE FUNCTION app_public.reset_password(user_id integer, token text, new_password text) RETURNS app_public.users
     LANGUAGE plpgsql STRICT SECURITY DEFINER
     SET search_path TO '$user', 'public'
     AS $$
 declare
   v_user app_public.users;
+  v_user_email app_public.user_emails;
   v_user_secret app_private.user_secrets;
   v_reset_max_duration interval = interval '3 days';
 begin
@@ -700,7 +694,7 @@ begin
     end if;
 
     -- Not too many reset attempts, let's check the token
-    if v_user_secret.reset_password_token = reset_token then
+    if v_user_secret.reset_password_token = token then
       -- Excellent - they're legit; let's reset the password as requested
       update app_private.user_secrets
       set
@@ -708,10 +702,30 @@ begin
         password_attempts = 0,
         first_failed_password_attempt = null,
         reset_password_token = null,
-        reset_password_token_generated = null,
+        reset_password_token_generated_at = null,
         reset_password_attempts = 0,
         first_failed_reset_password_attempt = null
       where user_secrets.user_id = v_user.id;
+
+      -- Notify that password has been reset
+      select * into v_user_email
+      from app_public.user_emails
+      where user_emails.user_id = reset_password.user_id
+      and is_verified = true
+      order by created_at
+      limit 1;
+
+      if v_user_email is not NULL then
+        perform graphile_worker.add_job(
+          'sendEmail',
+          json_build_object(
+            'to', v_user_email.email,
+            'subject', 'Your password has been changed',
+            'text', 'Your password has been changed. If you didn''t do this, please contact support immediately.'
+          )
+        );
+      end if;
+
       return v_user;
     else
       -- Wrong token, bump all the attempt tracking figures
@@ -720,21 +734,21 @@ begin
         reset_password_attempts = (case when first_failed_reset_password_attempt is null or first_failed_reset_password_attempt < now() - v_reset_max_duration then 1 else reset_password_attempts + 1 end),
         first_failed_reset_password_attempt = (case when first_failed_reset_password_attempt is null or first_failed_reset_password_attempt < now() - v_reset_max_duration then now() else first_failed_reset_password_attempt end)
       where user_secrets.user_id = v_user.id;
-      return null;
+      raise exception 'Invalid token' using errcode='INVLD';
     end if;
   else
     -- No user with that id was found
-    return null;
+    raise exception 'Invalid user ID' using errcode='INVLD';
   end if;
 end;
 $$;
 
 
 --
--- Name: FUNCTION reset_password(user_id integer, reset_token text, new_password text); Type: COMMENT; Schema: app_public; Owner: -
+-- Name: FUNCTION reset_password(user_id integer, token text, new_password text); Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON FUNCTION app_public.reset_password(user_id integer, reset_token text, new_password text) IS 'After triggering forgotPassword, you''ll be sent a reset token. Combine this with your user ID and a new password to reset your password.';
+COMMENT ON FUNCTION app_public.reset_password(user_id integer, token text, new_password text) IS 'After triggering forgotPassword, you''ll be sent a reset token. Combine this with your user ID and a new password to reset your password.';
 
 
 --
@@ -863,6 +877,10 @@ COMMENT ON COLUMN app_private.user_email_secrets.password_reset_email_sent_at IS
 CREATE TABLE app_private.user_secrets (
     user_id integer NOT NULL,
     password_hash text,
+    reset_password_token text,
+    reset_password_token_generated_at timestamp with time zone,
+    first_failed_reset_password_attempt timestamp with time zone,
+    reset_password_attempts integer DEFAULT 0 NOT NULL,
     first_failed_password_attempt timestamp with time zone,
     password_attempts integer DEFAULT 0 NOT NULL
 );

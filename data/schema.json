@@ -2978,7 +2978,7 @@
               "defaultValue": null
             },
             {
-              "name": "resetToken",
+              "name": "token",
               "description": null,
               "type": {
                 "kind": "NON_NULL",

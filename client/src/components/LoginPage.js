@@ -147,7 +147,14 @@ export default class LoginPage extends React.Component {
               >
                 Log in
               </button>
-              <Link to="/register">Don't have an account? Create one</Link>
+              <ul>
+                <li>
+                  <Link to="/register">Don't have an account? Create one</Link>
+                </li>
+                <li>
+                  <Link to="/forgot-password">Forgot your password? Reset it</Link>
+                </li>
+              </ul>
             </form>
           )}
         </Mutation>
