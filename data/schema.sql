@@ -797,7 +797,7 @@ begin
   RETURNING * INTO v_user_email;
 
   if v_user_email is NULL THEN
-    raise exception 'verification token is invalid or expired' using errcode='INVALID';
+    raise exception 'verification token is invalid or expired' using errcode='INVLD';
   end if;
 
   return v_user_email;
