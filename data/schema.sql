@@ -740,6 +740,82 @@ COMMENT ON FUNCTION app_public.reset_password(user_id integer, reset_token text,
 
 
 --
+-- Name: user_emails; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.user_emails (
+    id integer NOT NULL,
+    user_id integer DEFAULT app_public.current_user_id() NOT NULL,
+    email public.citext NOT NULL,
+    is_verified boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT user_emails_email_check CHECK ((email OPERATOR(public.~) '[^@]+@[^@]+\.[^@]+'::public.citext))
+);
+
+
+--
+-- Name: TABLE user_emails; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.user_emails IS '@omit all
+Information about a user''s email address.';
+
+
+--
+-- Name: COLUMN user_emails.email; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_emails.email IS 'The users email address, in `a@b.c` format.';
+
+
+--
+-- Name: COLUMN user_emails.is_verified; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_emails.is_verified IS 'True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.';
+
+
+--
+-- Name: verify_user_email(text); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.verify_user_email(token text) RETURNS app_public.user_emails
+    LANGUAGE plpgsql STRICT SECURITY DEFINER
+    SET search_path TO '$user', 'public'
+    AS $$
+declare
+  v_user_email app_public.user_emails;
+  v_max_duration interval = interval '7 days';
+begin
+  UPDATE app_public.user_emails
+  SET is_verified = true
+  WHERE id = (
+    SELECT user_email_id
+    FROM app_private.user_email_secrets
+    WHERE user_email_secrets.verification_token = token
+    AND user_email_secrets.verification_email_sent_at > now() - v_max_duration
+  )
+  RETURNING * INTO v_user_email;
+
+  if v_user_email is NULL THEN
+    raise exception 'verification token is invalid or expired' using errcode='INVALID';
+  end if;
+
+  return v_user_email;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION verify_user_email(token text); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.verify_user_email(token text) IS '@resultFieldName userEmail
+After you add an email address, you will receive an email with a verification token. Give us the verification token to mark that email as verified!';
+
+
+--
 -- Name: user_authentication_secrets; Type: TABLE; Schema: app_private; Owner: -
 --
 
@@ -882,43 +958,6 @@ CREATE SEQUENCE app_public.user_authentications_id_seq
 --
 
 ALTER SEQUENCE app_public.user_authentications_id_seq OWNED BY app_public.user_authentications.id;
-
-
---
--- Name: user_emails; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.user_emails (
-    id integer NOT NULL,
-    user_id integer DEFAULT app_public.current_user_id() NOT NULL,
-    email public.citext NOT NULL,
-    is_verified boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT user_emails_email_check CHECK ((email OPERATOR(public.~) '[^@]+@[^@]+\.[^@]+'::public.citext))
-);
-
-
---
--- Name: TABLE user_emails; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON TABLE app_public.user_emails IS '@omit all
-Information about a user''s email address.';
-
-
---
--- Name: COLUMN user_emails.email; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.user_emails.email IS 'The users email address, in `a@b.c` format.';
-
-
---
--- Name: COLUMN user_emails.is_verified; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.user_emails.is_verified IS 'True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.';
 
 
 --
@@ -1339,20 +1378,6 @@ GRANT UPDATE(avatar_url) ON TABLE app_public.users TO postgraphile_bootstrap_vis
 
 
 --
--- Name: TABLE user_authentications; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO postgraphile_bootstrap_visitor;
-
-
---
--- Name: SEQUENCE user_authentications_id_seq; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,USAGE ON SEQUENCE app_public.user_authentications_id_seq TO postgraphile_bootstrap_visitor;
-
-
---
 -- Name: TABLE user_emails; Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -1364,6 +1389,20 @@ GRANT SELECT,DELETE ON TABLE app_public.user_emails TO postgraphile_bootstrap_vi
 --
 
 GRANT INSERT(email) ON TABLE app_public.user_emails TO postgraphile_bootstrap_visitor;
+
+
+--
+-- Name: TABLE user_authentications; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO postgraphile_bootstrap_visitor;
+
+
+--
+-- Name: SEQUENCE user_authentications_id_seq; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,USAGE ON SEQUENCE app_public.user_authentications_id_seq TO postgraphile_bootstrap_visitor;
 
 
 --
