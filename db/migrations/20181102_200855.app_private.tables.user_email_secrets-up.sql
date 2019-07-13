@@ -30,8 +30,6 @@ comment on function app_private.tg_user_email_secrets__insert_with_user_email() 
   E'Ensures that every user_email record has an associated user_email_secret record.';
 
 create function app_private.tg_send_verification_email_for_user_email() returns trigger as $$
-declare
-  v_verification_token text;
 begin
   -- Trigger email send
   perform graphile_worker.add_job(
