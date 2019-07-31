@@ -1,4 +1,4 @@
-version: "2"
+version: "2.4"
 services:
   #node
   node:
@@ -7,14 +7,17 @@ services:
       - .:/home/node
       - node_modules_node:/home/node/node_modules
     working_dir: /home/node
+
   install-node:
     extends:
       service: node
     command: yarn install
+
   build-node:
     extends:
       service: node
     command: yarn run build
+
 
   #db-migrate
   # has different package.json
@@ -24,10 +27,12 @@ services:
       - ./db-migrate:/home/node
       - node_modules_db-migrate:/home/node/node_modules
     working_dir: /home/node
+
   install-db-migrate:
     extends:
       service: db-migrate
     command: yarn install
+
 
 volumes:
   node_modules_node:

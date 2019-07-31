@@ -35,6 +35,8 @@ services:
       # use seperate volume for node_modules, makes it easier to manage and faster to reset
       - node_modules_db-migrate:/home/node/node_modules
     working_dir: /home/node
+    networks:
+      - default
 
   node:
     image: node:12
@@ -47,6 +49,8 @@ services:
     container_name: node-react-website
     stdin_open: true
     tty: true
+    networks:
+      - default
     ports:
       # express server, for / and /graphiql
       - ${PORT}:${PORT}
@@ -59,6 +63,8 @@ services:
     image: adminer
     environment:
       - ADMINER_PLUGINS=edit-foreign
+    networks:
+      - default
     ports:
       - 8888:8080
 
