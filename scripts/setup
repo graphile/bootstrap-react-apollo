@@ -40,9 +40,9 @@ else
   fi
 
   # This will generate passwords that are safe to use in envvars without needing to be escaped:
-  DATABASE_OWNER_PASSWORD="$(openssl rand -base64 30 | tr '+/' '-_')"
+  DATABASE_OWNER_PASSWORD="$(openssl rand -base64 30 | tr '+/-' '000')"
   DATABASE_AUTHENTICATOR="${DATABASE_NAME}_authenticator"
-  DATABASE_AUTHENTICATOR_PASSWORD="$(openssl rand -base64 30 | tr '+/' '-_')"
+  DATABASE_AUTHENTICATOR_PASSWORD="$(openssl rand -base64 30 | tr '+/-' '000')"
   DATABASE_VISITOR="${DATABASE_NAME}_visitor"
   PORT=5678
   ROOT_DOMAIN=localhost:${PORT}
