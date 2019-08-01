@@ -104,8 +104,8 @@ ROOT_URL=http://${ROOT_DOMAIN}
 # To send email with SendGrid, sign up on https://sendgrid.com/ and create
 # an API token, then paste it here. You can also customize the default
 # "from" address for outgoing email.
-export SENDGRID_API_KEY=""
-export EMAIL_DEFAULT_FROM="postgraphile@example.com"
+SENDGRID_API_KEY=""
+EMAIL_DEFAULT_FROM="postgraphile@example.com"
 
 # To enable login with GitHub, create a GitHub application by visiting
 # https://github.com/settings/applications/new and then enter the Client

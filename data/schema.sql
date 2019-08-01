@@ -450,6 +450,34 @@ COMMENT ON FUNCTION app_private.tg__timestamps() IS 'This trigger should be call
 
 
 --
+-- Name: tg_send_verification_email_for_user_email(); Type: FUNCTION; Schema: app_private; Owner: -
+--
+
+CREATE FUNCTION app_private.tg_send_verification_email_for_user_email() RETURNS trigger
+    LANGUAGE plpgsql
+    SET search_path TO '$user', 'public'
+    AS $$
+begin
+  -- Trigger email send
+  perform graphile_worker.add_job(
+    'sendVerificationEmailForUserEmail',
+    json_build_object(
+      'id', NEW.id
+    )
+  );
+  return NEW;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION tg_send_verification_email_for_user_email(); Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON FUNCTION app_private.tg_send_verification_email_for_user_email() IS 'Enqueue a job to send a verification email for unverified user email addresses.';
+
+
+--
 -- Name: tg_user_email_secrets__insert_with_user_email(); Type: FUNCTION; Schema: app_private; Owner: -
 --
 
@@ -591,27 +619,29 @@ begin
     set
       reset_password_token = (
         case
-        when reset_password_token is null or reset_password_token_generated < NOW() - v_reset_max_duration
+        when reset_password_token is null or reset_password_token_generated_at < NOW() - v_reset_max_duration
         then encode(gen_random_bytes(6), 'hex')
         else reset_password_token
         end
       ),
-      reset_password_token_generated = (
+      reset_password_token_generated_at = (
         case
-        when reset_password_token is null or reset_password_token_generated < NOW() - v_reset_max_duration
+        when reset_password_token is null or reset_password_token_generated_at < NOW() - v_reset_max_duration
         then now()
-        else reset_password_token_generated
+        else reset_password_token_generated_at
         end
       )
     where user_id = v_user_email.user_id
     returning reset_password_token into v_reset_token;
 
-    -- Don't allow spamming an email
-    update app_private.user_email_secrets
-    set password_reset_email_sent_at = now()
-    where user_email_id = v_user_email.id;
+    -- Trigger email send
+    perform graphile_worker.add_job(
+      'sendPasswordResetEmail',
+      json_build_object(
+        'id', v_user_email.id
+      )
+    );
 
-    -- TODO: Trigger email send
     return true;
 
   end if;
@@ -632,12 +662,13 @@ If you''ve forgotten your password, give us one of your email addresses and we''
 -- Name: reset_password(integer, text, text); Type: FUNCTION; Schema: app_public; Owner: -
 --
 
-CREATE FUNCTION app_public.reset_password(user_id integer, reset_token text, new_password text) RETURNS app_public.users
+CREATE FUNCTION app_public.reset_password(user_id integer, token text, new_password text) RETURNS app_public.users
     LANGUAGE plpgsql STRICT SECURITY DEFINER
     SET search_path TO '$user', 'public'
     AS $$
 declare
   v_user app_public.users;
+  v_user_email app_public.user_emails;
   v_user_secret app_private.user_secrets;
   v_reset_max_duration interval = interval '3 days';
 begin
@@ -662,7 +693,7 @@ begin
     end if;
 
     -- Not too many reset attempts, let's check the token
-    if v_user_secret.reset_password_token = reset_token then
+    if v_user_secret.reset_password_token = token then
       -- Excellent - they're legit; let's reset the password as requested
       update app_private.user_secrets
       set
@@ -670,10 +701,30 @@ begin
         password_attempts = 0,
         first_failed_password_attempt = null,
         reset_password_token = null,
-        reset_password_token_generated = null,
+        reset_password_token_generated_at = null,
         reset_password_attempts = 0,
         first_failed_reset_password_attempt = null
       where user_secrets.user_id = v_user.id;
+
+      -- Notify that password has been reset
+      select * into v_user_email
+      from app_public.user_emails
+      where user_emails.user_id = reset_password.user_id
+      and is_verified = true
+      order by created_at
+      limit 1;
+
+      if v_user_email is not NULL then
+        perform graphile_worker.add_job(
+          'sendEmail',
+          json_build_object(
+            'to', v_user_email.email,
+            'subject', 'Your password has been changed',
+            'text', 'Your password has been changed. If you didn''t do this, please contact support immediately.'
+          )
+        );
+      end if;
+
       return v_user;
     else
       -- Wrong token, bump all the attempt tracking figures
@@ -682,21 +733,97 @@ begin
         reset_password_attempts = (case when first_failed_reset_password_attempt is null or first_failed_reset_password_attempt < now() - v_reset_max_duration then 1 else reset_password_attempts + 1 end),
         first_failed_reset_password_attempt = (case when first_failed_reset_password_attempt is null or first_failed_reset_password_attempt < now() - v_reset_max_duration then now() else first_failed_reset_password_attempt end)
       where user_secrets.user_id = v_user.id;
-      return null;
+      raise exception 'Invalid token' using errcode='INVLD';
     end if;
   else
     -- No user with that id was found
-    return null;
+    raise exception 'Invalid user ID' using errcode='INVLD';
   end if;
 end;
 $$;
 
 
 --
--- Name: FUNCTION reset_password(user_id integer, reset_token text, new_password text); Type: COMMENT; Schema: app_public; Owner: -
+-- Name: FUNCTION reset_password(user_id integer, token text, new_password text); Type: COMMENT; Schema: app_public; Owner: -
 --
 
-COMMENT ON FUNCTION app_public.reset_password(user_id integer, reset_token text, new_password text) IS 'After triggering forgotPassword, you''ll be sent a reset token. Combine this with your user ID and a new password to reset your password.';
+COMMENT ON FUNCTION app_public.reset_password(user_id integer, token text, new_password text) IS 'After triggering forgotPassword, you''ll be sent a reset token. Combine this with your user ID and a new password to reset your password.';
+
+
+--
+-- Name: user_emails; Type: TABLE; Schema: app_public; Owner: -
+--
+
+CREATE TABLE app_public.user_emails (
+    id integer NOT NULL,
+    user_id integer DEFAULT app_public.current_user_id() NOT NULL,
+    email public.citext NOT NULL,
+    is_verified boolean DEFAULT false NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT user_emails_email_check CHECK ((email OPERATOR(public.~) '[^@]+@[^@]+\.[^@]+'::public.citext))
+);
+
+
+--
+-- Name: TABLE user_emails; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON TABLE app_public.user_emails IS '@omit all
+Information about a user''s email address.';
+
+
+--
+-- Name: COLUMN user_emails.email; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_emails.email IS 'The users email address, in `a@b.c` format.';
+
+
+--
+-- Name: COLUMN user_emails.is_verified; Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON COLUMN app_public.user_emails.is_verified IS 'True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.';
+
+
+--
+-- Name: verify_user_email(text); Type: FUNCTION; Schema: app_public; Owner: -
+--
+
+CREATE FUNCTION app_public.verify_user_email(token text) RETURNS app_public.user_emails
+    LANGUAGE plpgsql STRICT SECURITY DEFINER
+    SET search_path TO '$user', 'public'
+    AS $$
+declare
+  v_user_email app_public.user_emails;
+  v_max_duration interval = interval '7 days';
+begin
+  UPDATE app_public.user_emails
+  SET is_verified = true
+  WHERE id = (
+    SELECT user_email_id
+    FROM app_private.user_email_secrets
+    WHERE user_email_secrets.verification_token = token
+    AND user_email_secrets.verification_email_sent_at > now() - v_max_duration
+  )
+  RETURNING * INTO v_user_email;
+
+  if v_user_email is NULL THEN
+    raise exception 'verification token is invalid or expired' using errcode='INVLD';
+  end if;
+
+  return v_user_email;
+end;
+$$;
+
+
+--
+-- Name: FUNCTION verify_user_email(token text); Type: COMMENT; Schema: app_public; Owner: -
+--
+
+COMMENT ON FUNCTION app_public.verify_user_email(token text) IS '@resultFieldName userEmail
+After you add an email address, you will receive an email with a verification token. Give us the verification token to mark that email as verified!';
 
 
 --
@@ -716,6 +843,7 @@ CREATE TABLE app_private.user_authentication_secrets (
 CREATE TABLE app_private.user_email_secrets (
     user_email_id integer NOT NULL,
     verification_token text,
+    verification_email_sent_at timestamp with time zone,
     password_reset_email_sent_at timestamp with time zone
 );
 
@@ -725,6 +853,13 @@ CREATE TABLE app_private.user_email_secrets (
 --
 
 COMMENT ON TABLE app_private.user_email_secrets IS 'The contents of this table should never be visible to the user. Contains data mostly related to email verification and avoiding spamming users.';
+
+
+--
+-- Name: COLUMN user_email_secrets.verification_email_sent_at; Type: COMMENT; Schema: app_private; Owner: -
+--
+
+COMMENT ON COLUMN app_private.user_email_secrets.verification_email_sent_at IS 'We store the time the last verification email was sent to this email to prevent the email getting flooded.';
 
 
 --
@@ -741,6 +876,10 @@ COMMENT ON COLUMN app_private.user_email_secrets.password_reset_email_sent_at IS
 CREATE TABLE app_private.user_secrets (
     user_id integer NOT NULL,
     password_hash text,
+    reset_password_token text,
+    reset_password_token_generated_at timestamp with time zone,
+    first_failed_reset_password_attempt timestamp with time zone,
+    reset_password_attempts integer DEFAULT 0 NOT NULL,
     first_failed_password_attempt timestamp with time zone,
     password_attempts integer DEFAULT 0 NOT NULL
 );
@@ -834,43 +973,6 @@ CREATE SEQUENCE app_public.user_authentications_id_seq
 --
 
 ALTER SEQUENCE app_public.user_authentications_id_seq OWNED BY app_public.user_authentications.id;
-
-
---
--- Name: user_emails; Type: TABLE; Schema: app_public; Owner: -
---
-
-CREATE TABLE app_public.user_emails (
-    id integer NOT NULL,
-    user_id integer DEFAULT app_public.current_user_id() NOT NULL,
-    email public.citext NOT NULL,
-    is_verified boolean DEFAULT false NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT user_emails_email_check CHECK ((email OPERATOR(public.~) '[^@]+@[^@]+\.[^@]+'::public.citext))
-);
-
-
---
--- Name: TABLE user_emails; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON TABLE app_public.user_emails IS '@omit all
-Information about a user''s email address.';
-
-
---
--- Name: COLUMN user_emails.email; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.user_emails.email IS 'The users email address, in `a@b.c` format.';
-
-
---
--- Name: COLUMN user_emails.is_verified; Type: COMMENT; Schema: app_public; Owner: -
---
-
-COMMENT ON COLUMN app_public.user_emails.is_verified IS 'True if the user has is_verified their email address (by clicking the link in the email we sent them, or logging in with a social login provider), false otherwise.';
 
 
 --
@@ -1117,6 +1219,13 @@ CREATE TRIGGER _500_insert_secrets AFTER INSERT ON app_public.user_emails FOR EA
 
 
 --
+-- Name: user_emails _900_send_verification_email; Type: TRIGGER; Schema: app_public; Owner: -
+--
+
+CREATE TRIGGER _900_send_verification_email AFTER INSERT ON app_public.user_emails FOR EACH ROW WHEN ((new.is_verified IS FALSE)) EXECUTE PROCEDURE app_private.tg_send_verification_email_for_user_email();
+
+
+--
 -- Name: user_authentication_secrets user_authentication_secrets_user_authentication_id_fkey; Type: FK CONSTRAINT; Schema: app_private; Owner: -
 --
 
@@ -1284,20 +1393,6 @@ GRANT UPDATE(avatar_url) ON TABLE app_public.users TO postgraphile_bootstrap_vis
 
 
 --
--- Name: TABLE user_authentications; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO postgraphile_bootstrap_visitor;
-
-
---
--- Name: SEQUENCE user_authentications_id_seq; Type: ACL; Schema: app_public; Owner: -
---
-
-GRANT SELECT,USAGE ON SEQUENCE app_public.user_authentications_id_seq TO postgraphile_bootstrap_visitor;
-
-
---
 -- Name: TABLE user_emails; Type: ACL; Schema: app_public; Owner: -
 --
 
@@ -1309,6 +1404,20 @@ GRANT SELECT,DELETE ON TABLE app_public.user_emails TO postgraphile_bootstrap_vi
 --
 
 GRANT INSERT(email) ON TABLE app_public.user_emails TO postgraphile_bootstrap_visitor;
+
+
+--
+-- Name: TABLE user_authentications; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,DELETE ON TABLE app_public.user_authentications TO postgraphile_bootstrap_visitor;
+
+
+--
+-- Name: SEQUENCE user_authentications_id_seq; Type: ACL; Schema: app_public; Owner: -
+--
+
+GRANT SELECT,USAGE ON SEQUENCE app_public.user_authentications_id_seq TO postgraphile_bootstrap_visitor;
 
 
 --
