@@ -61,6 +61,7 @@ The project is split into the following folders:
 - `/data` - generated data, such as the GraphQL and database schema dumps
 - `/client` - everything related to the web browser: the react components, routes, etc
 - `/server` - everything related to running the server: the middlewares, PostGraphile configuration, SSR, integration tests, etc
+- `/tasks` - background tasks run by [Graphile Worker](https://github.com/graphile/worker)
 
 We currently use a root-level `package.json` between all of them. In future we
 might take a monorepo approach using yarn workspaces, but for now we figured
@@ -78,6 +79,7 @@ We use the following tools to make our life easier
 - Prettier for consistent code formatting
 - Express.js to implement our server
 - db-migrate for performing migrations
+- graphile-worker for running background tasks
 
 ## Getting Started
 

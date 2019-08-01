@@ -1,8 +1,11 @@
 import React from "react";
+import PropTypes from "prop-types";
 import pickBy from "lodash/pickBy";
 import { Redirect, Link } from "react-router-dom";
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
+import { queryGenFromComponent } from "../GraphQLRoute";
+import HomePage from "./HomePage";
 import LoadingPage from "./LoadingPage";
 import ErrorPage from "./ErrorPage";
 import "./form-table.css";
@@ -43,6 +46,10 @@ export default class RegisterPage extends React.Component {
     }
   `;
 
+  static propTypes = {
+    history: PropTypes.object.isRequired,
+  };
+
   state = {
     username: "",
     email: "",
@@ -80,6 +87,7 @@ export default class RegisterPage extends React.Component {
 
   handleSubmitWith = register => async e => {
     e.preventDefault();
+    const { history } = this.props;
     const { username, email, password, name, avatarUrl } = this.state;
     this.setState({ loggingIn: true });
     try {
@@ -93,7 +101,8 @@ export default class RegisterPage extends React.Component {
         }),
       });
       if (data.register && data.register.user) {
-        this.setState({ loggingIn: false, loggedInAs: data.register.user });
+        this.setState({ loggingIn: false, error: null });
+        history.push(this.getNext());
       } else {
         throw new Error("Registration failed");
       }
@@ -142,7 +151,25 @@ export default class RegisterPage extends React.Component {
     return (
       <div>
         <h3>Register</h3>
-        <Mutation mutation={REGISTER}>
+        <Mutation
+          mutation={REGISTER}
+          update={(
+            cache,
+            {
+              data: {
+                register: { user },
+              },
+            }
+          ) => {
+            const query = queryGenFromComponent(HomePage);
+            const cacheData = cache.readQuery({ query });
+            const data = {
+              ...cacheData,
+              currentUser: user,
+            };
+            cache.writeQuery({ query, data });
+          }}
+        >
           {register => (
             <form onSubmit={this.handleSubmitWith(register)}>
               <table className="form-table">
