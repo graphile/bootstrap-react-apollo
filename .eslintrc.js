@@ -32,6 +32,7 @@ module.exports = {
     "vue/max-attributes-per-line": "off",
     // Autofix removes debugger automatically, which makes debugging annoying.
     "no-debugger": 0,
+    "import/no-extraneous-dependencies": 0,
 
     "vue/html-indent": [
       "error",

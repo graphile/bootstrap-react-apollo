@@ -1,1 +1,0 @@
-DROP SCHEMA app_jobs CASCADE;

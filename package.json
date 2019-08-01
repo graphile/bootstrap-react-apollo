@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "setup": "yarn reset && yarn setup:node:install && bash scripts/setup",
-    "start": "docker-compose down && docker-compose up -d db adminer redis && docker-compose up nuxtjs",
+    "start": "docker-compose down && docker-compose up -d db adminer && docker-compose up nuxtjs",
     "test": "docker-compose run nuxtjs bash -c \"yarn test\"",
     "reset": "yarn reset:docker:down && bash -c \"yarn reset:volumes || true\" && yarn reset:docker:rebuild && yarn reset:env",
     "reset:env": "bash -c 'rm .env; touch .env'",

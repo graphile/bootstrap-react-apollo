@@ -28,28 +28,29 @@ begin
     set
       reset_password_token = (
         case
-        when reset_password_token is null or reset_password_token_generated < NOW() - v_reset_max_duration
+        when reset_password_token is null or reset_password_token_generated_at < NOW() - v_reset_max_duration
         then encode(gen_random_bytes(6), 'hex')
         else reset_password_token
         end
       ),
-      reset_password_token_generated = (
+      reset_password_token_generated_at = (
         case
-        when reset_password_token is null or reset_password_token_generated < NOW() - v_reset_max_duration
+        when reset_password_token is null or reset_password_token_generated_at < NOW() - v_reset_max_duration
         then now()
-        else reset_password_token_generated
+        else reset_password_token_generated_at
         end
       )
     where user_id = v_user_email.user_id
     returning reset_password_token into v_reset_token;
 
-    -- Don't allow spamming an email
-    update app_private.user_email_secrets
-    set password_reset_email_sent_at = now()
-    where user_email_id = v_user_email.id;
-
     -- Trigger email send
-    perform app_jobs.add_job('user__forgot_password', json_build_object('id', v_user_email.user_id, 'email', v_user_email.email::text, 'token', v_reset_token));
+    perform graphile_worker.add_job(
+      'sendPasswordResetEmail',
+      json_build_object(
+        'id', v_user_email.id
+      )
+    );
+
     return true;
 
   end if;

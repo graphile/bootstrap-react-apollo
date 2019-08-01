@@ -40,9 +40,9 @@ else
   fi
 
   # This will generate passwords that are safe to use in envvars without needing to be escaped:
-  DATABASE_OWNER_PASSWORD="$(openssl rand -base64 30 | tr '+/' '-_')"
+  DATABASE_OWNER_PASSWORD="$(openssl rand -base64 30 | tr '+/-' '000')"
   DATABASE_AUTHENTICATOR="${DATABASE_NAME}_authenticator"
-  DATABASE_AUTHENTICATOR_PASSWORD="$(openssl rand -base64 30 | tr '+/' '-_')"
+  DATABASE_AUTHENTICATOR_PASSWORD="$(openssl rand -base64 30 | tr '+/-' '000')"
   DATABASE_VISITOR="${DATABASE_NAME}_visitor"
   PORT=5678
   ROOT_DOMAIN=localhost:${PORT}
@@ -100,6 +100,12 @@ CLIENT_PORT=$(($PORT + 1))
 # This is needed any time we use absolute URLs, e.g. for OAuth callback URLs
 ROOT_DOMAIN=${ROOT_DOMAIN}
 ROOT_URL=http://${ROOT_DOMAIN}
+
+# To send email with SendGrid, sign up on https://sendgrid.com/ and create
+# an API token, then paste it here. You can also customize the default
+# "from" address for outgoing email.
+SENDGRID_API_KEY=""
+EMAIL_DEFAULT_FROM="postgraphile@example.com"
 
 # To enable login with GitHub, create a GitHub application by visiting
 # https://github.com/settings/applications/new and then enter the Client

@@ -48,6 +48,8 @@ services:
     container_name: nuxtjs-vue-website
     stdin_open: true
     tty: true
+    networks:
+      - default
     ports:
       # express server, for / and /graphiql
       - 8080:${PORT}
@@ -55,15 +57,13 @@ services:
       - 9229:9229
     command: "npm run dev"
 
-  # needed as sessions store for logins
-  redis:
-    container_name: redis
-    image: redis:latest
   # for debug purposes, so we can poke around in our db
   adminer:
     image: adminer
     environment:
       - ADMINER_PLUGINS=edit-foreign
+    networks:
+      - default
     ports:
       - 8888:8080
 

@@ -1,22 +1,25 @@
-version: "2"
+version: "2.4"
 services:
-  #nuxtjs
+  # NUXTJS
   nuxtjs:
     image: node:12
     volumes:
       - ./server:/home/node
       - node_modules_nuxtjs:/home/node/node_modules
     working_dir: /home/node
+
   install-nuxtjs:
     extends:
       service: nuxtjs
     command: yarn install
+
   build-nuxtjs:
     extends:
       service: nuxtjs
     command: yarn run build
 
-  #db-migrate
+
+  # DB-MIGRATE
   # has different package.json
   db-migrate:
     image: node:12
@@ -24,15 +27,18 @@ services:
       - ./db-migrate:/home/node
       - node_modules_db-migrate:/home/node/node_modules
     working_dir: /home/node
+
   install-db-migrate:
     extends:
       service: db-migrate
     command: yarn install
+
   build-db-migrate:
     extends:
       service: db-migrate
     command: yarn run build
 
+# VOLUMES
 volumes:
   node_modules_nuxtjs:
   node_modules_db-migrate:

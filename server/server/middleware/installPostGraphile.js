@@ -2,16 +2,16 @@ const {
   postgraphile,
   makePluginHook,
   enhanceHttpServerWithSubscriptions,
-} = require("postgraphile");
-const PgPubsub = require("@graphile/pg-pubsub");
-const PgSimplifyInflectorPlugin = require("@graphile-contrib/pg-simplify-inflector");
-const chalk = require("chalk");
-const { getUserClaimsFromRequest } = require("./installPassport");
-const PassportLoginPlugin = require("../plugins/authentication");
+} = require('postgraphile')
+const PgPubsub = require('@graphile/pg-pubsub')
+const PgSimplifyInflectorPlugin = require('@graphile-contrib/pg-simplify-inflector')
+const chalk = require('chalk')
+const { getUserClaimsFromRequest } = require('./installPassport')
+const PassportLoginPlugin = require('../plugins/authentication')
 
 /* Load optional plugins */
 /* eslint-disable global-require, import/no-dynamic-require, import/no-unresolved, no-console */
-let PostGraphilePro;
+let PostGraphilePro
 if (process.env.GRAPHILE_LICENSE) {
   /*
    * The Pro plugin installs a number of protections to your GraphQL API.
@@ -33,23 +33,23 @@ if (process.env.GRAPHILE_LICENSE) {
    *   Envvar: GRAPHQL_COST_LIMIT=60000
    *
    */
-  ({ default: PostGraphilePro } = require("@graphile/pro"));
+  ({ default: PostGraphilePro } = require('@graphile/pro'))
 } else {
-  console.log();
+  console.log()
   console.log(
     `Please support PostGraphile development:\n\n  ${chalk.blue.bold.underline(
-      "https://graphile.org/donate"
-    )} 🙏`
-  );
-  console.log();
+      'https://graphile.org/donate',
+    )} 🙏`,
+  )
+  console.log()
 }
 /* eslint-enable */
 
-const isDev = process.env.NODE_ENV === "development";
-const isTest = process.env.NODE_ENV === "test";
+const isDev = process.env.NODE_ENV === 'development';
+const isTest = process.env.NODE_ENV === 'test';
 
 /* Load any PostGraphile server plugins (different from Graphile Engine schema plugins) */
-const pluginHook = makePluginHook([PgPubsub, PostGraphilePro].filter(_ => _));
+const pluginHook = makePluginHook([PgPubsub, PostGraphilePro].filter(_ => _))
 
 /*
  * This function generates the options for a PostGraphile instance to use. We
@@ -97,24 +97,24 @@ function postgraphileOptions(overrides) {
     extendedErrors:
       isDev || isTest
         ? [
-          "errcode",
-          "severity",
-          "detail",
-          "hint",
-          "positon",
-          "internalPosition",
-          "internalQuery",
-          "where",
-          "schema",
-          "table",
-          "column",
-          "dataType",
-          "constraint",
-          "file",
-          "line",
-          "routine",
+          'errcode',
+          'severity',
+          'detail',
+          'hint',
+          'positon',
+          'internalPosition',
+          'internalQuery',
+          'where',
+          'schema',
+          'table',
+          'column',
+          'dataType',
+          'constraint',
+          'file',
+          'line',
+          'routine',
         ]
-        : ["errcode"],
+        : ['errcode'],
     showErrorStack: isDev,
 
     // Automatically update GraphQL schema when database changes
@@ -175,7 +175,7 @@ function postgraphileOptions(overrides) {
      * whether or not you're using JWTs.
      */
     async pgSettings(req) {
-      const claims = await getUserClaimsFromRequest(req);
+      const claims = await getUserClaimsFromRequest(req)
       return {
         // Everyone uses the "visitor" role currently
         role: process.env.DATABASE_VISITOR,
@@ -183,7 +183,7 @@ function postgraphileOptions(overrides) {
         // If there are any claims, then add them into the session.
         ...Object.entries(claims).reduce((memo, [key, value]) => {
           if (!key.match(/^[a-z][a-z0-9A-Z-_]+$/)) {
-            throw new Error("Invalid claim key.");
+            throw new Error('Invalid claim key.')
           }
 
           /*
@@ -192,10 +192,10 @@ function postgraphileOptions(overrides) {
            * can use JWTs too, if you like, and they'll use the same settings
            * names reducing the amount of code you need to write.
            */
-          memo[`jwt.claims.${key}`] = value;
-          return memo;
+          memo[`jwt.claims.${key}`] = value
+          return memo
         }, {}),
-      };
+      }
     },
 
     /*
@@ -217,24 +217,24 @@ function postgraphileOptions(overrides) {
 
     // When running in the server, we need to set websocketMiddlewares
     ...overrides,
-  };
+  }
 }
 
-module.exports = app => {
-  const httpServer = app.get("httpServer");
-  const authPgPool = app.get("authPgPool");
+module.exports = (app) => {
+  const httpServer = app.get('httpServer')
+  const authPgPool = app.get('authPgPool')
   /*
    * If we're using subscriptions, they may want access to sessions/etc. Make
    * sure any websocketMiddlewares are installed before this point. Note that
    * socket middlewares must always call `next()`, otherwise you're going to
    * have some issues.
    */
-  const websocketMiddlewares = app.get("websocketMiddlewares");
+  const websocketMiddlewares = app.get('websocketMiddlewares')
 
   // Install the PostGraphile middleware
   const middleware = postgraphile(
     authPgPool,
-    "app_public",
+    'app_public',
     postgraphileOptions({
       websocketMiddlewares,
       /*
@@ -244,21 +244,30 @@ module.exports = app => {
        * login: we need to bind req to call passport.js/login() with right scope in authentication.js
        */
       async additionalGraphQLContextFromRequest(req) {
-        const claims = getUserClaimsFromRequest(req);
-        const rootPgPool = app.get("rootPgPool");
+        const claims = getUserClaimsFromRequest(req)
+        const rootPgPool = app.get('rootPgPool')
         return {
           claims,
           rootPgPool,
-          login: req.login.bind(req),
-        };
+          // Passport.js `login` function, converted to a Promise implementation
+          login: (user) => {
+            if (!user) throw new Error('user argument is required')
+            return new Promise((resolve, reject) => {
+              req.login(user, (err) => {
+                if (err) reject(new Error(err))
+                resolve(user)
+              })
+            })
+          },
+        }
       },
-    })
-  );
-  app.use(middleware);
+    }),
+  )
+  app.use(middleware)
 
   if (enhanceHttpServerWithSubscriptions) {
-    enhanceHttpServerWithSubscriptions(httpServer, middleware);
+    enhanceHttpServerWithSubscriptions(httpServer, middleware)
   }
-};
+}
 
-module.exports.postgraphileOptions = postgraphileOptions;
+module.exports.postgraphileOptions = postgraphileOptions
