@@ -23,7 +23,6 @@
                   :to="'login'"
                   :loading="isLoading"
                 >
-                  >
                   <v-icon>thumb_up</v-icon><span>&nbsp;GraphQl connected</span>
                 </v-btn>
               </div>
@@ -53,7 +52,7 @@
                 </v-btn>
               </div>
               <br>
-              <br>>
+              <br>
               <router-link :to="'login'">
                 Login
               </router-link>
@@ -135,9 +134,9 @@
 </template>
 
 <script>
-import gql from 'graphql-tag';
-import Logo from '~/components/Logo.vue';
-import VuetifyLogo from '~/components/VuetifyLogo.vue';
+import gql from "graphql-tag";
+import Logo from "~/components/Logo.vue";
+import VuetifyLogo from "~/components/VuetifyLogo.vue";
 
 export default {
   apollo: {
@@ -170,7 +169,7 @@ export default {
       return false;
     },
     computedApolloWorking() {
-      if (this.nodeId === 'query') return true;
+      if (this.nodeId === "query") return true;
       return false;
     },
   },
