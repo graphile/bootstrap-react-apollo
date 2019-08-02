@@ -364,12 +364,22 @@ type Mutation {
     """
     input: ForgotPasswordInput!
   ): ForgotPasswordPayload
+
+  """
+  Authenticates user:
+  A custom resolver defined in PassportLoginPlugin
+  """
   login(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.
     """
     input: LoginInput!
   ): LoginPayload
+
+  """
+  Registers user:
+  A custom resolver defined in PassportLoginPlugin
+  """
   register(
     """
     The exclusive input argument for this mutation. An object type, make sure to see documentation for this object’s fields.

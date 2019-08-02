@@ -1547,7 +1547,7 @@
             },
             {
               "name": "login",
-              "description": null,
+              "description": "Authenticates user:\nA custom resolver defined in PassportLoginPlugin",
               "args": [
                 {
                   "name": "input",
@@ -1574,7 +1574,7 @@
             },
             {
               "name": "register",
-              "description": null,
+              "description": "Registers user:\nA custom resolver defined in PassportLoginPlugin",
               "args": [
                 {
                   "name": "input",

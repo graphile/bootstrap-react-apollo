@@ -24,7 +24,16 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
     }
 
     extend type Mutation {
+      """
+      Registers user:
+      A custom resolver defined in PassportLoginPlugin
+      """
       register(input: RegisterInput!): RegisterPayload
+
+      """
+      Authenticates user:
+      A custom resolver defined in PassportLoginPlugin
+      """
       login(input: LoginInput!): LoginPayload
     }
   `,
@@ -38,11 +47,15 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
         { selectGraphQLResultFromTable },
       ) {
         const {
-          username, password, email, name, avatarUrl,
+          username,
+          password,
+          email,
+          name = null,
+          avatarUrl = null,
         } = args.input;
         const { rootPgPool, login, pgClient } = context;
         try {
-          // Call our login function to find out if the username/password combination exists
+          // Call our register function from the database
           const {
             rows: [user],
           } = await rootPgPool.query(
@@ -61,33 +74,39 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
             throw new Error("Registration failed");
           }
 
-          // Tell Passport.js we're logged in
-          await login(user);
-          // Tell pg we're logged in
-          await pgClient.query("select set_config($1, $2, true);", [
-            "jwt.claims.user_id",
-            user.id,
+          const sql = build.pgSql;
+
+          const results = await Promise.all([
+            // Fetch the data that was requested from GraphQL, and return it
+            selectGraphQLResultFromTable(
+              sql.fragment`app_public.users`,
+              (tableAlias, sqlBuilder) => {
+                sqlBuilder.where(
+                  sql.fragment`${tableAlias}.id = ${sql.value(user.id)}`,
+                );
+              },
+            ),
+
+            // Tell Passport.js we're logged in
+            login(user),
+
+            // Tell pg we're logged in
+            pgClient.query("select set_config($1, $2, true);", [
+              "jwt.claims.user_id",
+              user.id,
+            ]),
           ]);
 
-          // Fetch the data that was requested from GraphQL, and return it
-          const sql = build.pgSql;
-          const [row] = await selectGraphQLResultFromTable(
-            sql.fragment`app_public.users`,
-            (tableAlias, sqlBuilder) => {
-              sqlBuilder.where(
-                sql.fragment`${tableAlias}.id = ${sql.value(user.id)}`,
-              );
-            },
-          );
+          const [row] = results[0];
           return {
             data: row,
           };
         } catch (e) {
           console.error(e);
-          // TODO: check that this is indeed why it failed
-          throw new Error("Login failed: incorrect username/password");
+          throw e;
         }
       },
+
       async login(
         mutation,
         args,
@@ -110,37 +129,36 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
             throw new Error("Login failed");
           }
 
-          // Tell Passport.js we're logged in
-          await login(user, err => {
-            if (err) {
-              console.error(err);
-              throw new Error("Login failed: Error in passport.js req.login()");
-            }
-          });
+          const sql = build.pgSql;
 
-          // Tell pg we're logged in
-          await pgClient.query("select set_config($1, $2, true);", [
-            "jwt.claims.user_id",
-            user.id,
+          const results = await Promise.all([
+            // Fetch the data that was requested from GraphQL, and return it
+            selectGraphQLResultFromTable(
+              sql.fragment`app_public.users`,
+              (tableAlias, sqlBuilder) => {
+                sqlBuilder.where(
+                  sql.fragment`${tableAlias}.id = ${sql.value(user.id)}`,
+                );
+              },
+            ),
+
+            // Tell Passport.js we're logged in
+            login(user),
+
+            // Tell pg we're logged in
+            pgClient.query("select set_config($1, $2, true);", [
+              "jwt.claims.user_id",
+              user.id,
+            ]),
           ]);
 
-          // Fetch the data that was requested from GraphQL, and return it
-          const sql = build.pgSql;
-          const [row] = await selectGraphQLResultFromTable(
-            sql.fragment`app_public.users`,
-            (tableAlias, sqlBuilder) => {
-              sqlBuilder.where(
-                sql.fragment`${tableAlias}.id = ${sql.value(user.id)}`,
-              );
-            },
-          );
+          const [row] = results[0];
           return {
             data: row,
           };
         } catch (e) {
           console.error(e);
-          // TODO: check that this is indeed why it failed
-          throw new Error("Login failed: incorrect username/password");
+          throw e;
         }
       },
     },
