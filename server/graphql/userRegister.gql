@@ -1,0 +1,24 @@
+mutation Register(
+  $username: String!
+  $email: String!
+  $password: String!
+  $name: String
+  $avatarUrl: String
+) {
+  register(
+    input: {
+      username: $username
+      email: $email
+      password: $password
+      name: $name
+      avatarUrl: $avatarUrl
+    }
+  ) {
+    user {
+      nodeId
+      id
+      username
+      name
+    }
+  }
+}
