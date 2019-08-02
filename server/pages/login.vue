@@ -40,7 +40,9 @@
             Login
           </v-btn>
           <v-spacer />
-          <a href>Register</a>
+          <router-link :to="'register'">
+            Register
+          </router-link>
         </v-card-actions>
       </v-card>
     </v-flex>
