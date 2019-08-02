@@ -23,46 +23,47 @@
             "
             @done="onDone"
           >
-            <form
-              slot-scope="{ mutate, loading, gqlError: error }"
-              class="form"
-              @submit.prevent="mutate()"
-            >
-              <input
-                v-model="form.email"
-                class="form-input"
-                type="email"
-                name="email"
-                placeholder="Email"
-                required
+            <template v-slot="{ mutate, loading, gqlError: error }">
+              <form
+                class="form"
+                @submit.prevent="mutate()"
               >
-              <input
-                v-model="form.password"
-                class="form-input"
-                type="password"
-                name="password"
-                placeholder="Password"
-                required
-              >
-              <input
-                v-model="form.username"
-                class="form-input"
-                name="username"
-                placeholder="Username"
-                required
-              >
-              <div v-if="error" class="error">
-                {{ error.message }}
-              </div>
-              <button
-                type="submit"
-                :disabled="loading"
-                class="button"
-                data-id="submit-new-account"
-              >
-                Register
-              </button>
-            </form>
+                <input
+                  v-model="form.email"
+                  class="form-input"
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  required
+                >
+                <input
+                  v-model="form.password"
+                  class="form-input"
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  required
+                >
+                <input
+                  v-model="form.username"
+                  class="form-input"
+                  name="username"
+                  placeholder="Username"
+                  required
+                >
+                <div v-if="error" class="error">
+                  {{ error.message }}
+                </div>
+                <button
+                  type="submit"
+                  :disabled="loading"
+                  class="button"
+                  data-id="submit-new-account"
+                >
+                  Register
+                </button>
+              </form>
+            </template>
           </ApolloMutation>
         </v-card-text>
       </v-card>
