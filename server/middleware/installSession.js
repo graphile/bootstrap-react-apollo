@@ -1,5 +1,5 @@
 const session = require("express-session");
-const pgSession = require("connect-pg-simple")(session);
+const PgSession = require("connect-pg-simple")(session);
 
 const MILLISECOND = 1;
 const SECOND = 1000 * MILLISECOND;
@@ -12,7 +12,7 @@ const MAXIMUM_SESSION_DURATION_IN_MILLISECONDS =
   parseInt(process.env.MAXIMUM_SESSION_DURATION_IN_MILLISECONDS, 10) || 3 * DAY;
 
 module.exports = app => {
-  const pool = app.get("rootPgPool");  // from `middleware.installDatabasePools`
+  const pool = app.get("rootPgPool"); // from `middleware.installDatabasePools`
   const sessionMiddleware = session({
     rolling: true,
     saveUninitialized: false,
@@ -20,7 +20,7 @@ module.exports = app => {
     cookie: {
       maxAge: MAXIMUM_SESSION_DURATION_IN_MILLISECONDS,
     },
-    store: new pgSession({
+    store: new PgSession({
       pool,
       schemaName: "app_private",
       tableName: "user_sessions",

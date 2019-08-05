@@ -1,10 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Redirect, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
-import { queryGenFromComponent } from "../GraphQLRoute";
-import HomePage from "./HomePage";
 import LoadingPage from "./LoadingPage";
 import ErrorPage from "./ErrorPage";
 import Layout from "./Layout";
@@ -58,6 +56,10 @@ export default class ResetPasswordPage extends React.Component {
     settingPassword: false,
   };
 
+  getNext() {
+    return "/";
+  }
+
   handleNewPasswordChange = e => {
     this.setState({ newPassword: e.target.value, error: null });
   };
@@ -74,7 +76,7 @@ export default class ResetPasswordPage extends React.Component {
     this.setState({ settingPassword: true });
     try {
       const { data } = await resetPassword({
-        variables: { userId: parseInt(userId), token, newPassword },
+        variables: { userId: parseInt(userId, 10), token, newPassword },
       });
       if (data.resetPassword && data.resetPassword.user) {
         this.setState({ settingPassword: false, error: null });
@@ -82,17 +84,13 @@ export default class ResetPasswordPage extends React.Component {
       } else {
         throw new Error("Password reset failed");
       }
-    } catch (e) {
+    } catch (_e) {
       this.setState({
         settingPassword: false,
         error: "Password reset failed",
       });
     }
   };
-
-  getNext() {
-    return "/";
-  }
 
   render() {
     const { loading, error } = this.props;

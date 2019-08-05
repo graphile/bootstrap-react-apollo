@@ -1,10 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Redirect, Link } from "react-router-dom";
 import gql from "graphql-tag";
 import { Mutation } from "react-apollo";
-import { queryGenFromComponent } from "../GraphQLRoute";
-import HomePage from "./HomePage";
 import LoadingPage from "./LoadingPage";
 import ErrorPage from "./ErrorPage";
 import Layout from "./Layout";
@@ -37,6 +34,10 @@ export default class ForgotPasswordPage extends React.Component {
     submitting: false,
   };
 
+  getNext() {
+    return "/";
+  }
+
   handleEmailChange = e => {
     this.setState({ email: e.target.value, error: null });
   };
@@ -54,7 +55,7 @@ export default class ForgotPasswordPage extends React.Component {
       } else {
         throw new Error("Failed to request password reset");
       }
-    } catch (e) {
+    } catch (_e) {
       this.setState({
         submitting: false,
         error: "Failed to request password reset",
@@ -62,12 +63,8 @@ export default class ForgotPasswordPage extends React.Component {
     }
   };
 
-  getNext() {
-    return "/";
-  }
-
   render() {
-    const { data, loading, error } = this.props;
+    const { loading, error } = this.props;
     const { email, submitting } = this.state;
     if (loading) return <LoadingPage />;
     if (error) {
@@ -80,10 +77,11 @@ export default class ForgotPasswordPage extends React.Component {
     return (
       <Layout>
         <h1>Forgot Password</h1>
-        <p>Type in your email address, and we'll send you a link to reset your password.</p>
-        <Mutation
-          mutation={FORGOT_PASSWORD}
-        >
+        <p>
+          Type in your email address, and we'll send you a link to reset your
+          password.
+        </p>
+        <Mutation mutation={FORGOT_PASSWORD}>
           {forgotPassword => (
             <form onSubmit={this.handleSubmitWith(forgotPassword)}>
               <table className="form-table">
@@ -101,10 +99,7 @@ export default class ForgotPasswordPage extends React.Component {
                 </tbody>
               </table>
               {this.state.error ? <p>{this.state.error}</p> : null}
-              <button
-                type="submit"
-                disabled={!email || submitting }
-              >
+              <button type="submit" disabled={!email || submitting}>
                 Send password reset link
               </button>
             </form>

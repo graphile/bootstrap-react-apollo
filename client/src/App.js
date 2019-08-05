@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { hot } from "react-hot-loader";
 import { Switch, Route } from "react-router-dom";
-import gql from "graphql-tag";
 import GraphQLRoute from "./GraphQLRoute";
 import HomePage from "./components/HomePage";
 import LoginPage from "./components/LoginPage";
@@ -18,9 +17,21 @@ class App extends Component {
         <GraphQLRoute path="/" exact component={HomePage} />
         <GraphQLRoute path="/login" exact component={LoginPage} />
         <GraphQLRoute path="/register" exact component={RegisterPage} />
-        <GraphQLRoute path="/verify-email/:token" exact component={VerifyUserEmailPage} />
-        <GraphQLRoute path="/forgot-password" exact component={ForgotPasswordPage} />
-        <GraphQLRoute path="/reset-password/:userId(\d+)/:token" exact component={ResetPasswordPage} />
+        <GraphQLRoute
+          path="/verify-email/:token"
+          exact
+          component={VerifyUserEmailPage}
+        />
+        <GraphQLRoute
+          path="/forgot-password"
+          exact
+          component={ForgotPasswordPage}
+        />
+        <GraphQLRoute
+          path="/reset-password/:userId(\d+)/:token"
+          exact
+          component={ResetPasswordPage}
+        />
 
         <Route component={NotFoundPage} />
       </Switch>
