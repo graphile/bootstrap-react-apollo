@@ -89,5 +89,21 @@ module.exports = {
       },
     ],
     camelcase: 0,
+
+    // We install everything at root, ESLint doesn't understand this
+    "import/no-extraneous-dependencies": 0,
+
+    // I'm too lazy for propTypes; use TypeScript instead is my advice.
+    "react/prop-types": 0,
+    "react/forbid-prop-types": 0,
+
+    // You don't _always_ have to use destructuring assignment
+    "react/destructuring-assignment": 0,
+
+    // Really we should use hooks, but for components lets just ignore methods that don't use this:
+    "class-methods-use-this": 0,
+
+    // You're better at determining if a default export is desired or not than ESLint is
+    "import/prefer-default-export": 0,
   },
 };

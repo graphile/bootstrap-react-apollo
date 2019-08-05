@@ -51,5 +51,6 @@ module.exports = async ({ id }, { withPgClient }) => {
       `,
       [id]
     );
+    return null;
   });
 };

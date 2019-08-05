@@ -76,8 +76,8 @@ module.exports = async app => {
       ["token", "tokenSecret"]
     );
   } else if (process.env.NODE_ENV === "development") {
-      app.get("/auth/github", (req, res, next) => {
-        res.type('html').send(`\
+    app.get("/auth/github", (req, res, _next) => {
+      res.type("html").send(`\
 <!DOCTYPE html>
 <html>
 <body>
@@ -108,8 +108,8 @@ Authorization callback URL:
 </body>
 </html>
 `);
-      });
-    }
+    });
+  }
 };
 
 module.exports.getUserClaimsFromRequest = async req => ({
