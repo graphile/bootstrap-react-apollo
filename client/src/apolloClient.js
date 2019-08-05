@@ -10,7 +10,7 @@ export function makeClient() {
   });
 
   const logoutOn401ErrorLink = onError(({ networkError }) => {
-    if (networkError.status === 401) {
+    if (networkError && networkError.status === 401) {
       // Logout
     }
   });

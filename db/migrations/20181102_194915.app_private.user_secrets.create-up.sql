@@ -1,6 +1,10 @@
 create table app_private.user_secrets (
   user_id int not null primary key references app_public.users on delete cascade,
-  password_hash text
+  password_hash text,
+  reset_password_token text,
+  reset_password_token_generated_at timestamptz,
+  first_failed_reset_password_attempt timestamptz,
+  reset_password_attempts int DEFAULT 0 NOT NULL
 );
 alter table app_private.user_secrets enable row level security;
 comment on table app_private.user_secrets is
