@@ -5,68 +5,68 @@
       <div class="text-xs-center">
         <logo />
       </div>
-      <v-card class="elevation-3">
-        <v-toolbar dark color="primary">
-          <v-toolbar-title>Register</v-toolbar-title>
-          <v-spacer />
-        </v-toolbar>
-        <v-card-text>
-          <ApolloMutation
-            :mutation="REGISTER"
-            :variables="{
-              username: form.username,
-              email: form.email,
-              password: form.password,
-              name: form.name,
-              avatarUrl: form.avatarUrl,
-            }
-            "
-            @done="onDone"
-          >
-            <template v-slot="{ mutate, loading, gqlError: error }">
-              <form
-                class="form"
-                @submit.prevent="mutate()"
-              >
-                <input
+      <ApolloMutation
+        :mutation="REGISTER"
+        :variables="{
+          username: form.username,
+          email: form.email,
+          password: form.password,
+          name: form.name,
+          avatarUrl: form.avatarUrl,
+        }
+        "
+        @done="onDone"
+      >
+        <template v-slot="{ mutate, loading, gqlError: error }">
+          <v-form ref="form" v-model="valid" @submit.prevent="submit(mutate)">
+            <v-card class="elevation-3">
+              <v-toolbar dark color="primary">
+                <v-toolbar-title>Register</v-toolbar-title>
+                <v-spacer />
+              </v-toolbar>
+              <v-card-text>
+                <v-text-field
                   v-model="form.email"
-                  class="form-input"
-                  type="email"
-                  name="email"
-                  placeholder="Email"
+                  label="Enter your e-mail address"
+                  :rules="emailRules"
                   required
-                >
-                <input
+                />
+                <v-text-field
                   v-model="form.password"
-                  class="form-input"
-                  type="password"
-                  name="password"
-                  placeholder="Password"
+                  label="Enter your password"
+                  min="8"
+                  :append-icon="password_hidden ? 'visibility' : 'visibility_off'"
+                  :type="password_hidden ? 'password' : 'text'"
+                  :rules="passwordRules"
+                  counter
                   required
-                >
-                <input
-                  v-model="form.username"
-                  class="form-input"
-                  name="username"
-                  placeholder="Username"
-                  required
-                >
+                  @click:append="() => (password_hidden = !password_hidden)"
+                />
+                <v-layout justify-space-between />
                 <div v-if="error" class="error">
                   {{ error.message }}
                 </div>
-                <button
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  type="reset"
+                  @click="clear"
+                >
+                  Reset
+                </v-btn>
+                <v-spacer />
+                <v-btn
+                  :class="{ 'blue darken-4 white--text': valid}"
+                  :disabled="!valid"
                   type="submit"
-                  :disabled="loading"
-                  class="button"
-                  data-id="submit-new-account"
                 >
                   Register
-                </button>
-              </form>
-            </template>
-          </ApolloMutation>
-        </v-card-text>
-      </v-card>
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </template>
+      </ApolloMutation>
     </v-flex>
   </v-layout>
 </template>
@@ -128,10 +128,13 @@ export default {
           currentUser: result.data.register.user,
         },
       })
+
+      // after register and login go back to Welcome
+      this.$router.push({ path: '/' })
     },
-    submit() {
+    submit(mutate) {
       if (this.$refs.form.validate()) {
-        this.$refs.form.$el.submit()
+        mutate()
       }
     },
     clear() {
