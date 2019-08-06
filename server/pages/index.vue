@@ -15,30 +15,17 @@
           </p>
           <div>
             <div>
-              <div v-if="computedApolloWorking">
-                <v-btn
-                  round="round"
-                  dark="dark"
-                  color="green lighten-3"
-                  :to="'login'"
-                  :loading="isLoading"
-                >
-                  <v-icon>thumb_up</v-icon><span>&nbsp;GraphQl connected</span>
-                </v-btn>
+              <!-- Displays GraphQl status -->
+              <div v-if="isApolloWorking" class="green--text lighten-3">
+                <span>GraphQl connection is working</span> <v-icon>thumb_up</v-icon>
               </div>
-              <div v-if="!computedApolloWorking">
-                <v-btn
-                  round="round"
-                  dark="dark"
-                  color="red lighten-3"
-                  :to="'index'"
-                  :loading="isLoading"
-                >
-                  <v-icon>thumb_down</v-icon><span>&nbsp;GraphQl not connected</span>
-                </v-btn>
+              <div v-if="!isApolloWorking" class="red lighten-3">
+                <v-icon>thumb_down</v-icon><span>&nbsp;GraphQl not connected</span>
               </div>
+              <br>
+              <!-- displays authentication status -->
               <div v-if="isLoggedIn">
-                <span><span className="wave">👋</span> And Logged in</span>
+                <span>Logged in as user: <b>{{ currentUser.username }}</b>  <span className="wave">👋</span> </span>
               </div>
               <div v-if="!isLoggedIn">
                 <v-btn
@@ -168,7 +155,7 @@ export default {
       if (this.currentUser) return true;
       return false;
     },
-    computedApolloWorking() {
+    isApolloWorking() {
       if (this.nodeId === "query") return true;
       return false;
     },
