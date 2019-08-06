@@ -50,19 +50,13 @@
 </template>
 
 <script>
-import gql from "graphql-tag";
+import CURRENT_USER from "../graphql/currentUser.gql";
 import Logo from "~/components/Logo.vue";
 
 export default {
   apollo: {
     // Simple query that will give us information about the graphql api status
-    currentUser: gql`
-      query currentUser {
-        currentUser {
-          nodeId
-        }
-      }
-    `,
+    currentUser: CURRENT_USER,
   },
   components: {
     Logo,

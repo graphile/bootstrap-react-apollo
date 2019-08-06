@@ -121,26 +121,16 @@
 </template>
 
 <script>
-import gql from "graphql-tag";
+import CURRENT_USER from "../graphql/currentUser.gql";
+import CONNECTION_CHECK from "../graphql/connectionCheck.gql";
 import Logo from "~/components/Logo.vue";
 import VuetifyLogo from "~/components/VuetifyLogo.vue";
 
 export default {
   apollo: {
     // Simple query that will give us information about the graphql api status
-    nodeId: gql`
-      query connectionCheck {
-        nodeId
-      }
-    `,
-    currentUser: gql`
-      query loggedInUser {
-        currentUser {
-          nodeId
-          username
-        }
-      }
-    `,
+    nodeId: CONNECTION_CHECK,
+    currentUser: CURRENT_USER,
   },
   components: {
     Logo,

@@ -18,6 +18,13 @@ mutation Register(
       nodeId
       id
       username
+      userEmails(first: 10) {
+        nodes {
+          email
+          isVerified
+        }
+      }
+      isAdmin
       name
     }
   }

@@ -86,20 +86,14 @@
 </template>
 
 <script>
-import gql from "graphql-tag";
 import REGISTER from "../graphql/userRegister.gql";
+import CURRENT_USER from "../graphql/currentUser.gql";
 import Logo from "~/components/Logo.vue";
 
 export default {
   apollo: {
     // Simple query that will give us information about the graphql api status
-    currentUser: gql`
-      query currentUser {
-        currentUser {
-          nodeId
-        }
-      }
-    `,
+    currentUser: CURRENT_USER,
   },
   components: {
     Logo,
@@ -141,12 +135,7 @@ export default {
       const apolloClient = this.$apollo.provider.defaultClient;
       // Update cache
       apolloClient.writeQuery({
-        query: gql`query currentUser{
-            currentUser {
-              nodeId
-              username
-            }
-        }`,
+        query: CURRENT_USER,
         data: {
           currentUser: result.data.register.user,
         },
