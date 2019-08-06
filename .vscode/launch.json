@@ -10,7 +10,7 @@
       "name": "Attach",
       "port": 9229,
       "localRoot": "${workspaceFolder}/server/",
-      "remoteRoot": "/home/node/server",
+      "remoteRoot": "/home/node/",
       "smartStep": true,
     },
   ]
