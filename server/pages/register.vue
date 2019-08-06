@@ -42,6 +42,20 @@
                   required
                   @click:append="() => (password_hidden = !password_hidden)"
                 />
+                <v-text-field
+                  v-model="form.username"
+                  label="Enter your username (optional, but recommended)"
+                  :rules="usernameRules"
+                />
+                <v-text-field
+                  v-model="form.name"
+                  label="Enter your full name (optional)"
+                />
+                <v-text-field
+                  v-model="form.avatarUrl"
+                  label="Enter your avatar url (optional)"
+                  :rules="avatarUrlRules"
+                />
                 <v-layout justify-space-between />
                 <div v-if="error" class="error">
                   {{ error.message }}
@@ -72,9 +86,9 @@
 </template>
 
 <script>
-import gql from 'graphql-tag'
-import REGISTER from '../graphql/userRegister.gql'
-import Logo from '~/components/Logo.vue'
+import gql from "graphql-tag";
+import REGISTER from "../graphql/userRegister.gql";
+import Logo from "~/components/Logo.vue";
 
 export default {
   apollo: {
@@ -96,26 +110,35 @@ export default {
     valid: false,
     password_hidden: true,
     form: {
-      username: '',
-      email: '',
-      password: '',
-      name: '',
+      username: "",
+      email: "",
+      password: "",
+      name: "",
       avatarUrl: null,
     },
-    passwordRules: [v => !!v || 'Password is required'],
     emailRules: [
-      v => !!v || 'E-mail is required',
+      v => !!v || "E-mail is required",
       v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v)
-        || 'E-mail must be valid',
+        || "E-mail must be valid",
     ],
+    passwordRules: [v => !!v || "Password is required"],
+    usernameRules: [
+      v => (v && v.length >= 2) || "Username must be longer than 2 characters",
+      v => (v && v.length <= 24) || "Username must be shorter than 24 characters",
+      v => /^[a-zA-Z]([a-zA-Z0-9][_]?)+$/.test(v) || "Username must be valid",
+    ],
+    avatarUrlRules: [
+      v => /(https?):\/\/([0-9A-Za-z\\.\-?@:%_+~#=/]+)+/.test(v) || "AvatarUrl must start with http[s]://",
+    ],
+
   }),
 
   computed: {},
   methods: {
     async onDone(result) {
-      if (!result.data.register.user) return
+      if (!result.data.register.user) return;
 
-      const apolloClient = this.$apollo.provider.defaultClient
+      const apolloClient = this.$apollo.provider.defaultClient;
       // Update cache
       apolloClient.writeQuery({
         query: gql`query currentUser{
@@ -127,19 +150,19 @@ export default {
         data: {
           currentUser: result.data.register.user,
         },
-      })
+      });
 
       // after register and login go back to Welcome
-      this.$router.push({ path: '/' })
+      this.$router.push({ path: "/" });
     },
     submit(mutate) {
       if (this.$refs.form.validate()) {
-        mutate()
+        mutate();
       }
     },
     clear() {
-      this.$refs.form.reset()
+      this.$refs.form.reset();
     },
   },
-}
+};
 </script>
