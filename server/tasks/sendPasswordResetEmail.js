@@ -22,13 +22,15 @@ module.exports = async ({ id }, { withPgClient }) => {
         ON us.user_id = ue.user_id
       WHERE ue.id = $1
       `,
-      [id]
+      [id],
     );
     if (result.rowCount === 0) {
       throw new Error(`Could not find user_email ${id}`);
     }
 
-    const { uid, email, token, sent_at: sentAt } = result.rows[0];
+    const {
+      uid, email, token, sent_at: sentAt,
+    } = result.rows[0];
     if (sentAt && new Date() - sentAt < minDurationBetweenEmails) {
       // We're sending emails too quickly.
       // It would be semantically correct to throw an error here,
@@ -49,7 +51,7 @@ module.exports = async ({ id }, { withPgClient }) => {
       SET password_reset_email_sent_at = now()
       WHERE ues.user_email_id = $1
       `,
-      [id]
+      [id],
     );
   });
 };

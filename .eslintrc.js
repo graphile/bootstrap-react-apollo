@@ -26,8 +26,10 @@ module.exports = {
   },
   // add your custom rules here
   rules: {
-    "semi": [2, "never"],
     "import/no-unresolved": "off", // because node-modules is in "hidden" docker volume
+    "arrow-parens": ["error", "as-needed"],
+    "semi": [2, "always",  { "omitLastInOneLineBlock": true}],
+    "quotes": ["error", "double"],
     "no-console": "off",
     "vue/max-attributes-per-line": "off",
     // Autofix removes debugger automatically, which makes debugging annoying.

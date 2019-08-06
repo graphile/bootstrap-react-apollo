@@ -1,36 +1,33 @@
 /* eslint-disable no-console */
 const express = require("express");
-const { Nuxt, Builder } = require('nuxt')
+const { Nuxt, Builder } = require("nuxt");
 const { createServer } = require("http");
 const chalk = require("chalk");
+const consola = require("consola");
 const sharedUtils = require("./utils");
 const middleware = require("./middleware");
 const packageJson = require("../package");
-const consola = require('consola')
 
 
 sharedUtils.sanitiseEnv();
 const isDev = !(process.env.NODE_ENV === "production");
-const CLIENT_PORT = process.env.CLIENT_PORT;
 
 // Import and Set Nuxt.js options
-let config = require('../nuxt.config.js')
+const config = require("../nuxt.config.js");
 // Init Nuxt.js
-const nuxt = new Nuxt(config)
-const { host, port: hostPort } = nuxt.options.server
-const PORT = hostPort;
+const nuxt = new Nuxt(config);
+const { port: PORT } = nuxt.options.server;
 
 
 async function main() {
-
   /*
   * Build nuxtjs only in dev mode
   */
   if (isDev) {
-    const builder = new Builder(nuxt)
-    await builder.build()
+    const builder = new Builder(nuxt);
+    await builder.build();
   } else {
-    await nuxt.ready()
+    await nuxt.ready();
   }
 
   /*
@@ -74,7 +71,8 @@ async function main() {
 
   // And finally, we open the listen port
   httpServer.listen(PORT, () => {
-    const address = httpServer.address();
+    // _address not used because we don't need the docker-intern network id
+    const _address = httpServer.address().address;
     const actualPort = "8080"; // as configured in docker-compose.yml
     consola.ready({
       message: `
@@ -83,7 +81,7 @@ async function main() {
         GraphiQL: ${chalk.bold.underline(`http://localhost:${actualPort}/api/graphiql`)}
         GraphQL: ${chalk.bold.underline(`http://localhost:${actualPort}/api/graphql`)}
         `,
-      badge: true
+      badge: true,
     });
   });
 }

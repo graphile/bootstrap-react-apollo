@@ -48,8 +48,8 @@
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-import gql from 'graphql-tag'
+import gql from "graphql-tag";
+import Logo from "~/components/Logo.vue";
 
 export default {
   apollo: {
@@ -70,14 +70,14 @@ export default {
     valid: false,
     password_hidden: true,
     form: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
-    passwordRules: [v => !!v || 'Password is required'],
+    passwordRules: [v => !!v || "Password is required"],
     emailRules: [
-      v => !!v || 'E-mail is required',
+      v => !!v || "E-mail is required",
       v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v)
-        || 'E-mail must be valid',
+        || "E-mail must be valid",
     ],
   }),
 
@@ -85,12 +85,12 @@ export default {
   methods: {
     submit() {
       if (this.$refs.form.validate()) {
-        this.$refs.form.$el.submit()
+        this.$refs.form.$el.submit();
       }
     },
     clear() {
-      this.$refs.form.reset()
+      this.$refs.form.reset();
     },
   },
-}
+};
 </script>

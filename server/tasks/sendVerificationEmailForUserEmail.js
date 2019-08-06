@@ -17,7 +17,7 @@ module.exports = async ({ id }, { withPgClient }) => {
         ON ue.id = ues.user_email_id
       WHERE ue.id = $1
       `,
-      [id]
+      [id],
     );
     if (result.rowCount === 0) {
       throw new Error(`Could not find user_email ${id}`);
@@ -38,7 +38,7 @@ module.exports = async ({ id }, { withPgClient }) => {
       SET verification_email_sent_at = now()
       WHERE ues.user_email_id = $1
       `,
-      [id]
+      [id],
     );
   });
 };

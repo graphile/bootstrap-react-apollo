@@ -39,7 +39,7 @@
                 </v-btn>
               </div>
               <div v-if="isLoggedIn">
-                <span><span className="wave">👋</span> And Logged in</span>;
+                <span><span className="wave">👋</span> And Logged in</span>
               </div>
               <div v-if="!isLoggedIn">
                 <v-btn
@@ -135,9 +135,9 @@
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-import VuetifyLogo from '~/components/VuetifyLogo.vue'
-import gql from 'graphql-tag'
+import gql from 'graphql-tag';
+import Logo from '~/components/Logo.vue';
+import VuetifyLogo from '~/components/VuetifyLogo.vue';
 
 export default {
   apollo: {
@@ -151,6 +151,7 @@ export default {
       query loggedInUser {
         currentUser {
           nodeId
+          username
         }
       }
     `,
@@ -161,17 +162,17 @@ export default {
   },
   computed: {
     isLoading() {
-      if (this.$apollo.loading) return true
-      return false
+      if (this.$apollo.loading) return true;
+      return false;
     },
     isLoggedIn() {
-      if (this.currentUser) return true
-      return false
+      if (this.currentUser) return true;
+      return false;
     },
     computedApolloWorking() {
-      if (this.nodeId === 'query') return true
-      return false
+      if (this.nodeId === 'query') return true;
+      return false;
     },
   },
-}
+};
 </script>

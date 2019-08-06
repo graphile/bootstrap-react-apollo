@@ -35,7 +35,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
         args,
         context,
         resolveInfo,
-        { selectGraphQLResultFromTable }
+        { selectGraphQLResultFromTable },
       ) {
         const {
           username,
@@ -58,7 +58,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
               avatar_url => $4,
               password => $5
             ) users where not (users is null)`,
-            [username, email, name, avatarUrl, password]
+            [username, email, name, avatarUrl, password],
           );
 
           if (!user) {
@@ -73,9 +73,9 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
               sql.fragment`app_public.users`,
               (tableAlias, sqlBuilder) => {
                 sqlBuilder.where(
-                  sql.fragment`${tableAlias}.id = ${sql.value(user.id)}`
+                  sql.fragment`${tableAlias}.id = ${sql.value(user.id)}`,
                 );
-              }
+              },
             ),
 
             // Tell Passport.js we're logged in
@@ -103,7 +103,7 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
         args,
         context,
         resolveInfo,
-        { selectGraphQLResultFromTable }
+        { selectGraphQLResultFromTable },
       ) {
         const { username, password } = args.input;
         const { rootPgPool, login, pgClient } = context;
@@ -112,8 +112,8 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
           const {
             rows: [user],
           } = await rootPgPool.query(
-            `select users.* from app_private.login($1, $2) users where not (users is null)`,
-            [username, password]
+            "select users.* from app_private.login($1, $2) users where not (users is null)",
+            [username, password],
           );
 
           if (!user) {
@@ -128,9 +128,9 @@ const PassportLoginPlugin = makeExtendSchemaPlugin(build => ({
               sql.fragment`app_public.users`,
               (tableAlias, sqlBuilder) => {
                 sqlBuilder.where(
-                  sql.fragment`${tableAlias}.id = ${sql.value(user.id)}`
+                  sql.fragment`${tableAlias}.id = ${sql.value(user.id)}`,
                 );
-              }
+              },
             ),
 
             // Tell Passport.js we're logged in

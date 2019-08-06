@@ -10,13 +10,12 @@ const setReturnTo = (req, res, next) => {
     next();
     return;
   }
-  const returnTo =
-    (req.query && req.query.next && String(req.query.next)) ||
-    req.session.returnTo;
+  const returnTo = (req.query && req.query.next && String(req.query.next))
+    || req.session.returnTo;
   if (
-    returnTo &&
-    returnTo[0] === "/" &&
-    !returnTo.match(BLOCKED_REDIRECT_PATHS)
+    returnTo
+    && returnTo[0] === "/"
+    && !returnTo.match(BLOCKED_REDIRECT_PATHS)
   ) {
     req.session.returnTo = returnTo;
   } else {
@@ -33,7 +32,7 @@ module.exports = (
   authenticateConfig,
   getUserInformation,
   tokenNames = ["accessToken", "refreshToken"],
-  { preRequest = () => {}, postRequest = () => {} } = {}
+  { preRequest = () => {}, postRequest = () => {} } = {},
 ) => {
   const rootPgPool = app.get("rootPgPool");
 
@@ -51,17 +50,17 @@ module.exports = (
             accessToken,
             refreshToken,
             extra,
-            req
+            req,
           );
           if (!details.id) {
             throw new Error(
-              `getUserInformation must return a unique id for each user`
+              "getUserInformation must return a unique id for each user",
             );
           }
           const {
             rows: [user],
           } = await rootPgPool.query(
-            `select * from app_private.link_or_register_user($1, $2, $3, $4, $5);`,
+            "select * from app_private.link_or_register_user($1, $2, $3, $4, $5);",
             [
               (req.user && req.user.id) || null,
               service,
@@ -78,14 +77,14 @@ module.exports = (
                 [tokenNames[1]]: refreshToken,
                 ...details.auth,
               }),
-            ]
+            ],
           );
           done(null, user);
         } catch (e) {
           done(e);
         }
-      }
-    )
+      },
+    ),
   );
 
   app.get(`/auth/${service}`, setReturnTo, async (req, res, next) => {
@@ -95,10 +94,9 @@ module.exports = (
       next(e);
       return;
     }
-    const realAuthDetails =
-      typeof authenticateConfig === "function"
-        ? authenticateConfig(req)
-        : authenticateConfig;
+    const realAuthDetails = typeof authenticateConfig === "function"
+      ? authenticateConfig(req)
+      : authenticateConfig;
     const step1Middleware = passport.authenticate(service, realAuthDetails);
     step1Middleware(req, res, next);
   });
