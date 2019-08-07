@@ -1,5 +1,6 @@
 <template>
   <!-- example snippet adapted from: https://gist.github.com/SirPoot-/82d22463549ae02c7cbd27e8832b59a7 -->
+  <!-- ApolloMutation handling inspired by: https://github.com/Akryum/vue-apollo/blob/master/tests/demo/src/components/UserLogin.vue -->
   <v-layout align-center justify-center>
     <v-flex xs12 sm8 md6>
       <div class="text-xs-center">
