@@ -6,52 +6,82 @@
       <div class="text-xs-center">
         <logo />
       </div>
-      <v-card class="elevation-3">
-        <v-toolbar dark color="primary">
-          <v-toolbar-title>Login form</v-toolbar-title>
-          <v-spacer />
-        </v-toolbar>
-        <v-card-text>
-          <v-form ref="form" v-model="valid">
-            <v-text-field
-              v-model="form.email"
-              label="Enter your e-mail address"
-              :rules="emailRules"
-              required
-            />
-            <v-text-field
-              v-model="form.password"
-              label="Enter your password"
-              min="8"
-              :append-icon="password_hidden ? 'visibility' : 'visibility_off'"
-              :append-icon-cb="() => (password_hidden = !password_hidden)"
-              :type="password_hidden ? 'password' : 'text'"
-              :rules="passwordRules"
-              counter
-              required
-            />
-            <v-layout justify-space-between />
+      <ApolloMutation
+        :mutation="LOGIN"
+        :variables="{
+          username: form.username,
+          password: form.password,
+        }
+        "
+        @done="onDone"
+      >
+        <template v-slot="{ mutate, loading, gqlError: error }">
+          <v-form ref="form" v-model="valid" @submit.prevent="submit(mutate)">
+            <v-card class="elevation-3">
+              <v-toolbar dark color="primary">
+                <v-toolbar-title>Login form</v-toolbar-title>
+                <v-spacer />
+              </v-toolbar>
+              <v-card-text>
+                <v-text-field
+                  v-model="form.username"
+                  label="Username / E-Mail:"
+                  :rules="usernameRules"
+                  required
+                />
+                <v-text-field
+                  v-model="form.password"
+                  label="Enter your password"
+                  min="8"
+                  :append-icon="password_hidden ? 'visibility' : 'visibility_off'"
+                  :append-icon-cb="() => (password_hidden = !password_hidden)"
+                  :type="password_hidden ? 'password' : 'text'"
+                  :rules="passwordRules"
+                  counter
+                  required
+                />
+                <v-layout justify-space-between />
+                <div v-if="error" class="error">
+                  {{ error.message }}
+                </div>
+              </v-card-text>
+              <v-card-actions>
+                <router-link :to="'register'">
+                  Register
+                </router-link>
+                <v-spacer />
+                <v-btn
+                  :class="{ 'black lighten-4 white--text': !valid}"
+                  @click="clear"
+                >
+                  Reset
+                </v-btn>
+                <v-btn
+                  :class="{ 'green lighten-3 black--text': !valid}"
+                  href="auth/github/"
+                >
+                  Login with GitHub
+                </v-btn>
+                <v-btn
+                  :class="{ 'blue darken-4 white--text': valid}"
+                  :disabled="!valid"
+                  :loading="loading"
+                  type="submit"
+                >
+                  Login
+                </v-btn>
+              </v-card-actions>
+            </v-card>
           </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn
-            :class="{ 'blue darken-4 white--text': valid, disabled: !valid }"
-            @click="submit"
-          >
-            Login
-          </v-btn>
-          <v-spacer />
-          <router-link :to="'register'">
-            Register
-          </router-link>
-        </v-card-actions>
-      </v-card>
+        </template>
+      </apollomutation>
     </v-flex>
   </v-layout>
 </template>
 
 <script>
 import CURRENT_USER from "../graphql/userCurrent.gql";
+import LOGIN from "../graphql/userLogin.gql";
 import Logo from "~/components/Logo.vue";
 
 export default {
@@ -64,25 +94,44 @@ export default {
   },
 
   data: () => ({
+    LOGIN,
     valid: false,
     password_hidden: true,
     form: {
-      email: "",
+      username: "",
       password: "",
     },
     passwordRules: [v => !!v || "Password is required"],
-    emailRules: [
-      v => !!v || "E-mail is required",
-      v => /^\w+([.-^+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v)
-        || "E-mail must be valid",
-    ],
+    usernameRules: [v => !!v || "Is required"],
   }),
 
   computed: {},
   methods: {
-    submit() {
+
+    async onDone(
+      {
+        data: {
+          login: { user },
+        },
+      },
+    ) {
+      if (!user) return;
+
+      const apolloClient = this.$apollo.provider.defaultClient;
+      // Update cache
+      apolloClient.writeQuery({
+        query: CURRENT_USER,
+        data: {
+          currentUser: user,
+        },
+      });
+
+      // after login go back to Welcome
+      this.$router.push({ path: "/" });
+    },
+    submit(mutate) {
       if (this.$refs.form.validate()) {
-        this.$refs.form.$el.submit();
+        mutate();
       }
     },
     clear() {
