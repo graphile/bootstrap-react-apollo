@@ -319,9 +319,10 @@ CREATE FUNCTION app_private.really_create_user(username text, email text, email_
 declare
   v_user app_public.users;
   v_username text = username;
+  v_avatar_url text = avatar_url;
 begin
-  -- Sanitise the username, and make it unique if necessary.
-  if v_username is null then
+  -- Sanitise username...
+  if v_username is null or length(v_username) = 0 then
     v_username = coalesce(name, 'user');
   end if;
   v_username = regexp_replace(v_username, '^[^a-z]+', '', 'i');
@@ -329,6 +330,7 @@ begin
   if v_username is null or length(v_username) < 3 then
     v_username = 'user';
   end if;
+  -- ...and make username unique if necessary
   select (
     case
     when i = 0 then v_username
@@ -347,9 +349,16 @@ begin
   )
   limit 1;
 
+
+  -- If avatar_url is just an empty string, just set it null
+  -- Helps to keep edge cases clean
+  if length(v_avatar_url) = 0 then
+    v_avatar_url = null;
+  end if;
+
   -- Insert the new user
   insert into app_public.users (username, name, avatar_url) values
-    (v_username, name, avatar_url)
+    (v_username, name, v_avatar_url)
     returning * into v_user;
 
 	-- Add the user's email
