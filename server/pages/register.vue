@@ -108,7 +108,7 @@ export default {
       email: "",
       password: "",
       name: "",
-      avatarUrl: null,
+      avatarUrl: "",
     },
     emailRules: [
       v => !!v || "E-mail is required",
@@ -117,12 +117,12 @@ export default {
     ],
     passwordRules: [v => !!v || "Password is required"],
     usernameRules: [
-      v => (v && v.length >= 2) || "Username must be longer than 2 characters",
-      v => (v && v.length <= 24) || "Username must be shorter than 24 characters",
-      v => /^[a-zA-Z]([a-zA-Z0-9][_]?)+$/.test(v) || "Username must be valid",
+      v => (v.length === 0 || v.length >= 2) || "Username must be longer than 2 characters",
+      v => (v.length === 0 || v.length <= 24) || "Username must be shorter than 24 characters",
+      v => (v.length === 0 || /^[a-zA-Z]([a-zA-Z0-9][_]?)+$/.test(v)) || "Username must be valid",
     ],
     avatarUrlRules: [
-      v => /(https?):\/\/([0-9A-Za-z\\.\-?@:%_+~#=/]+)+/.test(v) || "AvatarUrl must start with http[s]://",
+      v => (v.length === 0 || /(https?):\/\/([0-9A-Za-z\\.\-?@:%_+~#=/]+)+/.test(v)) || "AvatarUrl must start with http[s]://",
     ],
 
   }),
