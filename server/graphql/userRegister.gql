@@ -1,3 +1,5 @@
+#import "./userFragment.gql"
+
 mutation Register(
   $username: String!
   $email: String!
@@ -15,17 +17,7 @@ mutation Register(
     }
   ) {
     user {
-      nodeId
-      id
-      username
-      userEmails(first: 10) {
-        nodes {
-          email
-          isVerified
-        }
-      }
-      isAdmin
-      name
+      ...user
     }
   }
 }

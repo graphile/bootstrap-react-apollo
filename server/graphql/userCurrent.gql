@@ -1,15 +1,13 @@
+#import "./userFragment.gql"
+
 query currentUser {
   currentUser {
-      nodeId
-      id
-      username
+      ...user
       userEmails(first: 10) {
         nodes {
           email
           isVerified
         }
       }
-      isAdmin
-      name
   }
 }

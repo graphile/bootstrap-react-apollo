@@ -121,7 +121,7 @@
 </template>
 
 <script>
-import CURRENT_USER from "../graphql/currentUser.gql";
+import CURRENT_USER from "../graphql/userCurrent.gql";
 import CONNECTION_CHECK from "../graphql/connectionCheck.gql";
 import Logo from "~/components/Logo.vue";
 import VuetifyLogo from "~/components/VuetifyLogo.vue";
