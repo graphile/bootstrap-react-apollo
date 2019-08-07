@@ -73,6 +73,7 @@
                 <v-btn
                   :class="{ 'blue darken-4 white--text': valid}"
                   :disabled="!valid"
+                  :loading="loading"
                   type="submit"
                 >
                   Register
@@ -130,15 +131,21 @@ export default {
 
   computed: {},
   methods: {
-    async onDone(result) {
-      if (!result.data.register.user) return;
+    async onDone(
+      {
+        data: {
+          register: { user },
+        },
+      },
+    ) {
+      if (!user) return;
 
       const apolloClient = this.$apollo.provider.defaultClient;
       // Update cache
       apolloClient.writeQuery({
         query: CURRENT_USER,
         data: {
-          currentUser: result.data.register.user,
+          currentUser: user,
         },
       });
 
