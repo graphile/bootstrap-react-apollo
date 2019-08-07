@@ -44,6 +44,9 @@ create function app_private.tg_users__make_first_user_admin() returns trigger as
 begin
   if not exists(select 1 from app_public.users limit 1) then
     NEW.is_admin = true;
+    if NEW.username = 'user' then
+      NEW.username = 'admin';
+    end if;
   end if;
   return NEW;
 end;
