@@ -25,7 +25,7 @@
               :loading="loading"
               type="submit"
             >
-              Verify: {{ $route.params.id }}
+              Verify: {{ $route.params.token }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -37,13 +37,13 @@
 <script>
 import VERIFY_USER_EMAIL from "~/graphql/userVerifyEmail.gql";
 
-async function _verifyEmail({ $apolloClient, token }) {
+async function _verifyEmail({ apolloClient, token }) {
   try {
     const {
       data: {
         verifyUserEmail: { userEmail },
       },
-    } = await $apolloClient.mutate({
+    } = await apolloClient.mutate({
     // Query
       mutation: VERIFY_USER_EMAIL,
       // Parameters
@@ -64,10 +64,21 @@ export default {
     userEmail: null,
   }),
 
-  // verifies on server side while loading page
-  async asyncData({ params, app }) {
-    const $apolloClient = app.apolloProvider.clients.serverSide;
-    return _verifyEmail({ $apolloClient, token: params.id });
+  // would only get called, if we would rename this file to ./_token/index.vue
+  // now instead ../verify-user/index.vue get's called if no token param is passed
+  validate({ params }) {
+    if (!params || !params.token) { return false } // => page not found
+    return true; // if token is there, load page
+  },
+
+  // fetches data on page load, even if SSR
+  async asyncData({ params, app: { apolloProvider } }) {
+    // use the right apolloClient, depending if rendering on server or client
+    const apolloClient = process.server
+      ? apolloProvider.clients.serverSide
+      : apolloProvider.defaultClient;
+
+    return _verifyEmail({ apolloClient, token: params.token });
   },
   methods: {
     // verifies on submit
@@ -76,8 +87,8 @@ export default {
       this.error = "";
       // destructering results to only use our reactive data
       const results = (({ userEmail, loading, error }) => ({ userEmail, loading, error }))(await _verifyEmail({
-        $apolloClient: this.$apollo,
-        token: this.$route.params.id,
+        apolloClient: this.$apollo,
+        token: this.$route.params.token,
       }));
 
       // copy results into this.data at once
