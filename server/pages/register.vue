@@ -88,8 +88,8 @@
 </template>
 
 <script>
-import REGISTER from "../graphql/userRegister.gql";
-import CURRENT_USER from "../graphql/userCurrent.gql";
+import REGISTER from "~/graphql/userRegister.gql";
+import CURRENT_USER from "~/graphql/userCurrent.gql";
 import Logo from "~/components/Logo.vue";
 
 export default {

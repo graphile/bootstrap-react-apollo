@@ -80,8 +80,8 @@
 </template>
 
 <script>
-import CURRENT_USER from "../graphql/userCurrent.gql";
-import LOGIN from "../graphql/userLogin.gql";
+import CURRENT_USER from "~/graphql/userCurrent.gql";
+import LOGIN from "~/graphql/userLogin.gql";
 import Logo from "~/components/Logo.vue";
 
 export default {
