@@ -1,0 +1,9 @@
+mutation VerifyUserEmail($token: String!) {
+  verifyUserEmail(input: { token: $token }) {
+    userEmail {
+      nodeId
+      email
+      isVerified
+    }
+  }
+}
