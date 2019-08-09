@@ -350,8 +350,8 @@ begin
   limit 1;
 
 
-  -- If avatar_url is just an empty string, just set it null
-  -- Helps to keep edge cases clean
+  -- If avatar_url is an empty string, just set it to null
+  -- Helps to keep edge cases clean later on
   if length(v_avatar_url) = 0 then
     v_avatar_url = null;
   end if;
