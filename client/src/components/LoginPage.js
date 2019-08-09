@@ -41,6 +41,10 @@ export default class LoginPage extends React.Component {
     loggingIn: false,
   };
 
+  getNext() {
+    return "/";
+  }
+
   handleUsernameChange = e => {
     this.setState({ username: e.target.value, error: null });
   };
@@ -62,17 +66,13 @@ export default class LoginPage extends React.Component {
       } else {
         throw new Error("Login failed");
       }
-    } catch (e) {
+    } catch (_e) {
       this.setState({
         loggingIn: false,
         error: "Login failed",
       });
     }
   };
-
-  getNext() {
-    return "/";
-  }
 
   render() {
     const { data, loading, error } = this.props;
@@ -91,7 +91,10 @@ export default class LoginPage extends React.Component {
     return (
       <Layout>
         <h1>Log in</h1>
-        <button onClick={() => (window.location = "/auth/github")}>
+        <button
+          type="button"
+          onClick={() => (window.location = "/auth/github")}
+        >
           Login with GitHub
         </button>
         <h3>Log in with email</h3>
@@ -107,11 +110,11 @@ export default class LoginPage extends React.Component {
           ) => {
             const query = queryGenFromComponent(HomePage);
             const cacheData = cache.readQuery({ query });
-            const data = {
+            const newData = {
               ...cacheData,
               currentUser: user,
             };
-            cache.writeQuery({ query, data });
+            cache.writeQuery({ query, data: newData });
           }}
         >
           {login => (
@@ -152,7 +155,9 @@ export default class LoginPage extends React.Component {
                   <Link to="/register">Don't have an account? Create one</Link>
                 </li>
                 <li>
-                  <Link to="/forgot-password">Forgot your password? Reset it</Link>
+                  <Link to="/forgot-password">
+                    Forgot your password? Reset it
+                  </Link>
                 </li>
               </ul>
             </form>

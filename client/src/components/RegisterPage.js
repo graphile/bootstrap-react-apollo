@@ -29,9 +29,7 @@ const REGISTER = gql`
     ) {
       user {
         nodeId
-        id
         username
-        name
       }
     }
   }
@@ -60,6 +58,10 @@ export default class RegisterPage extends React.Component {
     error: null,
     loggingIn: false,
   };
+
+  getNext() {
+    return "/";
+  }
 
   handleUsernameChange = e => {
     this.setState({ username: e.target.value, error: null });
@@ -106,17 +108,13 @@ export default class RegisterPage extends React.Component {
       } else {
         throw new Error("Registration failed");
       }
-    } catch (e) {
+    } catch (_e) {
       this.setState({
         loggingIn: false,
         error: "Registration failed",
       });
     }
   };
-
-  getNext() {
-    return "/";
-  }
 
   render() {
     const { data, loading, error } = this.props;
@@ -140,14 +138,14 @@ export default class RegisterPage extends React.Component {
     if (data.currentUser) {
       return <Redirect to={this.getNext()} />;
     }
-    const usernameBadLength = username.length == 1 || username.length > 24;
+    const usernameBadLength = username.length === 1 || username.length > 24;
     const usernameBadFormat =
       username.length > 0 && !/^[a-zA-Z]([a-zA-Z0-9][_]?)+$/.test(username);
     const emailBadFormat =
       email.length > 0 && !/[^@]+@[^@]+\.[^@]+/.test(email);
     const mismatchedPasswords = password !== repeatPassword;
     const avatarUrlBadFormat =
-      avatarUrl.length > 0 && !/^https?:\/\/[^\/]+/.test(avatarUrl);
+      avatarUrl.length > 0 && !/^https?:\/\/[^/]+/.test(avatarUrl);
     return (
       <div>
         <h3>Register</h3>
@@ -163,11 +161,11 @@ export default class RegisterPage extends React.Component {
           ) => {
             const query = queryGenFromComponent(HomePage);
             const cacheData = cache.readQuery({ query });
-            const data = {
+            const newData = {
               ...cacheData,
               currentUser: user,
             };
-            cache.writeQuery({ query, data });
+            cache.writeQuery({ query, data: newData });
           }}
         >
           {register => (
@@ -281,7 +279,10 @@ export default class RegisterPage extends React.Component {
           )}
         </Mutation>
         <p>
-          <button onClick={() => (window.location = "/auth/github")}>
+          <button
+            type="button"
+            onClick={() => (window.location = "/auth/github")}
+          >
             Login with GitHub
           </button>
         </p>

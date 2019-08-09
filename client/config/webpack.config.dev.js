@@ -1,3 +1,5 @@
+/* eslint-disable import/no-dynamic-require,global-require */
+
 const path = require("path");
 const webpack = require("webpack");
 const PnpWebpackPlugin = require("pnp-webpack-plugin");

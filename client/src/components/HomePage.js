@@ -23,7 +23,9 @@ export default class HomePage extends React.Component {
       if (data.currentUser) {
         return (
           <span>
-            <span className="wave">👋</span>{" "}
+            <span className="wave" aria-label="wave" role="img">
+              👋
+            </span>{" "}
             Logged in as {data.currentUser.username}
           </span>
         );
