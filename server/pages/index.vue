@@ -40,9 +40,9 @@
               </div>
               <br>
               <br>
-              <router-link :to="'login'">
+              <nuxt-link :to="'login'">
                 Login
-              </router-link>
+              </nuxt-link>
               <br>
             </div>
             <!--

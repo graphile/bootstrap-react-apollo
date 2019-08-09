@@ -46,9 +46,9 @@
                 </div>
               </v-card-text>
               <v-card-actions>
-                <router-link :to="'register'">
+                <nuxt-link :to="'register'">
                   Register
-                </router-link>
+                </nuxt-link>
                 <v-spacer />
                 <v-btn
                   :class="{ 'black lighten-4 white--text': !valid}"
