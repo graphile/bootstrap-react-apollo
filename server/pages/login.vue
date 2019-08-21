@@ -52,9 +52,9 @@
                 <v-spacer />
                 <v-btn
                   :class="{ 'black lighten-4 white--text': !valid}"
-                  @click="clear"
+                  :to="'forgot-password'"
                 >
-                  Reset
+                  Forgot Password
                 </v-btn>
                 <v-btn
                   :class="{ 'green lighten-3 black--text': !valid}"
@@ -134,9 +134,10 @@ export default {
         mutate();
       }
     },
+    /*
     clear() {
       this.$refs.form.reset();
-    },
+    }, */
   },
 };
 </script>

@@ -26,6 +26,9 @@
               <!-- displays authentication status -->
               <div v-if="isLoggedIn">
                 <span>Logged in as user: <b>{{ currentUser.username }}</b>  <span className="wave">👋</span> </span>
+                <a href="/logout">
+                  Logout
+                </a>
               </div>
               <div v-if="!isLoggedIn">
                 <v-btn
