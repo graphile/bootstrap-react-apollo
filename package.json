@@ -16,7 +16,9 @@
     "client:dev": "cd client && BROWSER=none PORT=\"$CLIENT_PORT\" npm run start",
     "start": ". ./scripts/source-env && concurrently --kill-others --names server,client 'npm run server:dev' 'npm run client:dev'",
     "worker": ". ./scripts/source-env && graphile-worker",
-    "test": "jest"
+    "test": "jest",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -96,7 +98,7 @@
     "jest": "^24.7.1",
     "jest-pnp-resolver": "^1.2.1",
     "jest-resolve": "^24.7.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.12",
     "mini-css-extract-plugin": "^0.6.0",
     "morgan": "^1.9.1",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
@@ -128,11 +130,13 @@
     "webpack": "^4.30.0",
     "webpack-dev-server": "^3.3.1",
     "webpack-manifest-plugin": "^2.0.4",
-    "workbox-webpack-plugin": "^4.3.1"
+    "workbox-webpack-plugin": "^4.3.1",
+    "snyk": "^1.217.3"
   },
   "devDependencies": {
     "concurrently": "^4.1.0",
     "eslint_d": "^7.3.0",
     "nodemon": "^1.18.11"
-  }
+  },
+  "snyk": true
 }
