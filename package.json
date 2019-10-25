@@ -87,7 +87,7 @@
     "file-loader": "^3.0.1",
     "fs-extra": "^7.0.1",
     "graphile-utils": "^4.4.0",
-    "graphile-worker": "^0.1.0-alpha.0",
+    "graphile-worker": "^0.1.0",
     "graphql": "^14.2.1",
     "graphql-tag": "^2.10.1",
     "html-webpack-plugin": "^4.0.0-alpha.2",
