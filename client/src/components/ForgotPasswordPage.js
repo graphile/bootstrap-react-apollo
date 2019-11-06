@@ -16,14 +16,6 @@ const FORGOT_PASSWORD = gql`
 `;
 
 export default class ForgotPasswordPage extends React.Component {
-  static QueryFragment = gql`
-    fragment ForgotPasswordPage_QueryFragment on Query {
-      currentUser {
-        nodeId
-      }
-    }
-  `;
-
   static propTypes = {
     history: PropTypes.object.isRequired,
   };
@@ -62,6 +54,14 @@ export default class ForgotPasswordPage extends React.Component {
       });
     }
   };
+
+  static QueryFragment = gql`
+    fragment ForgotPasswordPage_QueryFragment on Query {
+      currentUser {
+        nodeId
+      }
+    }
+  `;
 
   render() {
     const { loading, error } = this.props;

@@ -22,14 +22,6 @@ const LOGIN = gql`
 `;
 
 export default class LoginPage extends React.Component {
-  static QueryFragment = gql`
-    fragment LoginPage_QueryFragment on Query {
-      currentUser {
-        nodeId
-      }
-    }
-  `;
-
   static propTypes = {
     history: PropTypes.object.isRequired,
   };
@@ -73,6 +65,14 @@ export default class LoginPage extends React.Component {
       });
     }
   };
+
+  static QueryFragment = gql`
+    fragment LoginPage_QueryFragment on Query {
+      currentUser {
+        nodeId
+      }
+    }
+  `;
 
   render() {
     const { data, loading, error } = this.props;

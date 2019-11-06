@@ -26,14 +26,6 @@ const RESET_PASSWORD = gql`
 `;
 
 export default class ResetPasswordPage extends React.Component {
-  static QueryFragment = gql`
-    fragment ResetPasswordPage_QueryFragment on Query {
-      currentUser {
-        nodeId
-      }
-    }
-  `;
-
   static propTypes = {
     history: PropTypes.object.isRequired,
   };
@@ -91,6 +83,14 @@ export default class ResetPasswordPage extends React.Component {
       });
     }
   };
+
+  static QueryFragment = gql`
+    fragment ResetPasswordPage_QueryFragment on Query {
+      currentUser {
+        nodeId
+      }
+    }
+  `;
 
   render() {
     const { loading, error } = this.props;

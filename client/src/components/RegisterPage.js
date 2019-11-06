@@ -36,14 +36,6 @@ const REGISTER = gql`
 `;
 
 export default class RegisterPage extends React.Component {
-  static QueryFragment = gql`
-    fragment RegisterPage_QueryFragment on Query {
-      currentUser {
-        nodeId
-      }
-    }
-  `;
-
   static propTypes = {
     history: PropTypes.object.isRequired,
   };
@@ -115,6 +107,14 @@ export default class RegisterPage extends React.Component {
       });
     }
   };
+
+  static QueryFragment = gql`
+    fragment RegisterPage_QueryFragment on Query {
+      currentUser {
+        nodeId
+      }
+    }
+  `;
 
   render() {
     const { data, loading, error } = this.props;
