@@ -1,5 +1,7 @@
 # PostGraphile Boilerplate - React & Apollo
 
+🚨**Temporarily unmaintained**🚨 This repo is currently not maintained and is out of date - Please make sure that you update the dependancies in your copy of these examples. For an up to date example, see the [Graphile Starter](https://github.com/graphile/starter). *We rely on sponsorship from the Graphile community to continue our work in Open Source. By donating to our [GitHub Sponsors or Patreon fund](https://graphile.org/sponsor), you'll help us spend more time on Open Source, and this repo will be updated quicker. Thank you to all our sponsors 🙌*
+
 This repository will help you get started with PostGraphile quickly. It's currently a work in progress, but despite this it should be a good jumping-off point.
 
 ## Goals:
