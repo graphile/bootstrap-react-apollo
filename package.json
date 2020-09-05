@@ -91,7 +91,7 @@
     "graphql": "^14.2.1",
     "graphql-tag": "^2.10.1",
     "html-webpack-plugin": "^4.0.0-alpha.2",
-    "http-proxy": "^1.17.0",
+    "http-proxy": "^1.18.1",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.7.1",
     "jest-pnp-resolver": "^1.2.1",
