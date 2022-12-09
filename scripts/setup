@@ -193,4 +193,5 @@ SQL
 # All done
 echo "✅ Setup success; now running 'yarn db:migrate:dev' to run the migrations"
 
+yarn worker --once
 yarn db:migrate:dev
