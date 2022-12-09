@@ -114,7 +114,7 @@
     "react": "^16.8.6",
     "react-apollo": "^2.5.5",
     "react-app-polyfill": "^1.0.0",
-    "react-dev-utils": "^9.0.0",
+    "react-dev-utils": "^11.0.4",
     "react-dom": "^16.8.6",
     "react-hot-loader": "^4.8.4",
     "react-router": "^4.3.1",
